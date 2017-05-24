@@ -11,21 +11,22 @@ import urllib.request
 from PyQt5 import QtGui, QtWidgets, QtCore
 from PyQt5.QtWidgets import QWidget, QDesktopWidget, QApplication
 
+
 class ReactionTest(QtWidgets.QWidget):
     # experiment with some tests ...
 
     def __init__(self):
         super().__init__()
         # counts the screen number
-        self.counter=0
+        self.counter = 0
         # contains data given from file
-        self.dataArray=[]
+        self.dataArray = []
         # the number of the actual subject
-        self.subjectNum=0
+        self.subjectNum = 0
         # order of screens in form of final strings
-        self.testOrder=[]
+        self.testOrder = []
         # time between signals change:
-        self.timeBetween=0
+        self.timeBetween = 0
         # bool if test has started
         self.testStarted = False
         # icon for arrow up
@@ -41,21 +42,27 @@ class ReactionTest(QtWidgets.QWidget):
         # number of repetitions
         self.repetitionsNum = 10
         # list of words for attentive tasks
-        self.attentiveList = {"bird": "1", "airplane": "1", "fly": "1", "helicopter": "1", "spaceship": "1", "bee": "1", "Superman": "1", "U.F.O.": "1", "dragon": "1","butterfly": "1", "boat": "0", "car": "0","pizza": "0", "fish": "0", "dog": "0","cat": "0","you": "0","guitar": "0","table": "0","bus": "0"}
+        self.attentiveList = {"bird": "1", "airplane": "1", "fly": "1",
+                              "helicopter": "1", "spaceship": "1", "bee": "1",
+                              "Superman": "1", "U.F.O.": "1", "dragon": "1",
+                              "butterfly": "1", "boat": "0", "car": "0",
+                              "pizza": "0", "fish": "0", "dog": "0",
+                              "cat": "0", "you": "0", "guitar": "0",
+                              "table": "0", "bus": "0"}
         # list of words for pre attentive tasks
         self.preattentiveList = {"\u25b2": "1", "\u25bc": "0"}
         # count for repetitions per task
         self.repetitionCount = 0
-        
+
         self.stimulus = ""
         self.isAttentive = ""
         self.isDistraction = False
-        self.reactionTimeStart = 0
+        self.rTimeStart = 0
         self.pressedKey = ""
         self.correctKey = ""
         self.stimulusCompleted = True
-        self.completeTestTimestamp = str(datetime.datetime.now()).split('.')[0]
-        
+        self.testTimestamp = str(datetime.datetime.now()).split('.')[0]
+
         # variable for attentive or preattentive text
         self.text = ""
         # description text
@@ -81,70 +88,70 @@ class ReactionTest(QtWidgets.QWidget):
         # variable for distraction arrows
         self.distractionArrows = ""
         # list of different arrow patterns
-        self.distractionArrowsList = {"▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
-                                      "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
-                                      "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
-                                      "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
-                                      "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
-                                      "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
-                                      "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
-                                      "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
-                                      "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
-                                      "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
-                                      "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
+        self.distractionArrowsList = {"▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n"
+                                      "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n"
+                                      "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n"
+                                      "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n"
+                                      "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n"
+                                      "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n"
+                                      "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n"
+                                      "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n"
+                                      "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n"
+                                      "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n"
+                                      "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n"
                                       "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲",
 
-                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n" \
-                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n" \
-                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n" \
-                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n" \
-                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n" \
-                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n" \
-                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n" \
-                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n" \
-                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n" \
-                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n" \
-                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n" \
+                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n"
+                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n"
+                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n"
+                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n"
+                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n"
+                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n"
+                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n"
+                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n"
+                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n"
+                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n"
+                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n"
                                       "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼",
 
-                                       "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n" \
-                                      "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
-                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n" \
-                                      "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
-                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n" \
-                                      "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
-                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n" \
-                                      "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
-                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n" \
-                                      "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
-                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n" \
+                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n"
+                                      "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n"
+                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n"
+                                      "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n"
+                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n"
+                                      "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n"
+                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n"
+                                      "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n"
+                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n"
+                                      "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n"
+                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n"
                                       "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲",
 
-                                       "▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲ \n" \
-                                      "▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼ \n" \
-                                      "▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲ \n" \
-                                      "▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼ \n" \
-                                      "▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲ \n" \
-                                      "▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼ \n" \
-                                      "▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲ \n" \
-                                      "▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼ \n" \
-                                      "▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲ \n" \
-                                      "▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼ \n" \
-                                      "▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲ \n" \
+                                      "▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲ \n"
+                                      "▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼ \n"
+                                      "▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲ \n"
+                                      "▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼ \n"
+                                      "▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲ \n"
+                                      "▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼ \n"
+                                      "▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲ \n"
+                                      "▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼ \n"
+                                      "▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲ \n"
+                                      "▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼ \n"
+                                      "▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲ \n"
                                       "▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼",
 
-                                      "▲▼▲▼▲▲▼▼▼▲▼▼▲▼▲▼▼▼▼▲▲▼▼▲ \n" \
-                                      "▲▲▲▼▲▼▲▼▼▲▼▼▼▼▼▼▲▲▲▼▼▼▼▲ \n" \
-                                      "▼▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▼▼▼▼▼▲▲▼ \n" \
-                                      "▼▼▼▼▼▼▲▼▼▼▼▲▼▼▼▲▼▲▼▲▼▲▼▼ \n" \
-                                      "▼▼▼▲▼▼▲▼▼▼▲▼▼▲▼▼▼▲▼▼▲▼▼▼ \n" \
-                                      "▼▲▼▼▲▼▲▲▼▲▼▲▼▼▲▼▼▲▼▲▼▲▼▲ \n" \
-                                      "▼▲▼▲▼▼▼▲▼▼▲▲▼▲▼▼▼▲▼▼▲▼▲▼ \n" \
-                                      "▲▲▲▼▲▼▼▼▲▼▼▼▲▲▼▼▲▼▼▼▼▼▲▼ \n" \
-                                      "▼▲▲▼▼▼▼▼▲▲▲▲▲▲▲▲▲▼▼▼▼▲▼▼ \n" \
-                                      "▼▼▼▲▲▲▼▼▼▲▲▼▼▲▼▼▲▼▼▼▲▼▼▲ \n" \
-                                      "▼▼▲▼▲▼▼▼▼▼▲▼▼▼▲▲▲▼▲▼▼▲▼▲ \n" \
-                                      "▼▲▼▼▲▼▲▼▲▼▼▲▼▼▲▼▲▼▼▼▲▼▲▲"}                                    
+                                      "▲▼▲▼▲▲▼▼▼▲▼▼▲▼▲▼▼▼▼▲▲▼▼▲ \n"
+                                      "▲▲▲▼▲▼▲▼▼▲▼▼▼▼▼▼▲▲▲▼▼▼▼▲ \n"
+                                      "▼▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▼▼▼▼▼▲▲▼ \n"
+                                      "▼▼▼▼▼▼▲▼▼▼▼▲▼▼▼▲▼▲▼▲▼▲▼▼ \n"
+                                      "▼▼▼▲▼▼▲▼▼▼▲▼▼▲▼▼▼▲▼▼▲▼▼▼ \n"
+                                      "▼▲▼▼▲▼▲▲▼▲▼▲▼▼▲▼▼▲▼▲▼▲▼▲ \n"
+                                      "▼▲▼▲▼▼▼▲▼▼▲▲▼▲▼▼▼▲▼▼▲▼▲▼ \n"
+                                      "▲▲▲▼▲▼▼▼▲▼▼▼▲▲▼▼▲▼▼▼▼▼▲▼ \n"
+                                      "▼▲▲▼▼▼▼▼▲▲▲▲▲▲▲▲▲▼▼▼▼▲▼▼ \n"
+                                      "▼▼▼▲▲▲▼▼▼▲▲▼▼▲▼▼▲▼▼▼▲▼▼▲ \n"
+                                      "▼▼▲▼▲▼▼▼▼▼▲▼▼▼▲▲▲▼▲▼▼▲▼▲ \n"
+                                      "▼▲▼▼▲▼▲▼▲▼▼▲▼▼▲▼▲▼▼▼▲▼▲▲"}
         # function to initialize the ui
         self.initUI()
         # function to check if data input is given
@@ -153,7 +160,6 @@ class ReactionTest(QtWidgets.QWidget):
         self.convertInput()
         # function to convert the string containing the order of screens as needed
         self.convertOrder()
-
 
     # inits ui
     def initUI(self):
@@ -167,23 +173,23 @@ class ReactionTest(QtWidgets.QWidget):
         self.center()
         # shows window
         self.show()
-        
+
     # checks for given input
     def checkInput(self):
         # if file is given
         if len(sys.argv[1:]):
-        # tries if file can be opened
+            # tries if file can be opened
             try:
                 with open(sys.argv[1], 'Ur') as input_data:
-                # iterates over every line in given file
+                    # iterates over every line in given file
                     for line in input_data:
                         # puts content from line into input_data
-                        self.dataArray.append(line)  
+                        self.dataArray.append(line)
             # if file cannot be opened
             except EnvironmentError as err_open:
-                #prints error message
+                # prints error message
                 print('Error accessing file %s: %s' % (sys.argv[1], err_open), file=sys.stderr)
-                #exits programm
+                # exits programm
                 sys.exit(err_open.errno)
         # if no file is given
         else:
@@ -202,11 +208,11 @@ class ReactionTest(QtWidgets.QWidget):
         # if errors happen while splitting
         except:
             # prints data format as message
-            print("The given data does not conform to the standard. \n" \
-                   "Please format data like this: \n" \
-                   "PARTICIPANT: 1 \n" \
-                   "TRIALS: AD, AN, PD, PN, AD, AN, PD, PN, ... \n" \
-                   "TIME_BETWEEN_SIGNALS_MS: 1000")
+            print("The given data does not conform to the standard. \n"
+                  "Please format data like this: \n"
+                  "PARTICIPANT: 1 \n"
+                  "TRIALS: AD, AN, PD, PN, AD, AN, PD, PN, ... \n"
+                  "TIME_BETWEEN_SIGNALS_MS: 1000")
             # exits
             sys.exit()
 
@@ -230,7 +236,7 @@ class ReactionTest(QtWidgets.QWidget):
                 self.update()
                 # function nextScreen is called
                 QtCore.QTimer.singleShot((self.timeBetween), lambda: self.nextScreen())
-            if  self.testStarted and self.stimulusCompleted and ev.key() == QtCore.Qt.Key_Up:
+            if self.testStarted and self.stimulusCompleted and ev.key() == QtCore.Qt.Key_Up:
                 self.stimulusCompleted = False
                 self.writeCSV("up")
                 self.text = ""
@@ -255,29 +261,29 @@ class ReactionTest(QtWidgets.QWidget):
             if self.screenAD == self.counter:
                 # shows attentive stimulus with distractions
                 self.attentive()
-                self.addDistractionArrows()                
+                self.addDistractionArrows()
                 self.isDistraction = True
-                self.reactionTimeStart = datetime.datetime.now()
-            elif self.screenAN == self.counter :
+                self.rTimeStart = datetime.datetime.now()
+            elif self.screenAN == self.counter:
                 # shows attentive stimulus without distractions
                 self.attentive()
                 self.removeDistractionArrows()
                 self.isDistraction = False
-                self.reactionTimeStart = datetime.datetime.now()
-            elif  self.screenPD == self.counter:
+                self.rTimeStart = datetime.datetime.now()
+            elif self.screenPD == self.counter:
                 # shows preattentive stimulus with distractions
                 self.preAttentive()
                 self.addDistractionArrows()
                 self.isDistraction = True
-                self.reactionTimeStart = datetime.datetime.now()
-            elif  self.screenPN == self.counter:
+                self.rTimeStart = datetime.datetime.now()
+            elif self.screenPN == self.counter:
                 # shows preattentive stimulus without distractions
                 self.preAttentive()
                 self.removeDistractionArrows()
                 self.isDistraction = False
-                self.reactionTimeStart = datetime.datetime.now()
+                self.rTimeStart = datetime.datetime.now()
             else:
-            	self.lastScreen()
+                self.lastScreen()
 
             if self.repetitionCount < self.repetitionsNum:
                 self.repetitionCount += 1
@@ -286,7 +292,6 @@ class ReactionTest(QtWidgets.QWidget):
                 # counts up for next screen
                 self.counter += 1
         self.stimulusCompleted = True
-    
 
     # handles preattentive stimulus
     def preAttentive(self):
@@ -297,7 +302,6 @@ class ReactionTest(QtWidgets.QWidget):
             self.correctKey = "down"
         elif self.preattentiveList[self.text] == "1":
             self.correctKey = "up"
-        print("PREATTENTIVE")
         self.update()
 
     # handles attentive stimulus
@@ -309,19 +313,16 @@ class ReactionTest(QtWidgets.QWidget):
             self.correctKey = "down"
         elif self.attentiveList[self.text] == "1":
             self.correctKey = "up"
-        print("ATTENTIVE")
         self.update()
-        
-    # handles painting of screens    
+
+    # handles painting of screens
     def paintEvent(self, event):
         # sets up painter
         qp = QtGui.QPainter()
         qp.begin(self)
-        # draws background with image
-        #qp.drawPixmap(0, 0, 1440, 850, self.backgroundImage)
         # draws text
-        self.drawDescriptionText(event,qp)
-        self.drawDistractionArrows(event,qp)
+        self.drawDescriptionText(event, qp)
+        self.drawDistractionArrows(event, qp)
         self.drawText(event, qp)
         qp.end()
 
@@ -336,7 +337,7 @@ class ReactionTest(QtWidgets.QWidget):
 
     # handles drawing of distraction text
     def drawDistractionArrows(self, event, qp):
-        #sets color
+        # sets color
         qp.setPen(QtGui.QColor(100, 100, 100))
         # sets font
         qp.setFont(QtGui.QFont('Decorative', 32))
@@ -355,13 +356,13 @@ class ReactionTest(QtWidgets.QWidget):
     # adds distractions
     def addDistractionArrows(self):
         self.distractionArrows = list(self.distractionArrowsList)[random.randint(0, 4)]
-    
+
     # removes distractions
     def removeDistractionArrows(self):
         self.distractionArrows = ""
     # centers window on screen
     # source: http://zetcode.com/gui/pyqt5/firstprograms/
-    
+
     def center(self):
         qr = self.frameGeometry()
         cp = QDesktopWidget().availableGeometry().center()
@@ -369,8 +370,8 @@ class ReactionTest(QtWidgets.QWidget):
         self.move(qr.topLeft())
 
     def lastScreen(self):
-    	self.descriptionText = "Finished!"
-    	self.update()
+        self.descriptionText = "Finished!"
+        self.update()
 
     def writeCSV(self, pressedKey):
         id = self.subjectNum
@@ -378,25 +379,30 @@ class ReactionTest(QtWidgets.QWidget):
             correctKeyPressed = True
         else:
             correctKeyPressed = False
-        reactionTime = int((datetime.datetime.now() - self.reactionTimeStart).total_seconds() * 1000)
-        testTimestamp = str(datetime.datetime.now()).split('.')[0]
-        csvRow = [id, self.stimulus, self.isAttentive, self.isDistraction, pressedKey, self.correctKey, correctKeyPressed, reactionTime, testTimestamp ]
-        logName = "reaction_time_results_subject" + str(self.subjectNum) + "_" + self.completeTestTimestamp + ".csv"
+        reactionTime = int((datetime.datetime.now() - self.rTimeStart).total_seconds() * 1000)
+        logTimestamp = str(datetime.datetime.now()).split('.')[0]
+        csvRow = [id, self.stimulus, self.isAttentive,
+                  self.isDistraction, pressedKey, self.correctKey,
+                  correctKeyPressed, reactionTime, logTimestamp]
+        logName = "reaction_time_results_" + str(self.subjectNum) + "_" + self.testTimestamp + ".csv"
         with open(logName, 'a+') as logfile:
             csvWriter = csv.writer(logfile)
             if(self.repetitionCount == 1 and self.counter == 0):
                 # csv header row
-                csvHeader = ["participant ID", "stimulus", "mental complexity", "distraction", "pressed key", "correct key", "correct key pressed", "reaction time in ms", "timestamp"]
+                csvHeader = ["participant ID", "stimulus", "mental complexity",
+                             "distraction", "pressed key", "correct key",
+                             "correct key pressed", "reaction time in ms",
+                             "timestamp"]
                 csvWriter.writerow(csvHeader)
             csvWriter.writerow(csvRow)
-        
-#function
+
+
+# function
 def main():
     app = QtWidgets.QApplication(sys.argv)
     # variable is never used, class automatically registers itself for Qt main loop:
     space = ReactionTest()
     sys.exit(app.exec_())
-
 
 
 if __name__ == '__main__':
