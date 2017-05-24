@@ -7,7 +7,7 @@ import time
 import random
 import urllib.request
 from PyQt5 import QtGui, QtWidgets, QtCore
-
+from PyQt5.QtWidgets import QWidget, QDesktopWidget, QApplication
 
 class ReactionTest(QtWidgets.QWidget):
     # experiment with some tests ...
@@ -38,32 +38,39 @@ class ReactionTest(QtWidgets.QWidget):
         self.screenPN = 0
         # time for countdown in seconds
         self.countdownTime = 5
+        # number of repetitions
+        self.repetitionsNum = 10
         # list of words for attentive tasks
         self.attentiveList = {"bird": "1", "airplane": "1", "fly": "1", "helicopter": "1", "spaceship": "1", "bee": "1", "Superman": "1", "U.F.O.": "1", "dragon": "1","butterfly": "1", "boat": "0", "car": "0","pizza": "0", "fish": "0", "dog": "0","cat": "0","you": "0","guitar": "0","table": "0","bus": "0"}
         # list of words for pre attentive tasks
         self.preattentiveList = {"\u25b2": "1", "\u25bc": "0"}
         # count for repetitions per task
         self.repetitionCount = 0
-        
-        self.wordsList = {"bird": "1", "airplane": "1", "fly": "1", "cloud": "1", "bee": "1", "boat": "0", "car": "0","pizza": "0", "fish": "0", "bus": "0"}
+        # variable for attentive or preattentive text
         self.text = ""
+        # description text
         self.descriptionText = "This is a test of reaction speed. \n" \
+                               "\n" \
                                "You will only use two buttons in this test: \n" \
                                "Arrow Key Up and Arrow Key Down. \n" \
+                               "\n" \
                                "You will see green arrows on the screen. \n" \
                                "If a shown arrow points upward, press Arrow Key Up. \n" \
                                "Otherwise press Arrow Key Down. \n" \
+                               "\n" \
                                "You will see green words on the screen. \n" \
-                               "The words describe things that can fly, or not. \n" \
-                               "If a thing can fly, press Arrow Key Up. \n" \
+                               "The words describe things that do usually fly, or don't. \n" \
+                               "If a thing usually flies, press Arrow Key Up. \n" \
                                "Otherwise press Arrow Key Down. \n" \
-                               "You will see distractions. Ignore them. \n" \
+                               "\n" \
+                               "You will see distractions. Try to ignore them. \n" \
+                               "\n" \
                                "Hover your right middle finger over the arrow keys. \n" \
                                "To begin press the space bar with your left hand. \n" \
                                "After that the test starts immediately. Be quick!"
-
+        # variable for distraction arrows
         self.distractionArrows = ""
-
+        # list of different arrow patterns
         self.distractionArrowsList = {"▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
                                       "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
                                       "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
@@ -75,9 +82,8 @@ class ReactionTest(QtWidgets.QWidget):
                                       "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
                                       "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
                                       "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
-        					          "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲",
+                                      "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲",
 
-        					          "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n" \
                                       "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n" \
                                       "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n" \
                                       "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n" \
@@ -88,9 +94,10 @@ class ReactionTest(QtWidgets.QWidget):
                                       "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n" \
                                       "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n" \
                                       "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n" \
-        					          "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼",
+                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n" \
+                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼",
 
-         					          "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n" \
+                                       "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n" \
                                       "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
                                       "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n" \
                                       "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
@@ -101,9 +108,9 @@ class ReactionTest(QtWidgets.QWidget):
                                       "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n" \
                                       "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
                                       "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n" \
-        					          "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲",
+                                      "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲",
 
-         					          "▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲ \n" \
+                                       "▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲ \n" \
                                       "▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼ \n" \
                                       "▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲ \n" \
                                       "▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼ \n" \
@@ -114,9 +121,9 @@ class ReactionTest(QtWidgets.QWidget):
                                       "▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲ \n" \
                                       "▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼ \n" \
                                       "▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲ \n" \
-        					          "▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼",
+                                      "▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼",
 
-        					          "▲▼▲▼▲▲▼▼▼▲▼▼▲▼▲▼▼▼▼▲▲▼▼▲ \n" \
+                                      "▲▼▲▼▲▲▼▼▼▲▼▼▲▼▲▼▼▼▼▲▲▼▼▲ \n" \
                                       "▲▲▲▼▲▼▲▼▼▲▼▼▼▼▼▼▲▲▲▼▼▼▼▲ \n" \
                                       "▼▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▼▼▼▼▼▲▲▼ \n" \
                                       "▼▼▼▼▼▼▲▼▼▼▼▲▼▼▼▲▼▲▼▲▼▲▼▼ \n" \
@@ -127,10 +134,7 @@ class ReactionTest(QtWidgets.QWidget):
                                       "▼▲▲▼▼▼▼▼▲▲▲▲▲▲▲▲▲▼▼▼▼▲▼▼ \n" \
                                       "▼▼▼▲▲▲▼▼▼▲▲▼▼▲▼▼▲▼▼▼▲▼▼▲ \n" \
                                       "▼▼▲▼▲▼▼▼▼▼▲▼▼▼▲▲▲▼▲▼▼v▼▲ \n" \
-        					          "▼▲▼▼▲▼▲▼▲▼▼▲▼▼▲▼▲▼▼▼▲▼▲▲"}       					         
-       
-        # function to remove distractions at start
-        #self.removeDistraction()
+                                      "▼▲▼▼▲▼▲▼▲▼▼▲▼▼▲▼▲▼▼▼▲▼▲▲"}                                    
         # function to initialize the ui
         self.initUI()
         # function to check if data input is given
@@ -149,6 +153,8 @@ class ReactionTest(QtWidgets.QWidget):
         self.setWindowTitle('Reaction Test')
         # widget should accept focus by click and tab key
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
+        #
+        self.center()
         # shows window
         self.show()
         
@@ -241,8 +247,10 @@ class ReactionTest(QtWidgets.QWidget):
                 # shows preattentive stimulus without distractions
                 self.preAttentive()
                 self.removeDistractionArrows()
+            else:
+            	self.lastScreen()
                 
-            if self.repetitionCount < 10:
+            if self.repetitionCount < self.repetitionsNum:
                 self.repetitionCount += 1
             else:
                 self.repetitionCount = 0
@@ -289,26 +297,42 @@ class ReactionTest(QtWidgets.QWidget):
 
     # handles drawing of distraction text
     def drawDistractionArrows(self, event, qp):
-    	#sets color
-    	qp.setPen(QtGui.QColor(100, 100, 100))
-    	# sets font
-    	qp.setFont(QtGui.QFont('Decorative', 32))
-    	# draws text
-    	qp.drawText(event.rect(), QtCore.Qt.AlignLeft, self.distractionArrows)
+        #sets color
+        qp.setPen(QtGui.QColor(100, 100, 100))
+        # sets font
+        qp.setFont(QtGui.QFont('Decorative', 32))
+        # draws text
+        qp.drawText(event.rect(), QtCore.Qt.AlignLeft, self.distractionArrows)
 
+    # handles drawing of description text
     def drawDescriptionText(self, event, qp):
-    	# sets color
+        # sets color
         qp.setPen(QtGui.QColor(0, 204, 255))
         # sets font
         qp.setFont(QtGui.QFont('Decorative', 18))
         # draws text
-        qp.drawText(event.rect(), QtCore.Qt.AlignLeft, self.descriptionText)
+        qp.drawText(event.rect(), QtCore.Qt.AlignCenter, self.descriptionText)
 
+    # adds distractions
     def addDistractionArrows(self):
         self.distractionArrows = list(self.distractionArrowsList)[random.randint(0, 4)]
-
+    
+    # removes distractions
     def removeDistractionArrows(self):
-    	self.distractionArrows = ""
+        self.distractionArrows = ""
+    # centers window on screen
+    # source: http://zetcode.com/gui/pyqt5/firstprograms/
+    
+    def center(self):
+        qr = self.frameGeometry()
+        cp = QDesktopWidget().availableGeometry().center()
+        qr.moveCenter(cp)
+        self.move(qr.topLeft())
+
+    def lastScreen(self):
+    	self.descriptionText = "Finished!"
+    	self.update()
+
 
 # main function
 def main():
