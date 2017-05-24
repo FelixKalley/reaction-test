@@ -37,7 +37,12 @@ class ReactionTest(QtWidgets.QWidget):
         self.screenPN = 0
         # time for countdown in seconds
         self.countdownTime = 5
-        self.wordsList = {"bird": "1", "airplane": "1", "fly": "1", "cloud": "1", "bee": "1", "boat": "0", "car": "0","pizza": "0", "fish": "0", "bus": "0"}
+        # list of words for attentive tasks
+        self.attentiveList = {"bird": "1", "airplane": "1", "fly": "1", "cloud": "1", "bee": "1", "boat": "0", "car": "0","pizza": "0", "fish": "0", "bus": "0"}
+        # list of words for pre attentive tasks
+        self.preattentiveList = {"\u25b2": "1", "\u25bc": "0"}
+        # count for repetitions per task
+        self.repetitionCount = 0
         
         # function to remove distractions at start
         self.removeDistraction()
@@ -115,7 +120,7 @@ class ReactionTest(QtWidgets.QWidget):
             print("Please provide one .txt-file as argument")
             sys.exit()
 
-    # converts the data input    
+    # converts the data input
     def convertInput(self):
         # tries splitting strings
         try:
@@ -123,7 +128,7 @@ class ReactionTest(QtWidgets.QWidget):
             self.subjectNum = self.dataArray[0].split(":")[1].strip()      
             self.temporaryOrder = self.dataArray[1].split(":")[1]
             self.testOrder = self.temporaryOrder.strip().split(", ")
-            self.timeBetween = self.dataArray[2].split(": ")[1].strip()
+            self.timeBetween = int(self.dataArray[2].split(": ")[1].strip()) / 1000
         # if errors happen while splitting
         except:
             # prints data format as message
@@ -148,57 +153,57 @@ class ReactionTest(QtWidgets.QWidget):
         # if space button is pressed
         if ev.key() == QtCore.Qt.Key_Space:
             # function nextScreen is called
+            self.testStarted = True
             self.nextScreen()
+            time.sleep(int(self.timeBetween))
         if ev.key() == QtCore.Qt.Key_Up or ev.key() == QtCore.Qt.Key_Down:
             # function nextScreen is called
             self.nextScreen()
+            time.sleep(int(self.timeBetween))
 
     # shows the following screen depending on order
     def nextScreen(self):
-        # checks if the test has already started
         if self.testStarted:
-            # prints starting message
-            print("start")
-            # starts countdown
-            # self.countdown(self.countdownTime)
-        # if test has not started
-        else:
             # checks if screen is next in order respectively has same number as counter
             if self.screenAD == self.counter:
                 # shows attentive stimulus with distractions
                 self.attentive()
-                self.addDistraction()
+                #self.addDistraction()
                 self.addDistractionArrows()
             elif self.screenAN == self.counter:
                 # shows attentive stimulus without distractions
                 self.attentive()
-                self.removeDistraction()
+                #self.removeDistraction()
             elif  self.screenPD == self.counter:
                 # shows preattentive stimulus with distractions
                 self.preAttentive()
-                self.addDistraction()
+                #self.addDistraction()
             elif  self.screenPN == self.counter:
                 # shows preattentive stimulus without distractions
                 self.preAttentive()
-                self.removeDistraction()
-            # counts up for next screen
-            self.counter+=1
-            # sets testStarted to true
-            self.testStarted = True
+                #self.removeDistraction()
+                
+            if self.repetitionCount < 10:
+                self.repetitionCount += 1
+            else:
+                self.repetitionCount = 0
+                # counts up for next screen
+                self.counter += 1
         
 
     # handles preattentive stimulus
     def preAttentive(self):
-        self.text = "up"
-        print("PREEEEEATTENTIVE")
-        print(self.counter)
+        self.text = list(self.preattentiveList)[random.randint(0, len(self.preattentiveList)-1)]
+        print("PREATTENTIVE")
+        print(self.repetitionCount)
         self.update()
 
     # handles attentive stimulus
     def attentive(self):        
-        self.text = list(self.wordsList)[random.randint(0, 10)]
+        self.text = list(self.attentiveList)[random.randint(0, len(self.attentiveList)-1)]
         print("ATTENTIVE")
-        print(self.counter)
+        print(self.text)
+        print(self.repetitionCount)
         self.update()
 
     # removes distractions
