@@ -1,0 +1,41 @@
+arrow keys up down
+usb keyboard (?)
+
+attentive:
+list of words
+some words describe things that can fly
+if can fly => arrow up
+if not => arrow down
+
+distractions:
+picture (via url) up down or both, randomized with every button press
+
+preattentive:
+simple arrows pointing up or down
+if up => arrow up
+if down => arrow down
+
+distractions:
+many many arrows or arrows in different directions
+
+4 subjects
+4 conditions
+10 tests
+
+
+test:
+task description 1 (space)
+countdown
+10 tests
+task description 1 (space)
+countdown
+10 tests
+task description 2 (space)
+countdown
+10 tests
+task description 2 (space)
+countdown
+10 tests
+
+
+
