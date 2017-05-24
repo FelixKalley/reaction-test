@@ -30,6 +30,7 @@ class ReactionTest(QtWidgets.QWidget):
         self.testStarted = False
         # icon for arrow up
         self.upIcon = '\u25b2'
+        self.downIcon = '\u25bc'
         # numbers for screen order
         self.screenAD = 0
         self.screenAN = 0
@@ -44,6 +45,71 @@ class ReactionTest(QtWidgets.QWidget):
         # count for repetitions per task
         self.repetitionCount = 0
         
+        self.wordsList = {"bird": "1", "airplane": "1", "fly": "1", "cloud": "1", "bee": "1", "boat": "0", "car": "0","pizza": "0", "fish": "0", "bus": "0"}
+        self.distractionArrowsList = {"▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
+                                      "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
+                                      "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
+                                      "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
+                                      "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
+                                      "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
+                                      "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
+                                      "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
+                                      "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
+                                      "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
+                                      "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
+        					          "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲",
+
+        					          "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n" \
+                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n" \
+                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n" \
+                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n" \
+                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n" \
+                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n" \
+                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n" \
+                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n" \
+                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n" \
+                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n" \
+                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n" \
+        					          "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼",
+
+         					          "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n" \
+                                      "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
+                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n" \
+                                      "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
+                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n" \
+                                      "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
+                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n" \
+                                      "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
+                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n" \
+                                      "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
+                                      "▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ \n" \
+        					          "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲",
+
+         					          "▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲ \n" \
+                                      "▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼ \n" \
+                                      "▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲ \n" \
+                                      "▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼ \n" \
+                                      "▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲ \n" \
+                                      "▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼ \n" \
+                                      "▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲ \n" \
+                                      "▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼ \n" \
+                                      "▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲ \n" \
+                                      "▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼ \n" \
+                                      "▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲ \n" \
+        					          "▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼",
+
+        					          "▲▼▲▼▲▲▼▼▼▲▼▼▲▼▲▼▼▼▼▲▲▼▼▲ \n" \
+                                      "▲▲▲▼▲▼▲▼▼▲▼▼▼▼▼▼▲▲▲▼▼▼▼▲ \n" \
+                                      "▼▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▼▼▼▼▼▲▲▼ \n" \
+                                      "▼▼▼▼▼▼▲▼▼▼▼▲▼▼▼▲▼▲▼▲▼▲▼▼ \n" \
+                                      "▼▼▼▲▼▼▲▼▼▼▲▼▼▲▼▼▼▲▼▼▲▼▼▼ \n" \
+                                      "▼▲▼▼▲▼▲▲▼▲▼▲▼▼▲▼▼▲▼▲▼▲▼▲ \n" \
+                                      "▼▲▼▲▼▼▼▲▼▼▲▲▼▲▼▼▼▲▼▼▲▼▲▼ \n" \
+                                      "▲▲▲▼▲▼▼▼▲▼▼▼▲▲▼▼▲▼▼▼▼▼▲▼ \n" \
+                                      "▼▲▲▼▼▼▼▼▲▲▲▲▲▲▲▲▲▼▼▼▼▲▼▼ \n" \
+                                      "▼▼▼▲▲▲▼▼▼▲▲▼▼▲▼▼▲▼▼▼▲▼▼▲ \n" \
+                                      "▼▼▲▼▲▼▼▼▼▼▲▼▼▼▲▲▲▼▲▼▼v▼▲ \n" \
+        					          "▼▲▼▼▲▼▲▼▲▼▼▲▼▼▲▼▲▼▼▼▲▼▲▲"}       					         
         # function to remove distractions at start
         self.removeDistraction()
         # function to initialize the ui
@@ -59,19 +125,7 @@ class ReactionTest(QtWidgets.QWidget):
     # inits ui
     def initUI(self):
         # description of the experiment 
-        self.distractionText = "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
-                               "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
-                               "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
-                               "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
-                               "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
-                               "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
-                               "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
-                               "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
-                               "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
-                               "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
-                               "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
-        					   "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲"
-        self.text = "▲"
+        self.text = "Beschreibung"
         # sets size of window
         self.setGeometry(0, 0, 793, 603)
         # sets window title
@@ -240,7 +294,7 @@ class ReactionTest(QtWidgets.QWidget):
         # draws background with image
         #qp.drawPixmap(0, 0, 1440, 850, self.backgroundImage)
         # draws text
-        self.drawDistractionText(event,qp)
+        self.drawDistractionArrows(event,qp)
         self.drawText(event, qp)
         qp.end()
 
@@ -254,28 +308,18 @@ class ReactionTest(QtWidgets.QWidget):
         qp.drawText(event.rect(), QtCore.Qt.AlignCenter, self.text)
 
     # handles drawing of distraction text
-    def drawDistractionText(self, event, qp):
+    def drawDistractionArrows(self, event, qp):
+    	self.distractionArrows = list(self.distractionArrowsList)[random.randint(0, 4)]
     	#sets color
     	qp.setPen(QtGui.QColor(0, 0, 0))
     	# sets font
     	qp.setFont(QtGui.QFont('Decorative', 32))
     	# draws text
-    	qp.drawText(event.rect(), QtCore.Qt.AlignLeft, self.distractionText)
-
-
-    '''def drawRect(self, event, qp):
-        if (self.counter % 2) == 0:
-            rect = QtCore.QRect(10, 10, 80, 80)
-            qp.setBrush(QtGui.QColor(34, 34, 200))
-        else:
-            rect = QtCore.QRect(100, 10, 80, 80)
-            qp.setBrush(QtGui.QColor(200, 34, 34))
-        qp.drawRoundedRect(rect, 10.0, 10.0)
-'''
-
+    	qp.drawText(event.rect(), QtCore.Qt.AlignLeft, self.distractionArrows)
 
     def addDistractionArrows(self):
         print(self.upIcon)
+        print(self.downIcon)
 
 
 # main function
