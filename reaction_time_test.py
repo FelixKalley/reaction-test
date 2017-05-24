@@ -28,6 +28,8 @@ class ReactionTest(QtWidgets.QWidget):
         self.timeBetween=0
         # bool if test has started
         self.testStarted = False
+        # icon for arrow up
+        self.upIcon = '\u25b2'
         # numbers for screen order
         self.screenAD = 0
         self.screenAN = 0
@@ -48,12 +50,25 @@ class ReactionTest(QtWidgets.QWidget):
         # function to convert the string containing the order of screens as needed
         self.convertOrder()
 
+
     # inits ui
     def initUI(self):
         # description of the experiment 
-        self.text = "ich bin ein platzhalter... beschreibung... press space"
+        self.distractionText = "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
+                               "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
+                               "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
+                               "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
+                               "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
+                               "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
+                               "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
+                               "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
+                               "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
+                               "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
+                               "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
+        					   "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲"
+        self.text = "▲"
         # sets size of window
-        self.setGeometry(0, 0, 1440, 850)
+        self.setGeometry(0, 0, 793, 603)
         # sets window title
         self.setWindowTitle('Reaction Test')
         # widget should accept focus by click and tab key
@@ -218,8 +233,9 @@ class ReactionTest(QtWidgets.QWidget):
         qp = QtGui.QPainter()
         qp.begin(self)
         # draws background with image
-        qp.drawPixmap(0, 0, 1440, 850, self.backgroundImage)
+        #qp.drawPixmap(0, 0, 1440, 850, self.backgroundImage)
         # draws text
+        self.drawDistractionText(event,qp)
         self.drawText(event, qp)
         qp.end()
 
@@ -228,9 +244,19 @@ class ReactionTest(QtWidgets.QWidget):
         # sets color
         qp.setPen(QtGui.QColor(168, 34, 3))
         # sets font
-        qp.setFont(QtGui.QFont('Decorative', 32))
+        qp.setFont(QtGui.QFont('Decorative', 40))
         # draws text
         qp.drawText(event.rect(), QtCore.Qt.AlignCenter, self.text)
+
+    # handles drawing of distraction text
+    def drawDistractionText(self, event, qp):
+    	#sets color
+    	qp.setPen(QtGui.QColor(0, 0, 0))
+    	# sets font
+    	qp.setFont(QtGui.QFont('Decorative', 32))
+    	# draws text
+    	qp.drawText(event.rect(), QtCore.Qt.AlignLeft, self.distractionText)
+
 
     '''def drawRect(self, event, qp):
         if (self.counter % 2) == 0:
@@ -244,8 +270,7 @@ class ReactionTest(QtWidgets.QWidget):
 
 
     def addDistractionArrows(self):
-        upIcon = '\u25b2'
-        print(upIcon)
+        print(self.upIcon)
 
 
 # main function
