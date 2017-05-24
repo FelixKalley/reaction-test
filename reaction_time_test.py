@@ -4,6 +4,7 @@
 
 import sys
 import time
+import datetime
 import random
 import urllib.request
 from PyQt5 import QtGui, QtWidgets, QtCore
@@ -20,8 +21,6 @@ class ReactionTest(QtWidgets.QWidget):
         self.dataArray=[]
         # the number of the actual subject
         self.subjectNum=0
-        # order of screens in form of unedited strings
-        self.temporaryOrder=[]
         # order of screens in form of final strings
         self.testOrder=[]
         # time between signals change:
@@ -45,7 +44,13 @@ class ReactionTest(QtWidgets.QWidget):
         # count for repetitions per task
         self.repetitionCount = 0
         
-        self.wordsList = {"bird": "1", "airplane": "1", "fly": "1", "cloud": "1", "bee": "1", "boat": "0", "car": "0","pizza": "0", "fish": "0", "bus": "0"}
+        self.stimulus = ""
+        self.isAttentive = False
+        self.isDistraction = False
+        self.reactionTimeStart = 0
+        self.pressedKey = ""
+        self.correctKey = ""
+        
         self.distractionArrowsList = {"▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
                                       "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
                                       "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
@@ -180,8 +185,8 @@ class ReactionTest(QtWidgets.QWidget):
         try:
             # splits strings and keeps relevant data
             self.subjectNum = self.dataArray[0].split(":")[1].strip()      
-            self.temporaryOrder = self.dataArray[1].split(":")[1]
-            self.testOrder = self.temporaryOrder.strip().split(", ")
+            temporaryOrder = self.dataArray[1].split(":")[1]
+            self.testOrder = temporaryOrder.strip().split(", ")
             self.timeBetween = int(self.dataArray[2].split(": ")[1].strip()) / 1000
         # if errors happen while splitting
         except:
@@ -209,11 +214,14 @@ class ReactionTest(QtWidgets.QWidget):
             # function nextScreen is called
             self.testStarted = True
             self.nextScreen()
-            time.sleep(int(self.timeBetween))
-        if ev.key() == QtCore.Qt.Key_Up or ev.key() == QtCore.Qt.Key_Down:
+        if ev.key() == QtCore.Qt.Key_Up:
+            # function nextScreen is called
+            self.writeCSV("up")
+            self.nextScreen()
+        if ev.key() == QtCore.Qt.Key_Down:
+            self.writeCSV("down")
             # function nextScreen is called
             self.nextScreen()
-            time.sleep(int(self.timeBetween))
 
     # shows the following screen depending on order
     def nextScreen(self):
@@ -224,18 +232,27 @@ class ReactionTest(QtWidgets.QWidget):
                 self.attentive()
                 #self.addDistraction()
                 self.addDistractionArrows()
+                
+                self.isDistraction = True
+                self.reactionTimeStart = datetime.datetime.now()
             elif self.screenAN == self.counter:
                 # shows attentive stimulus without distractions
                 self.attentive()
                 #self.removeDistraction()
+                self.isDistraction = False
+                self.reactionTimeStart = datetime.datetime.now()
             elif  self.screenPD == self.counter:
                 # shows preattentive stimulus with distractions
                 self.preAttentive()
                 #self.addDistraction()
+                self.isDistraction = True
+                self.reactionTimeStart = datetime.datetime.now()
             elif  self.screenPN == self.counter:
                 # shows preattentive stimulus without distractions
                 self.preAttentive()
                 #self.removeDistraction()
+                self.isDistraction = False
+                self.reactionTimeStart = datetime.datetime.now()
                 
             if self.repetitionCount < 10:
                 self.repetitionCount += 1
@@ -243,21 +260,30 @@ class ReactionTest(QtWidgets.QWidget):
                 self.repetitionCount = 0
                 # counts up for next screen
                 self.counter += 1
-        
+    
 
     # handles preattentive stimulus
     def preAttentive(self):
+        self.isAttentive = False
         self.text = list(self.preattentiveList)[random.randint(0, len(self.preattentiveList)-1)]
+        self.stimulus = self.text
+        if self.preattentiveList[self.text] == "0":
+            self.correctKey = "down"
+        elif self.preattentiveList[self.text] == "1":
+            self.correctKey = "up"
         print("PREATTENTIVE")
-        print(self.repetitionCount)
         self.update()
 
     # handles attentive stimulus
-    def attentive(self):        
+    def attentive(self):
+        self.isAttentive = True
         self.text = list(self.attentiveList)[random.randint(0, len(self.attentiveList)-1)]
+        self.stimulus = self.text
+        if self.attentiveList[self.text] == "0":
+            self.correctKey = "down"
+        elif self.attentiveList[self.text] == "1":
+            self.correctKey = "up"
         print("ATTENTIVE")
-        print(self.text)
-        print(self.repetitionCount)
         self.update()
 
     # removes distractions
@@ -321,8 +347,15 @@ class ReactionTest(QtWidgets.QWidget):
         print(self.upIcon)
         print(self.downIcon)
 
-
-# main function
+    def writeCSV(self, pressedKey):
+        id = self.subjectNum
+        reactionTime = int((datetime.datetime.now() - self.reactionTimeStart).total_seconds() * 1000)
+        timestamp = str(datetime.datetime.now())
+        csvHeader = ["participant ID", "stimulus", "mental complexity", "distraction", "pressed key", "correct key", "reaction time in ms", "timestamp"]
+        csvRow = [id, self.stimulus, self.isAttentive, self.isDistraction, pressedKey, self.correctKey, reactionTime, timestamp]
+        print(csvRow)
+        
+#function
 def main():
     app = QtWidgets.QApplication(sys.argv)
     # variable is never used, class automatically registers itself for Qt main loop:
