@@ -6,6 +6,7 @@ import sys
 import time
 import datetime
 import random
+import csv
 import urllib.request
 from PyQt5 import QtGui, QtWidgets, QtCore
 from PyQt5.QtWidgets import QWidget, QDesktopWidget, QApplication
@@ -47,11 +48,13 @@ class ReactionTest(QtWidgets.QWidget):
         self.repetitionCount = 0
         
         self.stimulus = ""
-        self.isAttentive = False
+        self.isAttentive = ""
         self.isDistraction = False
         self.reactionTimeStart = 0
         self.pressedKey = ""
         self.correctKey = ""
+        self.stimulusCompleted = True
+        self.completeTestTimestamp = str(datetime.datetime.now()).split('.')[0]
         
         # variable for attentive or preattentive text
         self.text = ""
@@ -140,7 +143,7 @@ class ReactionTest(QtWidgets.QWidget):
                                       "▲▲▲▼▲▼▼▼▲▼▼▼▲▲▼▼▲▼▼▼▼▼▲▼ \n" \
                                       "▼▲▲▼▼▼▼▼▲▲▲▲▲▲▲▲▲▼▼▼▼▲▼▼ \n" \
                                       "▼▼▼▲▲▲▼▼▼▲▲▼▼▲▼▼▲▼▼▼▲▼▼▲ \n" \
-                                      "▼▼▲▼▲▼▼▼▼▼▲▼▼▼▲▲▲▼▲▼▼v▼▲ \n" \
+                                      "▼▼▲▼▲▼▼▼▼▼▲▼▼▼▲▲▲▼▲▼▼▲▼▲ \n" \
                                       "▼▲▼▼▲▼▲▼▲▼▼▲▼▼▲▼▲▼▼▼▲▼▲▲"}                                    
         # function to initialize the ui
         self.initUI()
@@ -218,29 +221,32 @@ class ReactionTest(QtWidgets.QWidget):
     # handles keyPress Events
     def keyPressEvent(self, ev):
         # if space button is pressed
-        if ev.key() == QtCore.Qt.Key_Space:
-            self.testStarted = True
-            self.text = ""
-            self.distractionArrows = ""
-            self.descriptionText = ""
-            self.update()
-            # function nextScreen is called
-            QtCore.QTimer.singleShot((self.timeBetween), lambda: self.nextScreen())
-        if ev.key() == QtCore.Qt.Key_Up:
-            self.writeCSV("up")
-            self.text = ""
-            self.distractionArrows = ""
-            self.update()
-            # function nextScreen is called
-            QtCore.QTimer.singleShot((self.timeBetween), lambda: self.nextScreen())
-        if ev.key() == QtCore.Qt.Key_Down:
-            self.writeCSV("down")
-            self.text = ""
-            self.distractionArrows = ""
-            self.descriptionText = ""
-            self.update()
-            # function nextScreen is called
-            QtCore.QTimer.singleShot((self.timeBetween), lambda: self.nextScreen())
+            if not self.testStarted and ev.key() == QtCore.Qt.Key_Space:
+                self.stimulusCompleted = False
+                self.testStarted = True
+                self.text = ""
+                self.distractionArrows = ""
+                self.descriptionText = ""
+                self.update()
+                # function nextScreen is called
+                QtCore.QTimer.singleShot((self.timeBetween), lambda: self.nextScreen())
+            if  self.testStarted and self.stimulusCompleted and ev.key() == QtCore.Qt.Key_Up:
+                self.stimulusCompleted = False
+                self.writeCSV("up")
+                self.text = ""
+                self.distractionArrows = ""
+                self.update()
+                # function nextScreen is called
+                QtCore.QTimer.singleShot((self.timeBetween), lambda: self.nextScreen())
+            if self.testStarted and self.stimulusCompleted and ev.key() == QtCore.Qt.Key_Down:
+                self.stimulusCompleted = False
+                self.writeCSV("down")
+                self.text = ""
+                self.distractionArrows = ""
+                self.descriptionText = ""
+                self.update()
+                # function nextScreen is called
+                QtCore.QTimer.singleShot((self.timeBetween), lambda: self.nextScreen())
 
     # shows the following screen depending on order
     def nextScreen(self):
@@ -252,7 +258,7 @@ class ReactionTest(QtWidgets.QWidget):
                 self.addDistractionArrows()                
                 self.isDistraction = True
                 self.reactionTimeStart = datetime.datetime.now()
-            elif self.screenAN == self.counter:
+            elif self.screenAN == self.counter :
                 # shows attentive stimulus without distractions
                 self.attentive()
                 self.removeDistractionArrows()
@@ -279,11 +285,12 @@ class ReactionTest(QtWidgets.QWidget):
                 self.repetitionCount = 0
                 # counts up for next screen
                 self.counter += 1
+        self.stimulusCompleted = True
     
 
     # handles preattentive stimulus
     def preAttentive(self):
-        self.isAttentive = False
+        self.isAttentive = "attentive"
         self.text = list(self.preattentiveList)[random.randint(0, len(self.preattentiveList)-1)]
         self.stimulus = self.text
         if self.preattentiveList[self.text] == "0":
@@ -295,7 +302,7 @@ class ReactionTest(QtWidgets.QWidget):
 
     # handles attentive stimulus
     def attentive(self):
-        self.isAttentive = True
+        self.isAttentive = "pre-attentive"
         self.text = list(self.attentiveList)[random.randint(0, len(self.attentiveList)-1)]
         self.stimulus = self.text
         if self.attentiveList[self.text] == "0":
@@ -367,11 +374,21 @@ class ReactionTest(QtWidgets.QWidget):
 
     def writeCSV(self, pressedKey):
         id = self.subjectNum
+        if pressedKey == self.correctKey:
+            correctKeyPressed = True
+        else:
+            correctKeyPressed = False
         reactionTime = int((datetime.datetime.now() - self.reactionTimeStart).total_seconds() * 1000)
-        timestamp = str(datetime.datetime.now())
-        csvHeader = ["participant ID", "stimulus", "mental complexity", "distraction", "pressed key", "correct key", "reaction time in ms", "timestamp"]
-        csvRow = [id, self.stimulus, self.isAttentive, self.isDistraction, pressedKey, self.correctKey, reactionTime, timestamp]
-        print(csvRow)
+        testTimestamp = str(datetime.datetime.now()).split('.')[0]
+        csvRow = [id, self.stimulus, self.isAttentive, self.isDistraction, pressedKey, self.correctKey, correctKeyPressed, reactionTime, testTimestamp ]
+        logName = "reaction_time_results_subject" + str(self.subjectNum) + "_" + self.completeTestTimestamp + ".csv"
+        with open(logName, 'a+') as logfile:
+            csvWriter = csv.writer(logfile)
+            if(self.repetitionCount == 1 and self.counter == 0):
+                # csv header row
+                csvHeader = ["participant ID", "stimulus", "mental complexity", "distraction", "pressed key", "correct key", "correct key pressed", "reaction time in ms", "timestamp"]
+                csvWriter.writerow(csvHeader)
+            csvWriter.writerow(csvRow)
         
 #function
 def main():

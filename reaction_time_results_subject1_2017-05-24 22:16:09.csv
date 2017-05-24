@@ -1,0 +1,4 @@
+participant ID,stimulus,mental complexity,distraction,pressed key,correct key,correct key pressed,reaction time in ms,timestamp
+1,▲,attentive,True,up,up,True,742,2017-05-24 22:16:13
+1,▼,attentive,True,down,down,True,513,2017-05-24 22:16:14
+1,▼,attentive,True,down,down,True,759,2017-05-24 22:16:14
