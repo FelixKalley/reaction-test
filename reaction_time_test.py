@@ -39,13 +39,31 @@ class ReactionTest(QtWidgets.QWidget):
         # time for countdown in seconds
         self.countdownTime = 5
         # list of words for attentive tasks
-        self.attentiveList = {"bird": "1", "airplane": "1", "fly": "1", "cloud": "1", "bee": "1", "boat": "0", "car": "0","pizza": "0", "fish": "0", "bus": "0"}
+        self.attentiveList = {"bird": "1", "airplane": "1", "fly": "1", "helicopter": "1", "spaceship": "1", "bee": "1", "Superman": "1", "U.F.O.": "1", "dragon": "1","butterfly": "1", "boat": "0", "car": "0","pizza": "0", "fish": "0", "dog": "0","cat": "0","you": "0","guitar": "0","table": "0","bus": "0"}
         # list of words for pre attentive tasks
         self.preattentiveList = {"\u25b2": "1", "\u25bc": "0"}
         # count for repetitions per task
         self.repetitionCount = 0
         
         self.wordsList = {"bird": "1", "airplane": "1", "fly": "1", "cloud": "1", "bee": "1", "boat": "0", "car": "0","pizza": "0", "fish": "0", "bus": "0"}
+        self.text = ""
+        self.descriptionText = "This is a test of reaction speed. \n" \
+                               "You will only use two buttons in this test: \n" \
+                               "Arrow Key Up and Arrow Key Down. \n" \
+                               "You will see green arrows on the screen. \n" \
+                               "If a shown arrow points upward, press Arrow Key Up. \n" \
+                               "Otherwise press Arrow Key Down. \n" \
+                               "You will see green words on the screen. \n" \
+                               "The words describe things that can fly, or not. \n" \
+                               "If a thing can fly, press Arrow Key Up. \n" \
+                               "Otherwise press Arrow Key Down. \n" \
+                               "You will see distractions. Ignore them. \n" \
+                               "Hover your right middle finger over the arrow keys. \n" \
+                               "To begin press the space bar with your left hand. \n" \
+                               "After that the test starts immediately. Be quick!"
+
+        self.distractionArrows = ""
+
         self.distractionArrowsList = {"▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
                                       "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
                                       "▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ \n" \
@@ -110,8 +128,9 @@ class ReactionTest(QtWidgets.QWidget):
                                       "▼▼▼▲▲▲▼▼▼▲▲▼▼▲▼▼▲▼▼▼▲▼▼▲ \n" \
                                       "▼▼▲▼▲▼▼▼▼▼▲▼▼▼▲▲▲▼▲▼▼v▼▲ \n" \
         					          "▼▲▼▼▲▼▲▼▲▼▼▲▼▼▲▼▲▼▼▼▲▼▲▲"}       					         
+       
         # function to remove distractions at start
-        self.removeDistraction()
+        #self.removeDistraction()
         # function to initialize the ui
         self.initUI()
         # function to check if data input is given
@@ -124,8 +143,6 @@ class ReactionTest(QtWidgets.QWidget):
 
     # inits ui
     def initUI(self):
-        # description of the experiment 
-        self.text = "Beschreibung"
         # sets size of window
         self.setGeometry(0, 0, 793, 603)
         # sets window title
@@ -135,23 +152,6 @@ class ReactionTest(QtWidgets.QWidget):
         # shows window
         self.show()
         
-        
-
-    '''def countdown(self, n):
-        prevT = 0
-        while n>0:
-            u = time.time()
-            if(prevT < u - 1):
-                prevT = time.time()
-                print(prevT)
-                self.text = str(n)
-                self.update()
-                print(n)
-                n = n-1
-        if n == 0:
-            print("neuer Screen")
-'''
-
     # checks for given input
     def checkInput(self):
         # if file is given
@@ -182,7 +182,7 @@ class ReactionTest(QtWidgets.QWidget):
             self.subjectNum = self.dataArray[0].split(":")[1].strip()      
             self.temporaryOrder = self.dataArray[1].split(":")[1]
             self.testOrder = self.temporaryOrder.strip().split(", ")
-            self.timeBetween = int(self.dataArray[2].split(": ")[1].strip()) / 1000
+            self.timeBetween = int(self.dataArray[2].split(": ")[1].strip())
         # if errors happen while splitting
         except:
             # prints data format as message
@@ -208,12 +208,17 @@ class ReactionTest(QtWidgets.QWidget):
         if ev.key() == QtCore.Qt.Key_Space:
             # function nextScreen is called
             self.testStarted = True
-            self.nextScreen()
-            time.sleep(int(self.timeBetween))
+            self.text = ""
+            self.distractionArrows = ""
+            self.descriptionText = ""
+            self.update()
+            QtCore.QTimer.singleShot((self.timeBetween), lambda: self.nextScreen())
         if ev.key() == QtCore.Qt.Key_Up or ev.key() == QtCore.Qt.Key_Down:
             # function nextScreen is called
-            self.nextScreen()
-            time.sleep(int(self.timeBetween))
+            self.text = ""
+            self.distractionArrows = ""
+            self.update()
+            QtCore.QTimer.singleShot((self.timeBetween), lambda: self.nextScreen())
 
     # shows the following screen depending on order
     def nextScreen(self):
@@ -227,15 +232,15 @@ class ReactionTest(QtWidgets.QWidget):
             elif self.screenAN == self.counter:
                 # shows attentive stimulus without distractions
                 self.attentive()
-                #self.removeDistraction()
+                self.removeDistractionArrows()
             elif  self.screenPD == self.counter:
                 # shows preattentive stimulus with distractions
                 self.preAttentive()
-                #self.addDistraction()
+                self.addDistractionArrows()
             elif  self.screenPN == self.counter:
                 # shows preattentive stimulus without distractions
                 self.preAttentive()
-                #self.removeDistraction()
+                self.removeDistractionArrows()
                 
             if self.repetitionCount < 10:
                 self.repetitionCount += 1
@@ -259,32 +264,6 @@ class ReactionTest(QtWidgets.QWidget):
         print(self.text)
         print(self.repetitionCount)
         self.update()
-
-    # removes distractions
-    def removeDistraction(self):
-        # sets bool
-        self.withDistraction = False
-        # reads data for white image from url
-        url = 'https://www.ledr.com/colours/white.jpg'
-        data = urllib.request.urlopen(url).read()
-        # sets up image element
-        image = QtGui.QImage()
-        image.loadFromData(data)
-        # sets white image as background
-        self.backgroundImage = QtGui.QPixmap(image)
-
-    # adds distractions
-    def addDistraction(self):
-        #sets bool
-        self.withDistraction = True
-        # reads data for distraction image from url
-        url = 'https://image.flaticon.com/sprites/new_packs/275104-arrows.png'
-        data = urllib.request.urlopen(url).read()
-        # sets up image element
-        image = QtGui.QImage()
-        image.loadFromData(data)
-        # sets distractions as background
-        self.backgroundImage = QtGui.QPixmap(image)
         
     # handles painting of screens    
     def paintEvent(self, event):
@@ -294,6 +273,7 @@ class ReactionTest(QtWidgets.QWidget):
         # draws background with image
         #qp.drawPixmap(0, 0, 1440, 850, self.backgroundImage)
         # draws text
+        self.drawDescriptionText(event,qp)
         self.drawDistractionArrows(event,qp)
         self.drawText(event, qp)
         qp.end()
@@ -301,26 +281,34 @@ class ReactionTest(QtWidgets.QWidget):
     # handles drawing of text
     def drawText(self, event, qp):
         # sets color
-        qp.setPen(QtGui.QColor(168, 34, 3))
+        qp.setPen(QtGui.QColor(0, 204, 0))
         # sets font
-        qp.setFont(QtGui.QFont('Decorative', 40))
+        qp.setFont(QtGui.QFont('Decorative', 60))
         # draws text
         qp.drawText(event.rect(), QtCore.Qt.AlignCenter, self.text)
 
     # handles drawing of distraction text
     def drawDistractionArrows(self, event, qp):
-    	self.distractionArrows = list(self.distractionArrowsList)[random.randint(0, 4)]
     	#sets color
-    	qp.setPen(QtGui.QColor(0, 0, 0))
+    	qp.setPen(QtGui.QColor(100, 100, 100))
     	# sets font
     	qp.setFont(QtGui.QFont('Decorative', 32))
     	# draws text
     	qp.drawText(event.rect(), QtCore.Qt.AlignLeft, self.distractionArrows)
 
-    def addDistractionArrows(self):
-        print(self.upIcon)
-        print(self.downIcon)
+    def drawDescriptionText(self, event, qp):
+    	# sets color
+        qp.setPen(QtGui.QColor(0, 204, 255))
+        # sets font
+        qp.setFont(QtGui.QFont('Decorative', 18))
+        # draws text
+        qp.drawText(event.rect(), QtCore.Qt.AlignLeft, self.descriptionText)
 
+    def addDistractionArrows(self):
+        self.distractionArrows = list(self.distractionArrowsList)[random.randint(0, 4)]
+
+    def removeDistractionArrows(self):
+    	self.distractionArrows = ""
 
 # main function
 def main():
