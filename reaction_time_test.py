@@ -4,6 +4,7 @@
 
 import sys
 import time
+import random
 import urllib.request
 from PyQt5 import QtGui, QtWidgets, QtCore
 
@@ -34,6 +35,8 @@ class ReactionTest(QtWidgets.QWidget):
         self.screenPN = 0
         # time for countdown in seconds
         self.countdownTime = 5
+        self.wordsList = {"bird": "1", "airplane": "1", "fly": "1", "cloud": "1", "bee": "1", "boat": "0", "car": "0","pizza": "0", "fish": "0", "bus": "0"}
+        
         # function to remove distractions at start
         self.removeDistraction()
         # function to initialize the ui
@@ -131,6 +134,9 @@ class ReactionTest(QtWidgets.QWidget):
         if ev.key() == QtCore.Qt.Key_Space:
             # function nextScreen is called
             self.nextScreen()
+        if ev.key() == QtCore.Qt.Key_Up or ev.key() == QtCore.Qt.Key_Down:
+            # function nextScreen is called
+            self.nextScreen()
 
     # shows the following screen depending on order
     def nextScreen(self):
@@ -174,8 +180,8 @@ class ReactionTest(QtWidgets.QWidget):
         self.update()
 
     # handles attentive stimulus
-    def attentive(self):
-        self.text = "bird"
+    def attentive(self):        
+        self.text = list(self.wordsList)[random.randint(0, 10)]
         print("ATTENTIVE")
         print(self.counter)
         self.update()
