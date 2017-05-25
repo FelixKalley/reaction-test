@@ -1,30 +1,32 @@
-What does Hornbæk say about the relationship between self-reported and objectively measured task performance? 
+1. What does Hornbæk say about the relationship between self-reported and objectively measured task performance? 
 
-objective and subjective indicators of usability may differ empirically and conceptually. users perceptions of outcomes did not correlate with actual measured outcomes. (S.36)
-"egocentric intuition fallacy". we overestimate how well we can discover the mechanisms behind our behavior and feeling of satisfaction. That makes it dicult to rely on judgments about what works and does not work in an interface. At the same time, we underestimate the extent to which we di?er from other people with respect to behavior and preferences. This is particularly problematic in HCI, where a number of the technologies that we propose will have been developed and iteratively refined by ourselves or by close collaborators. Experiments help overcome this fallacy (S.6f)
-
-
-Describe advantages and limitations of research hypotheses.
-
-There is a controversial discussion about research hypotheses. Research hypotheses must be testable, concise and name all key constructs to help understand and focus on the research question. They help to summarize related work and thus to design better experiments relying on knowledge from these (S. 14).
-Another point of view is that focusing on research hypotheses distract from the original research question. Hornbæk says an emphasis on hypotheses may bias our thinking if the research question is exploratory (S. 13). Furthermore, the null hypothesis is in many cases formulated only to be disconfirmed (S. 15).
-Hornbæk’s conclusion at this topic is that all experiments profit from hypotheses but there are experiments where it’s impossible to find any (S. 16). 
-
-benefits: help gain claritiy about what one is doing and help focus a research question
-helps a researcher think through what earlier work says about the experiment being designed. help summarize earlier work and use that work in motivating and designing the experiment
-help report an experiment
-are tied to theory
-
-drawbacks:
-null hypothesis of an experiment is formulated only to be disconfirmed too often
-reliance on theory may blind researchers to interesting findings
+Hornbæk and Law found no correlation between self-reported task performance from users and actual measured outcomes (P.36)
 
 
-Is it acceptable to conduct user studies with media informatics students as participants instead of a broad sample of potential users? What are advantages and limitations? Name one topic for a user study where it would be problematic to have only media informatics students as participants. Name one counter-example.
+2. Describe advantages and limitations of research hypotheses.
 
-Yes, students are people (S.27)
-limitations: the specific work experiences of the subjects influence the phenomena being studied in such a way that they confound the results of the study 
-benefits: have stronger cognitive skills, have developed less strong attitudes, are more likely to follow authority. shaped by living in western, industrialized and democratic societies.
-it may not matter
-problematic topic for study: Überblicksstudie zur Technikaffinität von Studenten der Uni Regensburg
-counter-example: Blickverhalten von Informatik-Studenten beim Lesen von Programmiercode
+Advantages: 
+Hypotheses provide a better understanding, about what a reasearcher is doing by giving clarity and focus about the reasearched question. (P.14)
+Hypotheses can be useful for researchers, if they think about the input earlier work adds to the experiment being designed. (P.14)
+Hypotheses help to merge and use earlier findings to motivate and design an experiment. (P.14)
+Hypotheses help to report an experiment. (P.14)
+Hypotheses are grounded in theory. (P.15)
+
+Limitations:
+Too often people formulate the null hypothesis in a way that it will simply be discomforted. (P.15)
+Interesting findings could be overseen because a researcher relies to much on theory. (P.16)
+For some experiments it may not be possible or useful to create hypotheses. (P.16)
+Hypotheses can lead to prejudices and preoccupation, if the research question is exploratory (P.13)
+
+
+3. Is it acceptable to conduct user studies with media informatics students as participants instead of a broad sample of potential users? What are advantages and limitations? Name one topic for a user study where it would be problematic to have only media informatics students as participants. Name one counter-example.
+
+Yes it is acceptable, because students are people like everyone else and in the end it may not even matter (P.27)
+One has to be aware of the circumstances of an experiment though.
+Advantages: Students often have stronger cognitive skills, have developed less strong attitudes, are more likely to follow authority. (P.27) 
+Limitations: 
+Mostly they are shaped by living in western, industrialized and democratic societies. (P.27) 
+Additionally, if experiences of the subjects are congruent with the topic studied by the experiment, that can have a big impact the results of the study (P.26)
+
+Problematic topic for study: Überblicksstudie zur Technikaffinität von Studenten der Uni Regensburg
+Counter-example: Blickverhalten von Informatik-Studenten beim Lesen von Programmiercode
