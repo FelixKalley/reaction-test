@@ -44,7 +44,7 @@ class ReactionTest(QtWidgets.QWidget):
         # list of words for attentive tasks
         self.attentiveList = {"bird": "1", "airplane": "1", "fly": "1",
                               "helicopter": "1", "spaceship": "1", "bee": "1",
-                              "Superman": "1", "U.F.O.": "1", "dragon": "1",
+                              "superman": "1", "U.F.O.": "1", "dragon": "1",
                               "butterfly": "1", "boat": "0", "car": "0",
                               "pizza": "0", "fish": "0", "dog": "0",
                               "cat": "0", "you": "0", "guitar": "0",
