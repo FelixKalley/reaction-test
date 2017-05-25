@@ -1,6 +1,10 @@
 Interesting events
+Nothing to mention
 
 Limitations
 
-One limitation is the selection of the keys. The selected keys are located next to each other, so you can only use one finger for both. A better selection for those might have been two key that the subject can click with two fingers, potential one from both hands. To click another key when a new stimulus is shown the subject must move the finger whereas with two other keys it has only to click the other key.
-Another limitation is the seamless change from attentive to pre-attentive stimulus and the other way around. When such a change happens the reaction to the first stimulus may be slower than otherwise.Also, the reaction to the very first stimulus is expected to be slower than any other. Because we expected this to happen, we make 11 repetitions per stimulus so we maybe can filter the first reaction.
+One limitation is the selection of the keys. The selected keys are located next to each other, so you can only use one finger for both. A different approach for this might have been two keys that the subject can click with two fingers, potentially using both hands. To click another key when a new stimulus is shown the subject only has to move the finger a little bit whereas with two other keys it has to click the another key located further away.
+
+Another limitation is the seamless change from attentive to pre-attentive stimulus and the other way around. When such a change happens the reaction to the first stimulus may be slower than otherwise.
+
+Also, the reaction to the very first stimulus is expected to be slower than any other. Because we expected this to happen, we do 11 repetitions per stimulus so we can filter the first reaction, if any detrimental effects are observable.
