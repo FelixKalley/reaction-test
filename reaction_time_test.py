@@ -295,9 +295,12 @@ class ReactionTest(QtWidgets.QWidget):
 
     # handles preattentive stimulus
     def preAttentive(self):
-        self.isAttentive = "attentive"
+        self.isAttentive = "pre-attentive"
+        # picks random word from pre-attentive words list
         self.text = list(self.preattentiveList)[random.randint(0, len(self.preattentiveList)-1)]
+        # save stimulus text for log
         self.stimulus = self.text
+        # save correct key for log
         if self.preattentiveList[self.text] == "0":
             self.correctKey = "down"
         elif self.preattentiveList[self.text] == "1":
@@ -306,9 +309,12 @@ class ReactionTest(QtWidgets.QWidget):
 
     # handles attentive stimulus
     def attentive(self):
-        self.isAttentive = "pre-attentive"
+        self.isAttentive = "attentive"
+        # picks random word from attentive words list
         self.text = list(self.attentiveList)[random.randint(0, len(self.attentiveList)-1)]
+        # save stimulus text for log
         self.stimulus = self.text
+        # save correct key for log
         if self.attentiveList[self.text] == "0":
             self.correctKey = "down"
         elif self.attentiveList[self.text] == "1":
@@ -360,33 +366,40 @@ class ReactionTest(QtWidgets.QWidget):
     # removes distractions
     def removeDistractionArrows(self):
         self.distractionArrows = ""
+
     # centers window on screen
     # source: http://zetcode.com/gui/pyqt5/firstprograms/
-
     def center(self):
         qr = self.frameGeometry()
         cp = QDesktopWidget().availableGeometry().center()
         qr.moveCenter(cp)
         self.move(qr.topLeft())
 
+    # screen when experiment finished
     def lastScreen(self):
         self.descriptionText = "Finished!"
         self.update()
 
+    # writes the current trail to the log file
     def writeCSV(self, pressedKey):
         id = self.subjectNum
         if pressedKey == self.correctKey:
             correctKeyPressed = True
         else:
             correctKeyPressed = False
+        # calculate the reaction time based on time when stimuli is shown til now
         reactionTime = int((datetime.datetime.now() - self.rTimeStart).total_seconds() * 1000)
         logTimestamp = str(datetime.datetime.now()).split('.')[0]
+        # all data for current log row
         csvRow = [id, self.stimulus, self.isAttentive,
                   self.isDistraction, pressedKey, self.correctKey,
                   correctKeyPressed, reactionTime, logTimestamp]
+        # name of current log file with timestamp to not override old ones
         logName = "reaction_time_results_" + str(self.subjectNum) + "_" + self.testTimestamp + ".csv"
+        # write log row to file
         with open(logName, 'a+') as logfile:
             csvWriter = csv.writer(logfile)
+            # if is first log row, first write header row
             if(self.repetitionCount == 1 and self.counter == 0):
                 # csv header row
                 csvHeader = ["participant ID", "stimulus", "mental complexity",
