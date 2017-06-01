@@ -1,8 +1,8 @@
 4.2 
 a) Which advantages do direct pointing devices have over indirect pointing devices? Name one use case where using a direct pointing device would not make any sense.
 Advantages of direct pointing devices are that users can aim for the actual target. Also every area of the screen is reachable and it works as expected. 
-A use case that makes no sense with direct pointing devices is touch on non-horizontal surfaces, because your arm wants to fall off (steve jobs)
+A use case that makes no sense with direct pointing devices would be according to Steve Jobs a touchscreen on a non-horizontal surface, because your arm wants to fall off (www.businessinsider.com/live-analysis-apples-mac-event-2010-10?IR=T)
 b) How would you characterize "Shift" based on the classification criteria mentioned in the Wikipedia article?
-According to the Wikipeida article it is a direct, absolute, isotonic, position control and translational input device with two degrees of freedom.
+According to the Wikipedia article it is a direct, absolute, isotonic, position control and translational input device with two degrees of freedom.
 c) What is the size of the display used in the study?
 They used a 550x730mm, 240x320px display for their experiment.
