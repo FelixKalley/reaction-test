@@ -1,0 +1,8 @@
+- Mehrere Kreise auf einmal
+- Kreise in zwei Farben (z.B. rot->anklicken, blau->nicht anklicken) 
+- Hintergrundbild als Ablenkung?
+- multiple rounds - heißt das jetzt z.B. 4 mal eine bestimmte Reihenfolge oder 4 Kreise zum anklicken? was ist eine Runde?
+- Kreise immer unterschiedlich groß und weit weg
+- Cursor immer zurücksetzen oder nicht? - ich find es verwirrend wenn der Cursor zurückgesetzt wird, ich würde als startpunkt immer den letzten Kreis nehmen, bzw. den Ort wo der Cursor gerade ist? (Bei Wimmers Beispiel funktioniert das mit dem zurücksetzen bei mir auch irgendwie nicht richtig)
+- Kreise anzeigen und Cursor tracking getrennt von Experiment-Design, weil in der nächsten Aufgabe wird das ausgetauscht!  
+
