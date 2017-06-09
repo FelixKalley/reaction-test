@@ -27,13 +27,27 @@ class PointingExperimentModel(object):
         self.amountCircles = 5
         self.clicked_targets = 0
         self.create_targets()
+        self.distractor_targets = []
 
     # creates the targets that should be clicked
     def create_targets(self):
         # gives us a list of (distance, width) tuples:
         self.targets = self.repetitions * list(itertools.product(self.distances, self.widths))
         random.shuffle(self.targets)
-        
+        self.distractors = self.repetitions * self.amountCircles * list(itertools.product(self.distances, self.widths))
+        random.shuffle(self.distractors)
+
+
+    def current_distractors(self):
+        if len(self.targets) > self.clicked_targets:
+            self.distractor_targets.clear()
+            for index in range(0, self.amountCircles):
+                self.distractor_targets.append(self.distractors[self.clicked_targets + index])
+            return self.distractor_targets
+        else:
+            return None
+
+
     def current_target(self):
         if len(self.targets) > self.clicked_targets:
             return self.targets[self.clicked_targets]
@@ -64,6 +78,7 @@ class PointingExperimentModel(object):
             sys.stderr.write("Error: wrong file format.")
             sys.exit(1)
 
+    
     def register_click(self, target_pos, click_pos):
         print("I REGISTERED A CLICK!")
         print(target_pos)
@@ -120,17 +135,17 @@ class PointingExperimentTest(QtWidgets.QWidget):
         while(not ready):
             angle = random.randint(0, 360)
             if angle == 0:
-                x = self.start_pos[0] + distance
-                y = self.start_pos[1]
+                x = self.current_pos()[0] + distance
+                y = self.current_pos()[1]
             elif angle == 180:
-                x = self.start_pos[0] - distance
-                y = self.start_pos[1]
+                x = self.current_pos()[0] - distance
+                y = self.current_pos()[1]
             elif angle == 90:
-                x = self.start_pos[0]
-                y = self.start_pos[1] + distance            
+                x = self.current_pos()[0]
+                y = self.current_pos()[1] + distance            
             elif angle == 270:
-                x = self.start_pos[0]
-                y = self.start_pos[1] - distance        
+                x = self.current_pos()[0]
+                y = self.current_pos()[1] - distance        
             else:
                 
                 
@@ -154,24 +169,43 @@ class PointingExperimentTest(QtWidgets.QWidget):
                 b = factorB * distance * math.sin(math.radians(beta)) / math.sin(math.radians(90))
                 c = distance * math.sin(math.radians(gamma)) / math.sin(math.radians(90))
                 
-                x = self.start_pos[0] + c
-                y = self.start_pos[1] + b
+                x = self.current_pos()[0] + c
+                y = self.current_pos()[1] + b
 
-            if x > self.screenXMax:
-                x = self.start_pos[0] - c
-            elif x < self.screenXMin:
-                x = self.start_pos[0] + c
-            if y > self.screenYMax:
-                y = self.start_pos[1] - b
-            elif y < self.screenYMin:
-                y = self.start_pos[1] + b
+                if x > self.screenXMax:
+                    x = self.current_pos()[0] - c
+                elif x < self.screenXMin:
+                    x = self.current_pos()[0] + c
+                if y > self.screenYMax:
+                    y = self.current_pos()[1] - b
+                elif y < self.screenYMin:
+                    y = self.current_pos()[1] + b
             if((x < self.screenXMax and x > self.screenXMin) and (y < self.screenYMax and y > self.screenYMin)):
                 ready = True
             # else:
                 # print("no way!")
         return (x, y)
 
+    def current_pos(self):
+        return (self.xpos, self.ypos)
+
+    def drawDistractorCircles(self, event, qp):
+        if self.model.current_distractors() is not None:
+            for circle in self.model.current_distractors():
+                distance = circle[0]
+                size = circle[1]
+                self.position = self.target_pos(distance)
+                self.xpos = self.position[0]
+                self.ypos = self.position[1]
+                qp.setBrush(QtGui.QColor(65, 61, 225))
+                qp.drawEllipse(self.xpos-size/2, self.ypos-size/2, size, size)
+        else:
+            sys.stderr.write("no targets left...")
+            sys.exit(1)
+        
+        
     def drawCircles(self, event, qp):
+        self.drawDistractorCircles(event, qp)
         if self.model.current_target() is not None:
             distance, size = self.model.current_target()
         else:
@@ -221,7 +255,7 @@ class PointingExperimentTest(QtWidgets.QWidget):
 
     def mousePressEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton:
-            tar = (self.xpos, self.ypos)
+            tar = self.current_pos()
             hit = self.model.register_click(tar, (event.x(), event.y()))
             if hit:
                 #QtGui.QCursor.setPos(self.mapToGlobal(QtCore.QPoint(self.start_pos[0], self.start_pos[1])))
