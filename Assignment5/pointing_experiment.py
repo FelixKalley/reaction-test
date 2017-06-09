@@ -21,7 +21,10 @@ from PyQt5.QtWidgets import QWidget, QDesktopWidget, QApplication
 class PointingExperimentModel(object):
     def __init__(self):
         self.parse_input()
-        self.repetitions = 4
+        # amount of circles per round
+        self.repetitions = 10
+        # amount of circles per click
+        self.amountCircles = 5
         self.clicked_targets = 0
         self.create_targets()
 
@@ -72,7 +75,6 @@ class PointingExperimentTest(QtWidgets.QWidget):
         self.descriptionText = "main hand on touchpad \n" \
                                "weak hand on spacebar \n" \
                                "to start press space!"
-        self.amountCircles = 5
         self.screenWidth = 793
         self.screenHeight = 603
         self.start_pos = (self.screenWidth / 2, self.screenHeight / 2)
@@ -81,6 +83,7 @@ class PointingExperimentTest(QtWidgets.QWidget):
         self.position = (0,0)
         self.testStarted = False
         self.initUI()
+        self.initScreen()
 
     def initUI(self):
         self.text = "Please click on the target"
@@ -94,10 +97,10 @@ class PointingExperimentTest(QtWidgets.QWidget):
 
     def initScreen(self):
         secRange = max(self.model.widths) / 2
-        xMin = secRange
-        xMax = self.screenWidth - secRange
-        yMin = secRange
-        yMax = self.screenHeight - secRange
+        self.screenXMin = secRange
+        self.screenXMax = self.screenWidth - secRange
+        self.screenYMin = secRange
+        self.screenYMax = self.screenHeight - secRange
 
     def target_pos(self, distance):
         angle = random.randint(0, 360)
@@ -114,31 +117,51 @@ class PointingExperimentTest(QtWidgets.QWidget):
             x = self.start_pos[0]
             y = self.start_pos[1] - distance        
         else:
-            if angle > 180:
+            
+            
+            if angle > 270:
+                factorB = -1
+                beta = 360 - angle
+            elif angle > 180:
+                factorB = -1
                 beta = angle - 180
+            elif angle > 90:
+                factorB = 1
+                beta = 180 - angle
             else:
+                factorB = 1
                 beta = angle
+                
             alpha = 90
             gamma = 90 - angle
             
             a = distance
-            b = distance * math.sin(math.radians(beta)) / math.sin(math.radians(90))
+            b = factorB * distance * math.sin(math.radians(beta)) / math.sin(math.radians(90))
             c = distance * math.sin(math.radians(gamma)) / math.sin(math.radians(90))
             
-            if beta > 270:
-                b = -b
-            elif beta > 180:
-                b = -b
-                c = -c
-            elif beta > 90:
-                c = -c
-                
             x = self.start_pos[0] + c
             y = self.start_pos[1] + b
+        '''
+        if x > self.screenXMax:
+            x = self.start_pos[0] - c
+            print("change x, because max:", x)
+        elif x < self.screenXMin:
+            print("change x, because min:", x)
+            x = self.start_pos[0] + c
+        if y > self.screenYMax:
+            print("change y, because max:", y)
+            y = self.start_pos[1] - b
+        elif y < self.screenYMin:
+            print("change y, because min:", y)
+            y = self.start_pos[1] + b
+        if(not (x < self.screenXMax and x > self.screenXMin) or not (y < self.screenYMax and y > self.screenYMin)):
+            print("no way!")
+        else:
+            print("ok!")
+        ''' 
+
         return (x, y)
 
-        
- 
     def drawCircles(self, event, qp):
         if self.model.current_target() is not None:
             distance, size = self.model.current_target()
@@ -146,26 +169,11 @@ class PointingExperimentTest(QtWidgets.QWidget):
             sys.stderr.write("no targets left...")
             sys.exit(1)
         self.position = self.target_pos(distance)
-        print(self.position)
+        # print(self.position)
         self.xpos = self.position[0]
         self.ypos = self.position[1]
         qp.setBrush(QtGui.QColor(200, 34, 20))
         qp.drawEllipse(self.xpos-size/2, self.ypos-size/2, size, size)
- 
-    '''    # last drawn circle is the correct one, so its always on top
-    def drawCircles(self, event, qp):
-        for index in range(0, self.amountCircles):
-            distance, width = self.model.current_target()
-            print(distance)
-            print(width)
-            print(self.target_pos(distance))
-            x, y = self.target_pos(distance)
-            if index == self.amountCircles - 1:
-                qp.setBrush(QtGui.QColor(255, 0, 0))
-            else:
-                qp.setBrush(QtGui.QColor(0, 255, 0))
-            qp.drawEllipse(x-width/2, y-width/2, width, width)
-            '''
 
     def paintEvent(self, event):
         qp = QtGui.QPainter()
