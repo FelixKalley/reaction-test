@@ -12,6 +12,7 @@ DISTANCES: 170, 300, 450, 700
 import sys
 import random
 import math
+import itertools
 from PyQt5 import QtGui, QtWidgets, QtCore
 
 # model that can be reused for task 5.2
@@ -19,13 +20,14 @@ from PyQt5 import QtGui, QtWidgets, QtCore
 class PointingExperimentModel(object):
     def __init__(self):
         self.parse_input()
-        self.create_targets()
+        self.repetitions = 4
         self.clicked_targets = 0
+        self.create_targets()
 
     # creates the targets that should be clicked
     def create_targets(self):
         # gives us a list of (distance, width) tuples:
-        self.targets = repetitions * list(itertools.product(self.distance, self.widths))
+        self.targets = self.repetitions * list(itertools.product(self.distances, self.widths))
         random.shuffle(self.targets)
         
     def current_target(self):
@@ -106,8 +108,10 @@ class PointingExperimentTest(QtWidgets.QWidget):
         else:
             if angle > 180:
                 beta = angle - 180
+            else:
+                beta = angle
             alpha = 90
-            gamma = 90 - angel
+            gamma = 90 - angle
             
             a = distance
             b = distance * math.sin(math.radians(beta)) / math.sin(math.radians(90))
@@ -127,7 +131,7 @@ class PointingExperimentTest(QtWidgets.QWidget):
 
         
  
-    def drawcircles(self, event, qp):
+    def drawCircles(self, event, qp):
         if self.model.current_target() is not None:
             distance, size = self.model.current_target()
         else:
@@ -140,7 +144,7 @@ class PointingExperimentTest(QtWidgets.QWidget):
         qp.setBrush(QtGui.QColor(200, 34, 20))
         qp.drawEllipse(x-size/2, y-size/2, size, size)
  
-'''    # last drawn circle is the correct one, so its always on top
+    '''    # last drawn circle is the correct one, so its always on top
     def drawCircles(self, event, qp):
         for index in range(0, self.amountCircles):
             distance, width = self.model.current_target()
@@ -152,7 +156,8 @@ class PointingExperimentTest(QtWidgets.QWidget):
                 qp.setBrush(QtGui.QColor(255, 0, 0))
             else:
                 qp.setBrush(QtGui.QColor(0, 255, 0))
-            qp.drawEllipse(x-width/2, y-width/2, width, width)'''
+            qp.drawEllipse(x-width/2, y-width/2, width, width)
+            '''
 
     def paintEvent(self, event):
         qp = QtGui.QPainter()
