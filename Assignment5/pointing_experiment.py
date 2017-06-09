@@ -14,6 +14,7 @@ import random
 import math
 import itertools
 from PyQt5 import QtGui, QtWidgets, QtCore
+from PyQt5.QtWidgets import QWidget, QDesktopWidget, QApplication
 
 # model that can be reused for task 5.2
 # pure python - no camel case?
@@ -68,11 +69,14 @@ class PointingExperimentTest(QtWidgets.QWidget):
         
         # initialize model
         self.model = PointingExperimentModel()
-        
+        self.descriptionText = "main hand on touchpad \n" \
+                               "weak hand on spacebar \n" \
+                               "to start press space!"
         self.amountCircles = 5
         self.screenWidth = 793
         self.screenHeight = 603
         self.start_pos = (self.screenWidth / 2, self.screenHeight / 2)
+        self.testStarted = False
         self.initUI()
 
     def initUI(self):
@@ -81,6 +85,7 @@ class PointingExperimentTest(QtWidgets.QWidget):
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
         QtGui.QCursor.setPos(self.mapToGlobal(QtCore.QPoint(self.start_pos[0], self.start_pos[1])))
         self.setMouseTracking(True)
+        self.center()
         self.show()
         self.update()
 
@@ -163,12 +168,47 @@ class PointingExperimentTest(QtWidgets.QWidget):
         qp = QtGui.QPainter()
         qp.begin(self)
         # self.drawBackground(event, qp)
-        # self.drawText(event, qp)
-        self.drawCircles(event, qp)
+        #self.drawDescriptionText(event, qp)
+        if self.testStarted:
+            self.drawCircles(event, qp)
+        else:
+            self.drawDescriptionText(event, qp)
         qp.end()
 
-            
+    # centers window on screen
+    # source: http://zetcode.com/gui/pyqt5/firstprograms/
+    def center(self):
+        qr = self.frameGeometry()
+        cp = QDesktopWidget().availableGeometry().center()
+        qr.moveCenter(cp)
+        self.move(qr.topLeft())   
 
+    # handles drawing of description text
+    def drawDescriptionText(self, event, qp):
+        # sets color
+        qp.setPen(QtGui.QColor(0, 204, 255))
+        # sets font
+        qp.setFont(QtGui.QFont('Decorative', 18))
+        # draws text
+        qp.drawText(event.rect(), QtCore.Qt.AlignCenter, self.descriptionText)
+
+        # handles keyPress Events
+    def keyPressEvent(self, event):
+        # if space button is pressed
+            if not self.testStarted and event.key() == QtCore.Qt.Key_Space:
+                self.testStarted = True
+                self.descriptionText = ""
+                self.update()
+
+    def mousePressEvent(self, event):
+        if event.button() == QtCore.Qt.LeftButton:
+            #tp = self.target_pos(self.model.current_target()[0])
+            #hit = self.model.register_click(tp, (ev.x(), ev.y()))
+            #if hit:
+                #QtGui.QCursor.setPos(self.mapToGlobal(QtCore.QPoint(self.start_pos[0], self.start_pos[1])))
+            #self.update()
+            print("REDRAW!!!")
+            self.update()
 
 def main():
     app = QtWidgets.QApplication(sys.argv)
