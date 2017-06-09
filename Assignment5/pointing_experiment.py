@@ -74,14 +74,10 @@ class PointingExperimentModel(object):
             return False
         else:
             click_offset = (target_pos[0] - click_pos[0], target_pos[1] - click_pos[1])
-            self.log_time(self.stop_measurement(), click_offset)
-            self.elapsed += 1
+            # self.log_time(self.stop_measurement(), click_offset)
+            self.clicked_targets += 1
             return True
 
-    def target_hit(self):
-        self.clicked_targets += 1
-
-        
 # concrete implementation of Fitts law pointing 
 class PointingExperimentTest(QtWidgets.QWidget):
     def __init__(self):
@@ -120,63 +116,60 @@ class PointingExperimentTest(QtWidgets.QWidget):
         self.screenYMax = self.screenHeight - secRange
 
     def target_pos(self, distance):
-        angle = random.randint(0, 360)
-        if angle == 0:
-            x = self.start_pos[0] + distance
-            y = self.start_pos[1]
-        elif angle == 180:
-            x = self.start_pos[0] - distance
-            y = self.start_pos[1]
-        elif angle == 90:
-            x = self.start_pos[0]
-            y = self.start_pos[1] + distance            
-        elif angle == 270:
-            x = self.start_pos[0]
-            y = self.start_pos[1] - distance        
-        else:
-            
-            
-            if angle > 270:
-                factorB = -1
-                beta = 360 - angle
-            elif angle > 180:
-                factorB = -1
-                beta = angle - 180
-            elif angle > 90:
-                factorB = 1
-                beta = 180 - angle
+        ready = False
+        while(not ready):
+            angle = random.randint(0, 360)
+            if angle == 0:
+                x = self.start_pos[0] + distance
+                y = self.start_pos[1]
+            elif angle == 180:
+                x = self.start_pos[0] - distance
+                y = self.start_pos[1]
+            elif angle == 90:
+                x = self.start_pos[0]
+                y = self.start_pos[1] + distance            
+            elif angle == 270:
+                x = self.start_pos[0]
+                y = self.start_pos[1] - distance        
             else:
-                factorB = 1
-                beta = angle
                 
-            alpha = 90
-            gamma = 90 - angle
-            
-            a = distance
-            b = factorB * distance * math.sin(math.radians(beta)) / math.sin(math.radians(90))
-            c = distance * math.sin(math.radians(gamma)) / math.sin(math.radians(90))
-            
-            x = self.start_pos[0] + c
-            y = self.start_pos[1] + b
-        '''
-        if x > self.screenXMax:
-            x = self.start_pos[0] - c
-            print("change x, because max:", x)
-        elif x < self.screenXMin:
-            print("change x, because min:", x)
-            x = self.start_pos[0] + c
-        if y > self.screenYMax:
-            print("change y, because max:", y)
-            y = self.start_pos[1] - b
-        elif y < self.screenYMin:
-            print("change y, because min:", y)
-            y = self.start_pos[1] + b
-        if(not (x < self.screenXMax and x > self.screenXMin) or not (y < self.screenYMax and y > self.screenYMin)):
-            print("no way!")
-        else:
-            print("ok!")
-        ''' 
+                
+                if angle > 270:
+                    factorB = -1
+                    beta = 360 - angle
+                elif angle > 180:
+                    factorB = -1
+                    beta = angle - 180
+                elif angle > 90:
+                    factorB = 1
+                    beta = 180 - angle
+                else:
+                    factorB = 1
+                    beta = angle
+                    
+                alpha = 90
+                gamma = 90 - angle
+                
+                a = distance
+                b = factorB * distance * math.sin(math.radians(beta)) / math.sin(math.radians(90))
+                c = distance * math.sin(math.radians(gamma)) / math.sin(math.radians(90))
+                
+                x = self.start_pos[0] + c
+                y = self.start_pos[1] + b
 
+            if x > self.screenXMax:
+                x = self.start_pos[0] - c
+            elif x < self.screenXMin:
+                x = self.start_pos[0] + c
+            if y > self.screenYMax:
+                y = self.start_pos[1] - b
+            elif y < self.screenYMin:
+                y = self.start_pos[1] + b
+            if((x < self.screenXMax and x > self.screenXMin) and (y < self.screenYMax and y > self.screenYMin)):
+                ready = True
+            else:
+                # print("no way!")
+    
         return (x, y)
 
     def drawCircles(self, event, qp):
@@ -229,15 +222,14 @@ class PointingExperimentTest(QtWidgets.QWidget):
 
     def mousePressEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton:
-            tar = self.target_pos(self.model.current_target()[0])
+            tar = (self.xpos, self.ypos)
             hit = self.model.register_click(tar, (event.x(), event.y()))
-            print("YO MISS!")
             if hit:
                 #QtGui.QCursor.setPos(self.mapToGlobal(QtCore.QPoint(self.start_pos[0], self.start_pos[1])))
                 print("YO HIT!!")
-                self.model.target_hit()
                 self.update()
-
+            else:
+                print("YO MISS!")                
 
 
 def main():
