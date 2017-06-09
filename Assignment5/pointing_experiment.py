@@ -76,6 +76,9 @@ class PointingExperimentTest(QtWidgets.QWidget):
         self.screenWidth = 793
         self.screenHeight = 603
         self.start_pos = (self.screenWidth / 2, self.screenHeight / 2)
+        self.xpos = 0
+        self.ypos = 0
+        self.position = (0,0)
         self.testStarted = False
         self.initUI()
 
@@ -142,12 +145,12 @@ class PointingExperimentTest(QtWidgets.QWidget):
         else:
             sys.stderr.write("no targets left...")
             sys.exit(1)
-        position = self.target_pos(distance)
-        print(position)
-        x = position[0]
-        y = position[1]
+        self.position = self.target_pos(distance)
+        print(self.position)
+        self.xpos = self.position[0]
+        self.ypos = self.position[1]
         qp.setBrush(QtGui.QColor(200, 34, 20))
-        qp.drawEllipse(x-size/2, y-size/2, size, size)
+        qp.drawEllipse(self.xpos-size/2, self.ypos-size/2, size, size)
  
     '''    # last drawn circle is the correct one, so its always on top
     def drawCircles(self, event, qp):
@@ -168,7 +171,6 @@ class PointingExperimentTest(QtWidgets.QWidget):
         qp = QtGui.QPainter()
         qp.begin(self)
         # self.drawBackground(event, qp)
-        #self.drawDescriptionText(event, qp)
         if self.testStarted:
             self.drawCircles(event, qp)
         else:
@@ -206,8 +208,6 @@ class PointingExperimentTest(QtWidgets.QWidget):
             #hit = self.model.register_click(tp, (ev.x(), ev.y()))
             #if hit:
                 #QtGui.QCursor.setPos(self.mapToGlobal(QtCore.QPoint(self.start_pos[0], self.start_pos[1])))
-            #self.update()
-            print("REDRAW!!!")
             self.update()
 
 def main():
