@@ -61,6 +61,23 @@ class PointingExperimentModel(object):
             sys.stderr.write("Error: wrong file format.")
             sys.exit(1)
 
+    def register_click(self, target_pos, click_pos):
+        print("I REGISTERED A CLICK!")
+        print(target_pos)
+        print(click_pos)
+        dist = math.sqrt((target_pos[0]-click_pos[0]) * (target_pos[0]-click_pos[0]) +
+                         (target_pos[1]-click_pos[1]) * (target_pos[1]-click_pos[1]))
+        if dist > self.current_target()[1]:
+            return False
+        else:
+            click_offset = (target_pos[0] - click_pos[0], target_pos[1] - click_pos[1])
+            self.log_time(self.stop_measurement(), click_offset)
+            self.elapsed += 1
+            return True
+
+    def target_hit(self):
+        self.clicked_targets += 1
+
         
 # concrete implementation of Fitts law pointing 
 class PointingExperimentTest(QtWidgets.QWidget):
@@ -204,11 +221,16 @@ class PointingExperimentTest(QtWidgets.QWidget):
 
     def mousePressEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton:
-            #tp = self.target_pos(self.model.current_target()[0])
-            #hit = self.model.register_click(tp, (ev.x(), ev.y()))
-            #if hit:
+            tar = self.target_pos(self.model.current_target()[0])
+            hit = self.model.register_click(tar, (event.x(), event.y()))
+            print("YO MISS!")
+            if hit:
                 #QtGui.QCursor.setPos(self.mapToGlobal(QtCore.QPoint(self.start_pos[0], self.start_pos[1])))
-            self.update()
+                print("YO HIT!!")
+                self.model.target_hit()
+                self.update()
+
+
 
 def main():
     app = QtWidgets.QApplication(sys.argv)
