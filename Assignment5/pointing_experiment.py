@@ -167,9 +167,8 @@ class PointingExperimentTest(QtWidgets.QWidget):
                 y = self.start_pos[1] + b
             if((x < self.screenXMax and x > self.screenXMin) and (y < self.screenYMax and y > self.screenYMin)):
                 ready = True
-            else:
+            # else:
                 # print("no way!")
-    
         return (x, y)
 
     def drawCircles(self, event, qp):
