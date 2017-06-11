@@ -172,7 +172,6 @@ class PointingExperimentTest(QtWidgets.QWidget):
         changed = (0,0)
         while(not ready):
             angle = random.randint(0, 360)
-            
             if angle == 0:
                 x = self.current_pos()[0] + distance
                 y = self.current_pos()[1]
@@ -219,6 +218,7 @@ class PointingExperimentTest(QtWidgets.QWidget):
                     y = self.current_pos()[1] - b
                 elif y < self.screenYMin:
                     y = self.current_pos()[1] + b
+            # if circle is full on screen
             if((x < self.screenXMax and x > self.screenXMin) and (y < self.screenYMax and y > self.screenYMin)):
                 if not (len(self.positionList) == 0):
                     for posData in self.positionList:
@@ -240,13 +240,23 @@ class PointingExperimentTest(QtWidgets.QWidget):
                                 radius = size / 2
                                 # print("after:", distance, radius)
                                 changed = (distance, size)
+                                counter = 0
                             break
                         else:
                             ready = True
                             # print("ok")
                 else:
                     ready = True
-
+            else:
+                counter += 1
+                if counter > 20:
+                    print("not on screen, new values")
+                    distance, size = self.model.impossible_target()
+                    radius = size / 2
+                    # print("after:", distance, radius)
+                    changed = (distance, size)
+                    counter = 0
+                
         return (x, y, changed)
         
     def current_pos(self):
