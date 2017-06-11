@@ -227,8 +227,15 @@ class PointingExperimentTest(QtWidgets.QWidget):
         return (self.xpos, self.ypos)
 
     def drawDistractorCircles(self, event, qp):
-        self.positionList.clear()
-        if self.model.current_distractors() is not None:
+        if self.shouldRedraw:
+            for circle in self.positionList[:-1]:
+                x = circle[0]
+                y = circle[1]
+                size = circle[2] * 2
+
+                self.redrawCircle(x, y, size, QtGui.QColor(65, 61, 225), qp)
+        elif self.model.current_distractors() is not None:
+            self.positionList.clear()
             for circle in self.model.current_distractors():
                 distance = circle[0]
                 size = circle[1]
@@ -237,21 +244,33 @@ class PointingExperimentTest(QtWidgets.QWidget):
         else:
             sys.stderr.write("no targets left...")
             sys.exit(1)
+
         
         
     def drawAllCircles(self, event, qp):
         self.drawDistractorCircles(event, qp)
-        if self.model.current_target() is not None:
+        if self.shouldRedraw:
+            for circle in self.positionList[-1:]:
+                x = circle[0]
+                y = circle[1]
+                size = circle[2] * 2
+
+                self.redrawCircle(x, y, size, QtGui.QColor(200, 34, 20), qp)
+        elif self.model.current_target() is not None:
             distance, size = self.model.current_target()
             self.drawCircle(distance, size, QtGui.QColor(200, 34, 20), qp)
         else:
             sys.stderr.write("no targets left...")
-            sys.exit(1)        
+            sys.exit(1)
+        self.shouldRedraw = True
+
+    def redrawCircle(self, x, y, size, color, qp):
+        qp.setBrush(color)
+        qp.drawEllipse(x-size/2, y-size/2, size, size)
 
     # only called from drawAllCircles and drawDistractorCircles
     def drawCircle(self, distance, size, color, qp):
         self.position = self.target_pos(distance, size / 2)
-        # print(self.position)
         self.xpos = self.position[0]
         self.ypos = self.position[1]
         if(not self.position[2] == (0,0)):
@@ -294,6 +313,7 @@ class PointingExperimentTest(QtWidgets.QWidget):
     def keyPressEvent(self, event):
         # if space button is pressed
             if not self.testStarted and event.key() == QtCore.Qt.Key_Space:
+                self.shouldRedraw = False
                 self.testStarted = True
                 self.descriptionText = ""
                 self.update()
@@ -305,6 +325,7 @@ class PointingExperimentTest(QtWidgets.QWidget):
             if hit:
                 #QtGui.QCursor.setPos(self.mapToGlobal(QtCore.QPoint(self.start_pos[0], self.start_pos[1])))
                 #print("YO HIT!!")
+                self.shouldRedraw = False
                 self.update()
             #else:
                 #print("YO MISS!")                
