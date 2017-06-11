@@ -149,6 +149,9 @@ class PointingExperimentTest(QtWidgets.QWidget):
         self.round = 0
         self.finishedRound = False
         self.numHits = 0
+        self.target_color = QtGui.QColor(20,20,20)
+        self.distractor_color = QtGui.QColor(10, 10, 10)
+        self.circle_colors = ["red", "blue", "gray", "green"]
         self.initUI()
         self.initScreen()
 
@@ -272,14 +275,14 @@ class PointingExperimentTest(QtWidgets.QWidget):
                 y = circle[1]
                 size = circle[2] * 2
 
-                self.redrawCircle(x, y, size, QtGui.QColor(65, 61, 225), qp)
+                self.redrawCircle(x, y, size, self.distractor_color, qp)
         elif self.model.current_distractors() is not None:
             self.positionList.clear()
             for circle in self.model.current_distractors():
                 distance = circle[0]
                 size = circle[1]
                 
-                self.drawCircle(distance, size, QtGui.QColor(0, 0, 255), qp)
+                self.drawCircle(distance, size, self.distractor_color, qp)
         else:
             sys.stderr.write("no targets left...")
             sys.exit(1)
@@ -294,10 +297,10 @@ class PointingExperimentTest(QtWidgets.QWidget):
                 y = circle[1]
                 size = circle[2] * 2
 
-                self.redrawCircle(x, y, size, QtGui.QColor(200, 34, 20), qp)
+                self.redrawCircle(x, y, size, self.target_color, qp)
         elif self.model.current_target() is not None:
             distance, size = self.model.current_target()
-            self.drawCircle(distance, size, QtGui.QColor(255, 0, 0), qp)
+            self.drawCircle(distance, size, self.target_color, qp)
         else:
             sys.stderr.write("no targets left...")
             sys.exit(1)
@@ -357,11 +360,15 @@ class PointingExperimentTest(QtWidgets.QWidget):
                 self.shouldRedraw = False
                 self.testStarted = True
                 self.descriptionText = ""
+                self.round = 1
+                self.checkColor()
                 self.update()
-            elif self.testStarted and self.finishedRound:
+            elif self.testStarted and self.finishedRound and not self.round == 4:
                 self.shouldRedraw = False
                 self.descriptionText = ""
                 self.finishedRound = False
+                self.round += 1
+                self.checkColor()
                 self.update()
                 
     
@@ -387,10 +394,42 @@ class PointingExperimentTest(QtWidgets.QWidget):
                 #print("YO MISS!") 
         else: 
             self.finishedRound = True
-            self.descriptionText = "Round2"
+            self.checkRound()
             self.numHits = 0
-            print(self.descriptionText)
             self.update()               
+
+    def checkRound(self):
+        if self.round == 1:
+            self.descriptionText = "First round done! \n" \
+                                   "To continue, press space."
+        if self.round == 2:
+            self.descriptionText = "Second round done! \n" \
+                                   "To continue, press space."
+        if self.round == 3:
+            self.descriptionText = "Third round done! \n" \
+                                   "To continue, press space."
+        if self.round == 4:
+            self.descriptionText = "FINISHED! \n" \
+                                   "You can now close the program."
+        else:
+            pass
+
+    def checkColor(self):
+        if self.circle_colors[self.round-1] == "red":
+            self.target_color = QtGui.QColor(255, 0 , 0)
+            self.distractor_color = QtGui.QColor(200, 0, 0)
+        elif self.circle_colors[self.round-1] == "green":
+            self.target_color = QtGui.QColor(0, 255, 0)
+            self.distractor_color = QtGui.QColor(0, 200, 0)
+        elif self.circle_colors[self.round-1] == "blue":
+            self.target_color = QtGui.QColor(0, 0, 255)
+            self.distractor_color = QtGui.QColor (0, 0, 200)
+        elif self.circle_colors[self.round-1] == "gray":
+            self.target_color = QtGui.QColor (125, 125, 125)
+            self.distractor_color = QtGui.QColor (70, 70, 70)
+        else:
+            pass
+
 
 
 def main():
