@@ -22,9 +22,9 @@ class PointingExperimentModel(object):
     def __init__(self):
         self.parse_input()
         self.timer = QtCore.QTime()
-        # amount of circles per round
+        # amount of repetitions per round
         self.repetitions = 10
-        # amount of circles per click
+        # amount of circles per repetition
         self.amountCircles = 5
         self.mouse_moving = False
         self.clicked_targets = 0
@@ -44,7 +44,7 @@ class PointingExperimentModel(object):
     def current_distractors(self):
         if len(self.targets) > self.clicked_targets:
             self.distractor_targets.clear()
-            for index in range(0, self.amountCircles):
+            for index in range(0, self.amountCircles-1):
                 self.distractor_targets.append(self.distractors[self.clicked_targets + index])
             return self.distractor_targets
         else:
@@ -146,6 +146,9 @@ class PointingExperimentTest(QtWidgets.QWidget):
         self.ypos = 0
         self.position = (0,0)
         self.testStarted = False
+        self.round = 0
+        self.finishedRound = False
+        self.numHits = 0
         self.initUI()
         self.initScreen()
 
@@ -276,7 +279,7 @@ class PointingExperimentTest(QtWidgets.QWidget):
                 distance = circle[0]
                 size = circle[1]
                 
-                self.drawCircle(distance, size, QtGui.QColor(65, 61, 225), qp)
+                self.drawCircle(distance, size, QtGui.QColor(0, 0, 255), qp)
         else:
             sys.stderr.write("no targets left...")
             sys.exit(1)
@@ -294,7 +297,7 @@ class PointingExperimentTest(QtWidgets.QWidget):
                 self.redrawCircle(x, y, size, QtGui.QColor(200, 34, 20), qp)
         elif self.model.current_target() is not None:
             distance, size = self.model.current_target()
-            self.drawCircle(distance, size, QtGui.QColor(200, 34, 20), qp)
+            self.drawCircle(distance, size, QtGui.QColor(255, 0, 0), qp)
         else:
             sys.stderr.write("no targets left...")
             sys.exit(1)
@@ -322,8 +325,10 @@ class PointingExperimentTest(QtWidgets.QWidget):
         qp = QtGui.QPainter()
         qp.begin(self)
         # self.drawBackground(event, qp)
-        if self.testStarted:
+        if self.testStarted and not self.finishedRound:
             self.drawAllCircles(event, qp)
+        elif self.finishedRound:
+            self.drawDescriptionText(event, qp)
         else:
             self.drawDescriptionText(event, qp)
         qp.end()
@@ -361,16 +366,26 @@ class PointingExperimentTest(QtWidgets.QWidget):
             self.update()
 
     def mousePressEvent(self, event):
-        if event.button() == QtCore.Qt.LeftButton:
-            tar = self.current_pos()
-            hit = self.model.register_click(tar, (event.x(), event.y()))
-            if hit:
+        if self.numHits < self.model.repetitions -1:
+            if event.button() == QtCore.Qt.LeftButton:
+                position_clicked = self.current_pos()
+                check_hit = self.model.register_click(position_clicked, (event.x(), event.y()))
+            if check_hit:
                 #QtGui.QCursor.setPos(self.mapToGlobal(QtCore.QPoint(self.start_pos[0], self.start_pos[1])))
                 #print("YO HIT!!")
                 self.shouldRedraw = False
+                self.numHits += 1
+                print(self.numHits)
+
                 self.update()
             #else:
-                #print("YO MISS!")                
+                #print("YO MISS!") 
+        else: 
+            self.finishedRound = True
+            self.descriptionText = "Round2"
+
+            print(self.descriptionText)
+            self.update()               
 
 
 def main():
