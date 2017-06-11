@@ -118,7 +118,8 @@ class PointingExperimentModel(object):
                     self.colors = str_colors.strip().split(", ")
                     print("Successfully parsed as .json-file")
                 except:
-                    print("No correct .json file given! Please check comments for file formatting.")
+                    sys.stderr.write("Error: Could not parse as .ini or .json file! Please check comments for file formatting.")
+                    sys.exit(1)
         else:
             sys.stderr.write("Error: Something went wrong with the file formatting.")
             sys.exit(1)
