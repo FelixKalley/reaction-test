@@ -1,0 +1,13 @@
+{
+    "user": {
+        "id": "1",
+        "pointer": "default"
+    },
+    "circles": {
+        "widths": "35, 60, 100, 170",
+        "distances": "170, 200, 300, 400"
+    },
+    "colors": {
+        "order": "red, green, blue, gray"
+    }
+}

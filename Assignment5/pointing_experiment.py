@@ -3,25 +3,56 @@
 # Contribution: Felix Kalley, Lena Manschewski
 
 
-""" setup file looks like this:
-USER: 1
-WIDTHS: 35, 60, 100, 170
-DISTANCES: 170, 300, 450, 700
+""" setup.ini file looks like this:
+; ini file for experiment input
+[user]
+id = 1
+pointer = default
+
+[circles]
+; min = 0, max = 200
+widths = 35, 60, 100, 170
+; min = 0, max = 400
+distances = 170, 200, 300, 400
+
+[colors]
+; possible colors are red, green, blue and gray
+order = red, green, blue, gray
+"""
+
+""" setup.json file looks like this:
+{
+    "user": {
+        "id": "1",
+        "pointer": "default"
+    },
+    "circles": {
+        "widths": "35, 60, 100, 170",
+        "distances": "170, 200, 300, 400"
+    },
+    "colors": {
+        "order": "red, green, blue, gray"
+    }
+}
 """
 
 import sys
 import random
 import math
 import itertools
+import json
 from PyQt5 import QtGui, QtWidgets, QtCore
 from PyQt5.QtWidgets import QWidget, QDesktopWidget, QApplication
+from configparser import ConfigParser
 
 # model that can be reused for task 5.2
 # pure python - no camel case?
 class PointingExperimentModel(object):
     def __init__(self):
-        self.parse_input()
+        #self.parse_input()
         self.timer = QtCore.QTime()
+        self.config = ConfigParser()
+        self.parse_file()
         # amount of repetitions per round
         self.repetitions = 10
         # amount of circles per repetition
@@ -57,30 +88,40 @@ class PointingExperimentModel(object):
         else:
             return None
     
-    def parse_input(self):
-        if len(sys.argv) < 2:
-            sys.stderr.write("Usage: %s <setup file>\n" % sys.argv[0])
-            sys.exit(1)
-
-        lines = open(sys.argv[1], "r").readlines()
-        if lines[0].startswith("USER:"):
-            self.user_id = lines[0].split(":")[1].strip()
+    def parse_file(self):
+        # if file is given
+        if len(sys.argv[1:]):
+            try:
+                self.config.read(sys.argv[1])
+                self.user_id = self.config.get("user", "id")
+                self.pointer = self.config.get("user", "pointer")
+                str_widths = self.config.get("circles", "widths")
+                self.widths = [int(x) for x in str_widths.split(",")]
+                str_distances = self.config.get("circles", "distances")
+                self.distances = [int(x) for x in str_distances.split(",")]
+                str_colors = self.config.get("colors", "order")
+                self.colors = [str for str in str_colors.split(", ")]
+                print("Successfully parsed as .ini-file.")
+            except:
+                # prints error message
+                print("No correct .ini file given! Trying to parse as JSON...")
+                try:
+                    with open(sys.argv[1]) as data_file:    
+                        json_input = json.load(data_file)
+                    self.user_id = int(json_input["user"]["id"])
+                    self.pointer = json_input["user"]["pointer"]
+                    str_widths = json_input["circles"]["widths"]
+                    self.widths = [int(x) for x in str_widths.split(",")]
+                    str_distances = json_input["circles"]["distances"]
+                    self.distances = [int(x) for x in str_widths.split(",")]
+                    str_colors = json_input["colors"]["order"]
+                    self.colors = str_colors.strip().split(", ")
+                    print("Successfully parsed as .json-file")
+                except:
+                    print("No correct .json file given! Please check comments for file formatting.")
         else:
-            sys.stderr.write("Error: wrong file format.")
+            sys.stderr.write("Error: Something went wrong with the file formatting.")
             sys.exit(1)
-        if lines[1].startswith("WIDTHS:"):
-            width_string = lines[1].split(":")[1].strip()
-            self.widths = [int(x) for x in width_string.split(",")]
-        else:
-            sys.stderr.write("Error: wrong file format.")
-            sys.exit(1)
-        if lines[2].startswith("DISTANCES:"):
-            distance_string = lines[2].split(":")[1].strip()
-            self.distances = [int(x) for x in distance_string.split(",")]
-        else:
-            sys.stderr.write("Error: wrong file format.")
-            sys.exit(1)
-
     
     def register_click(self, target_pos, click_pos):
         #print("I REGISTERED A CLICK!")
@@ -158,7 +199,8 @@ class PointingExperimentTest(QtWidgets.QWidget):
         self.numHits = 0
         self.target_color = QtGui.QColor(20,20,20)
         self.distractor_color = QtGui.QColor(10, 10, 10)
-        self.circle_colors = ["red", "blue", "gray", "green"]
+        self.circle_colors = self.model.colors
+        print(self.circle_colors)
         self.initUI()
         self.initScreen()
 
