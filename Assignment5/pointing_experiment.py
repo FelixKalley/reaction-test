@@ -21,14 +21,16 @@ from PyQt5.QtWidgets import QWidget, QDesktopWidget, QApplication
 class PointingExperimentModel(object):
     def __init__(self):
         self.parse_input()
+        self.timer = QtCore.QTime()
         # amount of circles per round
         self.repetitions = 10
         # amount of circles per click
         self.amountCircles = 5
+        self.mouse_moving = False
         self.clicked_targets = 0
         self.create_targets()
         self.distractor_targets = []
-
+        print("timestamp (ISO); user_id; trial; target_distance; target_size; movement_time (ms); click_offset_x; click_offset_y")
 
     # creates the targets that should be clicked
     def create_targets(self):
@@ -90,15 +92,39 @@ class PointingExperimentModel(object):
             return False
         else:
             click_offset = (target_pos[0] - click_pos[0], target_pos[1] - click_pos[1])
-            # self.log_time(self.stop_measurement(), click_offset)
+            self.log_time(self.stop_measurement(), click_offset)
             self.clicked_targets += 1
             return True
-    
+
+    def log_time(self, time, click_offset):
+        distance, size = self.current_target()
+        print("%s; %s; %d; %d; %d; %d; %d; %d" % (self.timestamp(), self.user_id, self.clicked_targets, distance, size, time, click_offset[0], click_offset[1]))
+
+    def start_measurement(self):
+        if not self.mouse_moving:
+            self.timer.start()
+            self.mouse_moving = True
+
+    def stop_measurement(self):
+        if self.mouse_moving:
+            elapsed = self.timer.elapsed()
+            self.mouse_moving = False
+            return elapsed
+        else:
+            self.debug("not running")
+            return -1
+
     def impossible_target(self):
         newDistance = self.distances[random.randint(0, len(self.distances) - 1)]
         newWidth = self.widths[random.randint(0, len(self.widths) - 1)]
         # new distance and width 
         return newDistance, newWidth
+
+    def timestamp(self):
+        return QtCore.QDateTime.currentDateTime().toString(QtCore.Qt.ISODate)
+
+    def debug(self, msg):
+        sys.stderr.write(self.timestamp() + ": " + str(msg) + "\n")
 
     
 # concrete implementation of Fitts law pointing 
@@ -317,6 +343,12 @@ class PointingExperimentTest(QtWidgets.QWidget):
                 self.testStarted = True
                 self.descriptionText = ""
                 self.update()
+                
+    
+    def mouseMoveEvent(self, ev):
+        if self.testStarted and ((abs(ev.x() - self.start_pos[0]) > 5) or (abs(ev.y() - self.start_pos[1]) > 5)):
+            self.model.start_measurement()
+            self.update()
 
     def mousePressEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton:
