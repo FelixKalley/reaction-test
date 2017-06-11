@@ -358,6 +358,11 @@ class PointingExperimentTest(QtWidgets.QWidget):
                 self.testStarted = True
                 self.descriptionText = ""
                 self.update()
+            elif self.testStarted and self.finishedRound:
+                self.shouldRedraw = False
+                self.descriptionText = ""
+                self.finishedRound = False
+                self.update()
                 
     
     def mouseMoveEvent(self, ev):
@@ -383,7 +388,7 @@ class PointingExperimentTest(QtWidgets.QWidget):
         else: 
             self.finishedRound = True
             self.descriptionText = "Round2"
-
+            self.numHits = 0
             print(self.descriptionText)
             self.update()               
 
