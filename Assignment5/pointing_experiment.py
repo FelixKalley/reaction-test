@@ -455,25 +455,25 @@ class PointingExperimentTest(QtWidgets.QWidget):
             self.update()
 
     def mousePressEvent(self, event):
-        if self.numHits < self.model.repetitions -1:
-            if event.button() == QtCore.Qt.LeftButton:
-                position_clicked = self.current_pos()
-                check_hit = self.model.register_click(position_clicked, (event.x(), event.y()))
+        if event.button() == QtCore.Qt.LeftButton:
+            position_clicked = self.current_pos()
+            check_hit = self.model.register_click(position_clicked, (event.x(), event.y()))
             if check_hit:
-                #QtGui.QCursor.setPos(self.mapToGlobal(QtCore.QPoint(self.start_pos[0], self.start_pos[1])))
-                #print("YO HIT!!")
-                self.shouldRedraw = False
-                self.numHits += 1
-                print(self.numHits)
-
-                self.update()
-            #else:
-                #print("YO MISS!") 
-        else: 
-            self.finishedRound = True
-            self.checkRound()
-            self.numHits = 0
-            self.update()               
+                if self.numHits < self.model.repetitions -1:
+                    #QtGui.QCursor.setPos(self.mapToGlobal(QtCore.QPoint(self.start_pos[0], self.start_pos[1])))
+                    #print("YO HIT!!")
+                    self.shouldRedraw = False
+                    self.numHits += 1
+                    print(self.numHits)
+    
+                    self.update()
+                #else:
+                    #print("YO MISS!") 
+                else:         
+                    self.finishedRound = True
+                    self.checkRound()
+                    self.numHits = 0
+                    self.update()               
 
     def checkRound(self):
         if self.round == 1:
