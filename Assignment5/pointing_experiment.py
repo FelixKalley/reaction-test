@@ -134,9 +134,16 @@ class PointingExperimentTest(QtWidgets.QWidget):
         
         # initialize model
         self.model = PointingExperimentModel()
-        self.descriptionText = "main hand on touchpad \n" \
-                               "weak hand on spacebar \n" \
-                               "to start press space!"
+        self.descriptionText = "This is an experiment to test your aiming speed. \n" \
+                               " \n" \
+                               "You will see several circles. \n" \
+                               "Please click the one with the lightest color. \n" \
+                               " \n" \
+                               "Put your dominant hand on the touchpad. \n" \
+                               "Put your weak hand on the space bar. \n" \
+                               "Keep both hands in this position. \n" \
+                               " \n" \
+                               "To start press space!"
         self.screenWidth = 793
         self.screenHeight = 603
         
