@@ -40,7 +40,9 @@ import sys
 import random
 import math
 import itertools
+import datetime
 import json
+import csv
 from PyQt5 import QtGui, QtWidgets, QtCore
 from PyQt5.QtWidgets import QWidget, QDesktopWidget, QApplication
 from configparser import ConfigParser
@@ -61,6 +63,8 @@ class PointingExperimentModel(object):
         self.clicked_targets = 0
         self.create_targets()
         self.distractor_targets = []
+        self.startedTimestamp = str(datetime.datetime.now()).split('.')[0]
+
         print("timestamp (ISO); user_id; trial; target_distance; target_size; movement_time (ms); click_offset_x; click_offset_y")
 
     # creates the targets that should be clicked
@@ -140,7 +144,30 @@ class PointingExperimentModel(object):
 
     def log_time(self, time, click_offset):
         distance, size = self.current_target()
+        self.writeCSV(time, click_offset, distance, size)
         print("%s; %s; %d; %d; %d; %d; %d; %d" % (self.timestamp(), self.user_id, self.clicked_targets, distance, size, time, click_offset[0], click_offset[1]))
+
+
+    # writes the current trail to the log file
+    def writeCSV(self, time, click_offset, distance, size):
+        # all data for current log row
+        csvRow = [self.timestamp(), self.user_id, self.clicked_targets, distance,
+                  size, time, click_offset[0], click_offset[1]]
+        # name of current log file with timestamp to not override old ones
+        logName = "pointing_experiment_log" + str(self.user_id) + "_" + self.startedTimestamp + ".csv"
+        # write log row to file
+        with open(logName, 'a+') as logfile:
+            csvWriter = csv.writer(logfile)
+            # if is first log row, first write header row
+            if(self.clicked_targets == 0):
+                # csv header row
+                csvHeader = ["timestamp (ISO)", "user_id", "trial", "target_distance",
+                             "target_size", "movement_time (ms)", "click_offset_x",
+                             "click_offset_y"]
+                csvWriter.writerow(csvHeader)
+            csvWriter.writerow(csvRow)
+
+
 
     def start_measurement(self):
         if not self.mouse_moving:
@@ -467,13 +494,13 @@ class PointingExperimentTest(QtWidgets.QWidget):
     def checkColor(self):
         if self.circle_colors[self.round-1] == "red":
             self.target_color = QtGui.QColor(255, 0 , 0)
-            self.distractor_color = QtGui.QColor(200, 0, 0)
+            self.distractor_color = QtGui.QColor(150, 0, 0)
         elif self.circle_colors[self.round-1] == "green":
             self.target_color = QtGui.QColor(0, 255, 0)
-            self.distractor_color = QtGui.QColor(0, 200, 0)
+            self.distractor_color = QtGui.QColor(0, 150, 0)
         elif self.circle_colors[self.round-1] == "blue":
             self.target_color = QtGui.QColor(0, 0, 255)
-            self.distractor_color = QtGui.QColor (0, 0, 200)
+            self.distractor_color = QtGui.QColor (0, 0, 120)
         elif self.circle_colors[self.round-1] == "gray":
             self.target_color = QtGui.QColor (125, 125, 125)
             self.distractor_color = QtGui.QColor (70, 70, 70)
