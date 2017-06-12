@@ -278,6 +278,8 @@ class PointingExperimentModel(object):
         newDistance = self.distances[random.randint(0, len(self.distances) - 1)]
         # temporarily saves new width
         newWidth = self.widths[random.randint(0, len(self.widths) - 1)]
+        # set new distance and width in targets list
+        self.targets[self.clicked_targets] = (newDistance, newWidth)
         # returns new distance and width
         return newDistance, newWidth
 
