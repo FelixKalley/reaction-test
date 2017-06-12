@@ -18,7 +18,7 @@ class SpecialCursor(object):
         print(self.cursor.shape())
         self.cursor.setShape(2)
         print(self.cursor.shape())
-        pm = QtGui.QPixmap('test2.bmp')
+        pm = QtGui.QPixmap('test.png')
         bm = pm.createMaskFromColor(self.mycolor, Qt.MaskOutColor)
         #pm.setAlphaChannel(bm)
         self.cursor = QtGui.QCursor(pm)
