@@ -287,9 +287,10 @@ class PointingExperimentModel(object):
 
 # experiment implementation
 class PointingExperimentTest(QtWidgets.QWidget):
-    def __init__(self):
+    def __init__(self, window):
         super().__init__()
-
+        self.windowFrame = window
+        print(self.windowFrame)
         # initialize model
         self.model = PointingExperimentModel()
         # initialize cursor
@@ -380,7 +381,7 @@ class PointingExperimentTest(QtWidgets.QWidget):
         elif self.model.pointer == "special":
         	# import special cursor class
         	from pointing_technique import SpecialCursor
-        	self.special_cursor = SpecialCursor()
+        	self.special_cursor = SpecialCursor(self.windowFrame)
         # otherwise (optional other cursors)
         else:
         	# do nothing
@@ -735,7 +736,7 @@ def main():
     # initializes app
     app = QtWidgets.QApplication(sys.argv)
     # initializes experiment
-    pet = PointingExperimentTest()
+    pet = PointingExperimentTest(app)
     # sets window title
     pet.setWindowTitle("Pointing experiment")
     sys.exit(app.exec_())

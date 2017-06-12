@@ -4,13 +4,16 @@
 
 # imports
 from PyQt5 import QtGui, QtWidgets, QtCore
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QCursor
 
 
 class SpecialCursor(object):
-    def __init__(self):
+    def __init__(self, window):
+        self.givenWindow = window
+        self.givenWindow.setOverrideCursor(QCursor(Qt.WaitCursor));
         self.cursor = QtGui.QCursor()
-        #self.cursor.setPos(1000, 1000)
+        self.cursor.setPos(1700, 700)
         print(self.cursor.shape())
         self.cursor.setShape(2)
         print(self.cursor.shape())
