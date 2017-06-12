@@ -75,8 +75,8 @@ class PointingExperimentModel(object):
         # starting time for .csv logging
         self.startedTimestamp = str(datetime.datetime.now()).split('.')[0]
         # console output for logging overview
-        print("timestamp (ISO); user_id; trial; target_distance; target_size; movement_time (ms); \
-              click_offset_x; click_offset_y")
+        print("timestamp (ISO); user_id; trial; target_distance; target_size;",
+              "movement_time (ms); click_offset_x; click_offset_y")
 
     # creates the targets that should be clicked
     def create_targets(self):
@@ -213,8 +213,7 @@ class PointingExperimentModel(object):
         # writes data into .csv file
         self.writeCSV(time, click_offset, distance, size)
         # prints data to console
-        print("timestamp: %s; id: %s; targets clicked: %d; distance: %d; \
-               size: %d; time: %d; offset x: %d; offset y: %d"
+        print("%s; %s; %d; %d; %d; %d; %d; %d"
               % (self.timestamp(), self.user_id, self.clicked_targets,
                   distance, size, time, click_offset[0], click_offset[1]))
 
@@ -371,17 +370,23 @@ class PointingExperimentTest(QtWidgets.QWidget):
 
     # inits pointer
     def initPointer(self):
-    	# check type of pointer
+        # check type of pointer
         if self.model.pointer == "special":
-        	self.special_cursor = SpecialCursor()
+            self.special_cursor = SpecialCursor()
 
     # sets target position
     def target_pos(self, distance, radius):
+        # bool to check if target position found
         ready = False
+        # counter to limit iterations
         counter = 0
+        # if target values changed this is no longer (0, 0)
         changed = (0, 0)
+        # while no position found for target
         while(not ready):
+            # get random angle for direction of target to previous
             angle = random.randint(0, 360)
+            # when the angel is 0, 90, 180 or 270 the calculation is easier
             if angle == 0:
                 x = self.current_pos()[0] + distance
                 y = self.current_pos()[1]
@@ -396,13 +401,18 @@ class PointingExperimentTest(QtWidgets.QWidget):
                 y = self.current_pos()[1] - distance
             else:
                 if angle > 270:
+                    # to get right values the value of the "b" side has to be inverted
                     factorB = -1
+                    # to build a rectangle the beta angle has to be adjusted
                     beta = 360 - angle
                 elif angle > 180:
+                    # to get right values the value of the "b" side has to be inverted
                     factorB = -1
+                    # to build a rectangle the beta angle has to be adjusted
                     beta = angle - 180
                 elif angle > 90:
                     factorB = 1
+                    # to build a rectangle the beta angle has to be adjusted
                     beta = 180 - angle
                 else:
                     factorB = 1
@@ -411,13 +421,16 @@ class PointingExperimentTest(QtWidgets.QWidget):
                 alpha = 90
                 gamma = 90 - angle
 
+                # calculating the sides of the rectangle to get the distance
                 a = distance
                 b = factorB * distance * math.sin(math.radians(beta)) / math.sin(math.radians(90))
                 c = distance * math.sin(math.radians(gamma)) / math.sin(math.radians(90))
 
+                # setting the position of the new circle
                 x = self.current_pos()[0] + c
                 y = self.current_pos()[1] + b
 
+                # if the new circle is out of window bounds, invert the directions
                 if x > self.screenXMax:
                     x = self.current_pos()[0] - c
                 elif x < self.screenXMin:
@@ -428,43 +441,53 @@ class PointingExperimentTest(QtWidgets.QWidget):
                     y = self.current_pos()[1] + b
             # if circle is full on screen
             if((x < self.screenXMax and x > self.screenXMin) and (y < self.screenYMax and y > self.screenYMin)):
+                # if length of previous targets list is empty, its the first circle to draw
+                # and it cannot overlap
                 if not (len(self.positionList) == 0):
                     for posData in self.positionList:
                         # delta of x coordinates
                         xDelta = x - posData[0]
                         # delta of y coordinates
                         yDelta = y - posData[1]
-                        # distance between points
+                        # distance between center points
                         calculatedDist = math.sqrt(math.pow(xDelta, 2) + math.pow(yDelta, 2))
                         # should minimal distance between points + little space between circles
                         minDist = radius + posData[2] + 5
+                        # if the minimal distance is greater than the acutal distance
+                        # the circles are overlapping
                         if(minDist > calculatedDist):
+                            # do another loop
                             ready = False
+                            # increase counter for emergency break
                             counter += 1
-                            # print("redraw!!!", radius * 2, calculatedDist, minDist, posData[2])
+                            # if it is the 20. loop change targets distance and size and try again
                             if counter > 20:
-                                # print("before:", distance, radius)
                                 distance, size = self.model.impossible_target()
                                 radius = size / 2
-                                # print("after:", distance, radius)
+                                # set changed values
                                 changed = (distance, size)
+                                # reset counter
                                 counter = 0
                             break
+                        # circles not overlapping
                         else:
                             ready = True
-                            # print("ok")
+                # its the first circle
                 else:
                     ready = True
+            # Circle is of screen
             else:
+                # increase counter for emergency break
                 counter += 1
+                # if it is the 20. loop change targets distance and size and try again
                 if counter > 20:
-                    print("not on screen, new values")
                     distance, size = self.model.impossible_target()
                     radius = size / 2
-                    # print("after:", distance, radius)
+                    # set changed values
                     changed = (distance, size)
+                    # reset counter
                     counter = 0
-
+        # returns x and y coordinates of the new target and the new specification if changed
         return (x, y, changed)
 
     # returns current circle position
