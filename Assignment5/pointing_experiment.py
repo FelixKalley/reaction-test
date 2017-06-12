@@ -382,19 +382,19 @@ class PointingExperimentTest(QtWidgets.QWidget):
 
     # inits pointer depending on type
     def initPointer(self):
-    	# if default
+        # if default
         if self.model.pointer == "default":
-        	# do nothing
-        	pass
+            # do nothing
+            pass
         # if special
         elif self.model.pointer == "special":
-        	# import special cursor class
-        	from pointing_technique import SpecialCursor
-        	self.special_cursor = SpecialCursor(self.windowFrame)
+            # import special cursor class
+            from pointing_technique import SpecialCursor
+            self.special_cursor = SpecialCursor(self.windowFrame)
         # otherwise (optional other cursors)
         else:
-        	# do nothing
-        	pass
+            # do nothing
+            pass
 
     # sets target position
     def target_pos(self, distance, radius):
@@ -665,10 +665,16 @@ class PointingExperimentTest(QtWidgets.QWidget):
         if event.button() == QtCore.Qt.LeftButton:
             # only check if hit when round is not finished
             if not self.finishedRound:
-                # current cursor position is saved
-                position_clicked = self.current_pos()
+                # current position of target is saved
+                target_clicked = self.current_pos()
                 # checks if a target got hit
-                check_hit = self.model.register_click(position_clicked, (event.x(), event.y()))
+                if self.model.pointer == "default":
+                    check_hit = self.model.register_click(target_clicked, (event.x(), event.y()))
+                elif self.model.pointer == "special":
+                    check_hit = self.special_cursor.filter(target_clicked, (event.x(), event.y()), self.positionList)
+                else: 
+                    print("THIS WENT WRONG")
+                    pass
                 # if successful hit
             # if round finished the check is false
             else:
