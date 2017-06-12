@@ -64,6 +64,7 @@ class PointingExperimentModel(object):
         self.repetitions = 10
         # amount of circles per repetition
         self.amountCircles = 5
+        self.clicks_per_circle = 0
         # bool for movement detection
         self.mouse_moving = False
         # number of clicked targets
@@ -76,7 +77,7 @@ class PointingExperimentModel(object):
         self.startedTimestamp = str(datetime.datetime.now()).split('.')[0]
         # console output for logging overview
         print("timestamp (ISO); user_id; trial; target_distance; target_size;",
-              "movement_time (ms); click_offset_x; click_offset_y")
+              "movement_time (ms); click_offset_x; click_offset_y, click_per_circle")
 
     # creates the targets that should be clicked
     def create_targets(self):
@@ -193,16 +194,22 @@ class PointingExperimentModel(object):
                          (target_pos[1]-click_pos[1]) * (target_pos[1]-click_pos[1]))
         # if distance from click position to target is bigger than target radius
         if dist > self.current_target()[1] / 2:
+            # counting missclicks
+            self.clicks_per_circle += 1
             # returns missclick
             return False
         # otherwise
         else:
+            # counting correct click
+            self.clicks_per_circle += 1
             # saves click offset (x,y) from target origin as tuple
             click_offset = (target_pos[0] - click_pos[0], target_pos[1] - click_pos[1])
             # logs data of click
             self.log_time(self.stop_measurement(), click_offset)
             # raises clicked targets by 1
             self.clicked_targets += 1
+            # reset clicks per circle
+            self.clicks_per_circle = 0
             # returns hit
             return True
 
@@ -213,15 +220,15 @@ class PointingExperimentModel(object):
         # writes data into .csv file
         self.writeCSV(time, click_offset, distance, size)
         # prints data to console
-        print("%s; %s; %d; %d; %d; %d; %d; %d"
+        print("%s; %s; %d; %d; %d; %d; %d; %d; %d"
               % (self.timestamp(), self.user_id, self.clicked_targets,
-                  distance, size, time, click_offset[0], click_offset[1]))
+                  distance, size, time, click_offset[0], click_offset[1], self.clicks_per_circle))
 
     # writes the current trail to the log file
     def writeCSV(self, time, click_offset, distance, size):
         # all data for current log row
         csvRow = [self.timestamp(), self.user_id, self.clicked_targets, distance,
-                  size, time, click_offset[0], click_offset[1]]
+                  size, time, click_offset[0], click_offset[1], self.clicks_per_circle]
         # name of current log file with timestamp to not override old ones
         logName = "pointing_experiment_log" + str(self.user_id) + "_" + self.startedTimestamp + ".csv"
         # opens csv as logfile
@@ -233,7 +240,7 @@ class PointingExperimentModel(object):
                 # csv header row
                 csvHeader = ["timestamp (ISO)", "user_id", "trial", "target_distance",
                              "target_size", "movement_time (ms)", "click_offset_x",
-                             "click_offset_y"]
+                             "click_offset_y", "clicks_per_circle"]
                 # writes header row
                 csvWriter.writerow(csvHeader)
             # writes log row to file
@@ -523,7 +530,7 @@ class PointingExperimentTest(QtWidgets.QWidget):
                 distance = circle[0]
                 size = circle[1]
 
-                self.drawCircle(distance, size, self.distractor_color, qp)
+                self.drawCircle(distance, size, self.distractor_color, qp, True)
         else:
             sys.stderr.write("no targets left...")
             sys.exit(1)
@@ -540,7 +547,7 @@ class PointingExperimentTest(QtWidgets.QWidget):
                 self.redrawCircle(x, y, size, self.target_color, qp)
         elif self.model.current_target() is not None:
             distance, size = self.model.current_target()
-            self.drawCircle(distance, size, self.target_color, qp)
+            self.drawCircle(distance, size, self.target_color, qp, False)
         else:
             sys.stderr.write("no targets left...")
             sys.exit(1)
@@ -554,18 +561,21 @@ class PointingExperimentTest(QtWidgets.QWidget):
         qp.drawEllipse(x-size/2, y-size/2, size, size)
 
     # draws a circle !only called from drawAllCircles and drawDistractorCircles!
-    def drawCircle(self, distance, size, color, qp):
+    def drawCircle(self, distance, size, color, qp, isDistractor):
         self.position = self.target_pos(distance, size / 2)
-        self.xpos = self.position[0]
-        self.ypos = self.position[1]
+        x = self.position[0]
+        y = self.position[1]
         if(not self.position[2] == (0, 0)):
             distance = self.position[2][0]
             size = self.position[2][1]
 
+        if not isDistractor:
+            self.xpos = x
+            self.ypos = y
         # x, y, radius
-        self.positionList.append((self.xpos, self.ypos, size / 2))
+        self.positionList.append((x, y, size / 2))
         qp.setBrush(color)
-        qp.drawEllipse(self.xpos-size/2, self.ypos-size/2, size, size)
+        qp.drawEllipse(x-size/2, y-size/2, size, size)
 
     # handles paint events
     def paintEvent(self, event):
