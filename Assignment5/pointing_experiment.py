@@ -735,7 +735,7 @@ class PointingExperimentTest(QtWidgets.QWidget):
         # if blue
         elif self.circle_colors[self.round-1] == "blue":
             # blue target color
-            self.target_color = QtGui.QColor(0, 0, 255)
+            self.target_color = QtGui.QColor(0, 150, 200)
             # blue distractor color
             self.distractor_color = QtGui.QColor(0, 0, 130)
         # if gray
@@ -743,7 +743,7 @@ class PointingExperimentTest(QtWidgets.QWidget):
             # gray target color
             self.target_color = QtGui.QColor(125, 125, 125)
             # gray distractor color
-            self.distractor_color = QtGui.QColor(50, 50, 50)
+            self.distractor_color = QtGui.QColor(25, 25, 25)
         # otherwise (not intended)
         else:
             pass

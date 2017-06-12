@@ -10,19 +10,16 @@ from PyQt5.QtGui import QCursor, QColor
 
 class SpecialCursor(object):
     def __init__(self, window):
+        # saves window from given parameter
         self.givenWindow = window
-        #self.givenWindow.setOverrideCursor(QCursor(Qt.CrossCursor));
-        self.cursor = QtGui.QCursor()
-        self.cursor.setPos(1700, 700)
-        self.mycolor = QtGui.QColor("white")
-        print(self.cursor.shape())
-        self.cursor.setShape(2)
-        print(self.cursor.shape())
-        pm = QtGui.QPixmap('test.png')
-        bm = pm.createMaskFromColor(self.mycolor, Qt.MaskOutColor)
-        #pm.setAlphaChannel(bm)
-        self.cursor = QtGui.QCursor(pm)
+        # creates pixmap from image
+        self.pixmap = QtGui.QPixmap('circle.png')
+        # initializes cursor from pixmap
+        self.cursor = QtGui.QCursor(self.pixmap)
+        # overrides cursor in window
         self.givenWindow.setOverrideCursor(self.cursor)
+
+
         #self.setCursor(cursor)
         #self.cursor.shape = Qt.CrossCursor()
         #self.cursor.setShape(self, Qt.CrossCursor())
