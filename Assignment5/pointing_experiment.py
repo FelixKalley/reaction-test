@@ -631,6 +631,8 @@ class PointingExperimentTest(QtWidgets.QWidget):
                 self.finishedRound = False
                 # raises round number by 1
                 self.round += 1
+                self.numHits = 0
+
                 # checks color order
                 self.checkColor()
                 # updates everything
@@ -649,11 +651,17 @@ class PointingExperimentTest(QtWidgets.QWidget):
     def mousePressEvent(self, event):
         # if left mouse button is pressed
         if event.button() == QtCore.Qt.LeftButton:
-            # current cursor position is saved
-            position_clicked = self.current_pos()
-            # checks if a target got hit
-            check_hit = self.model.register_click(position_clicked, (event.x(), event.y()))
-            # if successful hit
+            # only check if hit when round is not finished
+            if not self.finishedRound:
+                # current cursor position is saved
+                position_clicked = self.current_pos()
+                # checks if a target got hit
+                check_hit = self.model.register_click(position_clicked, (event.x(), event.y()))
+                # if successful hit
+            # if round finished the check is false
+            else:
+                check_hit = False
+
             if check_hit:
                 # if number of hit targets is smaller then number of repetitions
                 if self.numHits < self.model.repetitions - 1:
