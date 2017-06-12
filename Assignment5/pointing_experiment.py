@@ -10,7 +10,7 @@ import itertools
 import datetime
 import json
 import csv
-import pointing_technique
+from pointing_technique import SpecialCursor
 from PyQt5 import QtGui, QtWidgets, QtCore
 from PyQt5.QtWidgets import QWidget, QDesktopWidget, QApplication
 from configparser import ConfigParser
@@ -373,7 +373,7 @@ class PointingExperimentTest(QtWidgets.QWidget):
     def initPointer(self):
     	# check type of pointer
         if self.model.pointer == "special":
-        	self.special_cursor =
+        	self.special_cursor = SpecialCursor()
 
     # sets target position
     def target_pos(self, distance, radius):
