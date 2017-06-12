@@ -10,7 +10,6 @@ import itertools
 import datetime
 import json
 import csv
-from pointing_technique import SpecialCursor
 from PyQt5 import QtGui, QtWidgets, QtCore
 from PyQt5.QtWidgets import QWidget, QDesktopWidget, QApplication
 from configparser import ConfigParser
@@ -368,11 +367,21 @@ class PointingExperimentTest(QtWidgets.QWidget):
         # maximum y pos
         self.screenYMax = self.screenHeight - secRange
 
-    # inits pointer
+    # inits pointer depending on type
     def initPointer(self):
-        # check type of pointer
-        if self.model.pointer == "special":
-            self.special_cursor = SpecialCursor()
+    	# if default
+        if self.model.pointer == "default":
+        	# do nothing
+        	pass
+        # if special
+        elif self.model.pointer == "special":
+        	# import special cursor class
+        	from pointing_technique import SpecialCursor
+        	self.special_cursor = SpecialCursor()
+        # otherwise (optional other cursors)
+        else:
+        	# do nothing
+        	pass
 
     # sets target position
     def target_pos(self, distance, radius):
