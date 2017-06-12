@@ -191,8 +191,8 @@ class PointingExperimentModel(object):
         # calculates distance between target and click position (Pythagorean Theorem)
         dist = math.sqrt((target_pos[0]-click_pos[0]) * (target_pos[0]-click_pos[0]) +
                          (target_pos[1]-click_pos[1]) * (target_pos[1]-click_pos[1]))
-        # if distance from click position to target is bigger than target width
-        if dist > self.current_target()[1]:
+        # if distance from click position to target is bigger than target radius
+        if dist > self.current_target()[1] / 2:
             # returns missclick
             return False
         # otherwise
