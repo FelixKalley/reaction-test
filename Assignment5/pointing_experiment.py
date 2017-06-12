@@ -12,6 +12,7 @@ import json
 import csv
 from PyQt5 import QtGui, QtWidgets, QtCore
 from PyQt5.QtWidgets import QWidget, QDesktopWidget, QApplication
+from PyQt5.QtGui import QCursor
 from configparser import ConfigParser
 
 """ setup.ini file looks like this:
@@ -291,6 +292,8 @@ class PointingExperimentTest(QtWidgets.QWidget):
 
         # initialize model
         self.model = PointingExperimentModel()
+        # initialize cursor
+        self.cursor = QtGui.QCursor()
         # description text for title screen
         self.descriptionText = "This is an experiment to test your aiming speed. \n" \
                                " \n" \
