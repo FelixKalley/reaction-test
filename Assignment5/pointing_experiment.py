@@ -192,26 +192,33 @@ class PointingExperimentModel(object):
         # calculates distance between target and click position (Pythagorean Theorem)
         dist = math.sqrt((target_pos[0]-click_pos[0]) * (target_pos[0]-click_pos[0]) +
                          (target_pos[1]-click_pos[1]) * (target_pos[1]-click_pos[1]))
+        # counts click
+        self.raise_clicks_per_circle()
         # if distance from click position to target is bigger than target radius
         if dist > self.current_target()[1] / 2:
-            # counting missclicks
-            self.clicks_per_circle += 1
             # returns missclick
             return False
         # otherwise
         else:
-            # counting correct click
-            self.clicks_per_circle += 1
-            # saves click offset (x,y) from target origin as tuple
-            click_offset = (target_pos[0] - click_pos[0], target_pos[1] - click_pos[1])
-            # logs data of click
-            self.log_time(self.stop_measurement(), click_offset)
-            # raises clicked targets by 1
-            self.clicked_targets += 1
-            # reset clicks per circle
-            self.clicks_per_circle = 0
+        	# registers the hit
+            self.register_hit(target_pos, click_pos)
             # returns hit
             return True
+
+    def raise_clicks_per_circle(self):
+    	self.clicks_per_circle += 1
+
+    # registers when a hit happened
+    def register_hit(self, target_pos, click_pos):
+    	# saves click offset (x,y) from target origin as tuple
+        click_offset = (target_pos[0] - click_pos[0], target_pos[1] - click_pos[1])
+        # logs data of click
+        self.log_time(self.stop_measurement(), click_offset)
+        # raises clicked targets by 1
+        self.clicked_targets += 1
+        # reset clicks per circle
+        self.clicks_per_circle = 0
+        print("I DID ALL THIS!")
 
     # logs data of clicks
     def log_time(self, time, click_offset):
@@ -667,11 +674,22 @@ class PointingExperimentTest(QtWidgets.QWidget):
             if not self.finishedRound:
                 # current position of target is saved
                 target_clicked = self.current_pos()
-                # checks if a target got hit
+                # if default pointer is in use
                 if self.model.pointer == "default":
+                	# checks if a target got hit
                     check_hit = self.model.register_click(target_clicked, (event.x(), event.y()))
+                # if special pointer is in use
                 elif self.model.pointer == "special":
-                    check_hit = self.special_cursor.filter(target_clicked, (event.x(), event.y()), self.positionList)
+                    # temporarily saves returns form special_cursor in cursor data
+                    cursor_data = self.special_cursor.filter(target_clicked, (event.x(), event.y()), self.positionList)
+                    # checks if a target got hit
+                    check_hit = cursor_data[0]
+                    # raises clicks per circle in model
+                    self.model.raise_clicks_per_circle()
+                    # if a target got hit
+                    if check_hit:
+                    	# registers hit in model
+                    	self.model.register_hit(cursor_data[1], cursor_data[2])
                 else: 
                     print("THIS WENT WRONG")
                     pass
