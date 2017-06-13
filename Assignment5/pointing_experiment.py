@@ -78,7 +78,7 @@ class PointingExperimentModel(object):
         # console output for logging overview
         print("timestamp (ISO); user_id; trial; target_distance; target_size;",
               "movement_time (ms); click_offset_x; click_offset_y;",
-              "trys_per_trail; cursor_type")
+              "trys_per_trail; cursor_type; circle_color")
 
     # creates the targets that should be clicked
     def create_targets(self):
@@ -189,7 +189,7 @@ class PointingExperimentModel(object):
             sys.exit(1)
 
     # registers if a target is clicked
-    def register_click(self, target_pos, click_pos):
+    def register_click(self, target_pos, click_pos, round):
         # calculates distance between target and click position (Pythagorean Theorem)
         dist = math.sqrt((target_pos[0]-click_pos[0]) * (target_pos[0]-click_pos[0]) +
                          (target_pos[1]-click_pos[1]) * (target_pos[1]-click_pos[1]))
@@ -202,7 +202,7 @@ class PointingExperimentModel(object):
         # otherwise
         else:
             # registers the hit
-            self.register_hit(target_pos, click_pos)
+            self.register_hit(target_pos, click_pos, round)
             # returns hit
             return True
 
@@ -210,34 +210,34 @@ class PointingExperimentModel(object):
         self.clicks_per_circle += 1
 
     # registers when a hit happened
-    def register_hit(self, target_pos, click_pos):
+    def register_hit(self, target_pos, click_pos, round):
         # saves click offset (x,y) from target origin as tuple
         click_offset = (target_pos[0] - click_pos[0], target_pos[1] - click_pos[1])
         # logs data of click
-        self.log_time(self.stop_measurement(), click_offset)
+        self.log_time(self.stop_measurement(), click_offset, round)
         # raises clicked targets by 1
         self.clicked_targets += 1
         # reset clicks per circle
         self.clicks_per_circle = 0
 
     # logs data of clicks
-    def log_time(self, time, click_offset):
+    def log_time(self, time, click_offset, round):
         # temporarily saves distance and size of current target
         distance, size = self.current_target()
         # writes data into .csv file
-        self.writeCSV(time, click_offset, distance, size)
+        self.writeCSV(time, click_offset, distance, size, round)
         # prints data to console
-        print("%s; %s; %d; %d; %d; %d; %d; %d; %d: %s"
+        print("%s; %s; %d; %d; %d; %d; %d; %d; %d; %s; %s"
               % (self.timestamp(), self.user_id, self.clicked_targets,
                   distance, size, time, click_offset[0], click_offset[1],
-                  self.clicks_per_circle, self.pointer))
+                  self.clicks_per_circle, self.pointer, self.colors[round - 1]))
 
     # writes the current trail to the log file
-    def writeCSV(self, time, click_offset, distance, size):
+    def writeCSV(self, time, click_offset, distance, size, round):
         # all data for current log row
         csvRow = [self.timestamp(), self.user_id, self.clicked_targets, distance,
                   size, time, click_offset[0], click_offset[1],
-                  self.clicks_per_circle, self.pointer]
+                  self.clicks_per_circle, self.pointer, self.colors[round - 1]]
         # name of current log file with timestamp to not override old ones
         logName = "pointing_experiment_log" + str(self.user_id) + "_" + self.startedTimestamp + ".csv"
         # opens csv as logfile
@@ -249,7 +249,8 @@ class PointingExperimentModel(object):
                 # csv header row
                 csvHeader = ["timestamp (ISO)", "user_id", "trial", "target_distance",
                              "target_size", "movement_time (ms)", "click_offset_x",
-                             "click_offset_y", "trys_per_trial", "cursor_type"]
+                             "click_offset_y", "trys_per_trial", "cursor_type",
+                             "circle_color"]
                 # writes header row
                 csvWriter.writerow(csvHeader)
             # writes log row to file
@@ -692,7 +693,7 @@ class PointingExperimentTest(QtWidgets.QWidget):
                 # if default pointer is in use
                 if self.model.pointer == "default":
                     # checks if a target got hit
-                    check_hit = self.model.register_click(target_clicked, (event.x(), event.y()))
+                    check_hit = self.model.register_click(target_clicked, (event.x(), event.y()), self.round)
                 # if special pointer is in use
                 elif self.model.pointer == "special":
                     # temporarily saves returns form special_cursor in cursor data
@@ -704,7 +705,7 @@ class PointingExperimentTest(QtWidgets.QWidget):
                     # if a target got hit
                     if check_hit:
                         # registers hit in model
-                        self.model.register_hit(cursor_data[1], cursor_data[2])
+                        self.model.register_hit(cursor_data[1], cursor_data[2], self.round)
                 else:
                     print("THIS WENT WRONG")
                     pass
