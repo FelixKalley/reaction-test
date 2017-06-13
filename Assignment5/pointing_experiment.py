@@ -308,7 +308,6 @@ class PointingExperimentTest(QtWidgets.QWidget):
     def __init__(self, window):
         super().__init__()
         self.windowFrame = window
-        print(self.windowFrame)
         # initialize model
         self.model = PointingExperimentModel()
         # initialize cursor
