@@ -77,7 +77,8 @@ class PointingExperimentModel(object):
         self.startedTimestamp = str(datetime.datetime.now()).split('.')[0]
         # console output for logging overview
         print("timestamp (ISO); user_id; trial; target_distance; target_size;",
-              "movement_time (ms); click_offset_x; click_offset_y, click_per_circle")
+              "movement_time (ms); click_offset_x; click_offset_y;",
+              "trys_per_trail; cursor_type")
 
     # creates the targets that should be clicked
     def create_targets(self):
@@ -218,7 +219,6 @@ class PointingExperimentModel(object):
         self.clicked_targets += 1
         # reset clicks per circle
         self.clicks_per_circle = 0
-        print("I DID ALL THIS!")
 
     # logs data of clicks
     def log_time(self, time, click_offset):
@@ -227,15 +227,17 @@ class PointingExperimentModel(object):
         # writes data into .csv file
         self.writeCSV(time, click_offset, distance, size)
         # prints data to console
-        print("%s; %s; %d; %d; %d; %d; %d; %d; %d"
+        print("%s; %s; %d; %d; %d; %d; %d; %d; %d: %s"
               % (self.timestamp(), self.user_id, self.clicked_targets,
-                  distance, size, time, click_offset[0], click_offset[1], self.clicks_per_circle))
+                  distance, size, time, click_offset[0], click_offset[1],
+                  self.clicks_per_circle, self.pointer))
 
     # writes the current trail to the log file
     def writeCSV(self, time, click_offset, distance, size):
         # all data for current log row
         csvRow = [self.timestamp(), self.user_id, self.clicked_targets, distance,
-                  size, time, click_offset[0], click_offset[1], self.clicks_per_circle]
+                  size, time, click_offset[0], click_offset[1],
+                  self.clicks_per_circle, self.pointer]
         # name of current log file with timestamp to not override old ones
         logName = "pointing_experiment_log" + str(self.user_id) + "_" + self.startedTimestamp + ".csv"
         # opens csv as logfile
@@ -247,7 +249,7 @@ class PointingExperimentModel(object):
                 # csv header row
                 csvHeader = ["timestamp (ISO)", "user_id", "trial", "target_distance",
                              "target_size", "movement_time (ms)", "click_offset_x",
-                             "click_offset_y", "clicks_per_circle"]
+                             "click_offset_y", "trys_per_trial", "cursor_type"]
                 # writes header row
                 csvWriter.writerow(csvHeader)
             # writes log row to file
