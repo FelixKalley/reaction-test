@@ -669,7 +669,7 @@ class PointingExperimentTest(QtWidgets.QWidget):
     # handles mouse clicks
     def mousePressEvent(self, event):
         # if left mouse button is pressed
-        if event.button() == QtCore.Qt.LeftButton:
+        if self.testStarted and event.button() == QtCore.Qt.LeftButton:
             # only check if hit when round is not finished
             if not self.finishedRound:
                 # current position of target is saved
