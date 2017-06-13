@@ -319,7 +319,7 @@ class PointingExperimentTest(QtWidgets.QWidget):
                                "You will see several circles. \n" \
                                "Please click the one with the lightest color. \n" \
                                " \n" \
-                               "Put your dominant hand on the touchpad. \n" \
+                               "Put your dominant hand on the mouse. \n" \
                                "Put your weak hand on the space bar. \n" \
                                "Keep both hands in this position. \n" \
                                " \n" \
