@@ -200,17 +200,17 @@ class PointingExperimentModel(object):
             return False
         # otherwise
         else:
-        	# registers the hit
+            # registers the hit
             self.register_hit(target_pos, click_pos)
             # returns hit
             return True
 
     def raise_clicks_per_circle(self):
-    	self.clicks_per_circle += 1
+        self.clicks_per_circle += 1
 
     # registers when a hit happened
     def register_hit(self, target_pos, click_pos):
-    	# saves click offset (x,y) from target origin as tuple
+        # saves click offset (x,y) from target origin as tuple
         click_offset = (target_pos[0] - click_pos[0], target_pos[1] - click_pos[1])
         # logs data of click
         self.log_time(self.stop_measurement(), click_offset)
@@ -526,40 +526,50 @@ class PointingExperimentTest(QtWidgets.QWidget):
 
     # draws distractor circles
     def drawDistractorCircles(self, event, qp):
+        # if the paintevent was called but the  circles shoult not be redrawn
         if self.shouldRedraw:
+            # get all but the last circle data
             for circle in self.positionList[:-1]:
                 x = circle[0]
                 y = circle[1]
                 size = circle[2] * 2
-
                 self.redrawCircle(x, y, size, self.distractor_color, qp)
+        # if there are distractors left
         elif self.model.current_distractors() is not None:
+            # clear position list because new "click" started
             self.positionList.clear()
+            # for each circle data
             for circle in self.model.current_distractors():
                 distance = circle[0]
                 size = circle[1]
 
                 self.drawCircle(distance, size, self.distractor_color, qp, True)
+        # if there occurred an error and no targets are left
         else:
             sys.stderr.write("no targets left...")
             sys.exit(1)
 
     # draws all circles
     def drawAllCircles(self, event, qp):
+        # draw distractor circles first, so if there is an error the target is always on top
         self.drawDistractorCircles(event, qp)
+        # if the paintevent was called but the  circles shoult not be redrawn
         if self.shouldRedraw:
+            # for last circle in list (target)
             for circle in self.positionList[-1:]:
                 x = circle[0]
                 y = circle[1]
                 size = circle[2] * 2
-
                 self.redrawCircle(x, y, size, self.target_color, qp)
+        # if there is a targetleft
         elif self.model.current_target() is not None:
             distance, size = self.model.current_target()
             self.drawCircle(distance, size, self.target_color, qp, False)
+        # if there occurred an error and no targets are left
         else:
             sys.stderr.write("no targets left...")
             sys.exit(1)
+        # set redraw to true
         self.shouldRedraw = True
 
     # redraws a circle
@@ -571,18 +581,22 @@ class PointingExperimentTest(QtWidgets.QWidget):
 
     # draws a circle !only called from drawAllCircles and drawDistractorCircles!
     def drawCircle(self, distance, size, color, qp, isDistractor):
+        # calculate the circles position
         self.position = self.target_pos(distance, size / 2)
         x = self.position[0]
         y = self.position[1]
+        # if it was impossible to calculate a position, reset distance and size
         if(not self.position[2] == (0, 0)):
             distance = self.position[2][0]
             size = self.position[2][1]
 
+        # if it is the target reset current targets position
         if not isDistractor:
             self.xpos = x
             self.ypos = y
         # x, y, radius
         self.positionList.append((x, y, size / 2))
+        # draw the circle
         qp.setBrush(color)
         qp.drawEllipse(x-size/2, y-size/2, size, size)
 
@@ -676,7 +690,7 @@ class PointingExperimentTest(QtWidgets.QWidget):
                 target_clicked = self.current_pos()
                 # if default pointer is in use
                 if self.model.pointer == "default":
-                	# checks if a target got hit
+                    # checks if a target got hit
                     check_hit = self.model.register_click(target_clicked, (event.x(), event.y()))
                 # if special pointer is in use
                 elif self.model.pointer == "special":
@@ -688,9 +702,9 @@ class PointingExperimentTest(QtWidgets.QWidget):
                     self.model.raise_clicks_per_circle()
                     # if a target got hit
                     if check_hit:
-                    	# registers hit in model
-                    	self.model.register_hit(cursor_data[1], cursor_data[2])
-                else: 
+                        # registers hit in model
+                        self.model.register_hit(cursor_data[1], cursor_data[2])
+                else:
                     print("THIS WENT WRONG")
                     pass
                 # if successful hit
