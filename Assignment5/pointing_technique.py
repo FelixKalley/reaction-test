@@ -1,7 +1,23 @@
 #!/usr/bin/python3
 
 # Contribution: Felix Kalley, Lena Manschewski
+'''
+Our novel cursor is a circle that expands the area where the subject can click.
+So instead of clicking a simple point or pixel, you can now click a broader area,
+in our case everything covered under a circle of around 20 px. The circle in the
+image in has 22px diameter but in the code it's radius is 17 because this value
+covered the image circle perfect.
 
+If the special cursor is clicked while above more than one target it is counted
+as missclick because it is not clear which circle the subject wanted to click.
+
+Circle shaped cursors are often used for presenting, to highlight were a
+presenter is pointing to with his cursor. In contrast to our technique these
+highlighting cursors are only graphical overlays without extending the range
+of a click. The main difference between fitts' law pointing technique (default)
+and our novel technique (special) is that a user doesn't have to aim as precise,
+so this pointing technique may be faster than the default technique.
+'''
 # imports
 import math
 from PyQt5 import QtGui, QtWidgets, QtCore
