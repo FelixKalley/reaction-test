@@ -1,0 +1,16 @@
+6.2
+ui file? 
+- textbox: Text der abgetippt werden soll
+- editable textbox: Hier soll der Text reingeschrieben werden
+
+Vorgegebene Texte/Sätze die von der Reihenfolge counterbalanced sind.
+ 
+Wort ist zu Ende sobald ein Leerzeichen eingegeben wurde (Komma, Punkt, aber nicht Bindestrich, etc.?)
+Satzende ist neue Zeile
+Zeit bei Wort zählt/stopt bei Leerzeichen bzw erstem Buchstabe
+Zeit bei Satz startet bei erstem Zeichen in der neuen Zeile und endet bei Newline
+
+key pressed: eventtype, wann, Welcher, ...
+word typed: eventtype, wann, Welches, wie lange gebraucht, ...
+sentence typed: eventtype, wann, welcher, wie lange gebraucht, ...
+test finished: eventtype, wann, wie lange gebraucht, ...
