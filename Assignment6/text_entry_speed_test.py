@@ -1,7 +1,21 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
+'''
+This gives a measure in characters per second (cps). To convert this to words
+per minute (wpm) the standard typists' definition of a word as five characters
+(regardless of whether the characters are letters, punctuation, or spaces)
+is employed (Gentner, Grudin, Larochelle, Norman, & Rumelhart, 1983).
+Therefore, words per minute is obtained by multiplying characters per second by
+60 (seconds per minute) and dividing by 5 (characters per word). (MacKenzie I.,
+Soukoreff R., 2002)
+char = 1 char (cps)
+word = 5 chars (wpm)
+sentence = click return (cps, wpm)
+'''
+
 import sys
+import datetime
 from PyQt5 import uic, QtWidgets, QtCore, QtGui
 
 
@@ -19,8 +33,15 @@ class TextInput(QtWidgets.QWidget):
                           "Satz Nummer drei.",
                           "Satz Nummer vier.")
         
-        self.initUI()
+        self.sentenceStarted = False
+        self.charStartTime = 0
+        self.wordStartTime = 0
+        self.sentenceStartTime = 0
+        self.experimentStartTime = 0
+        
+        self.inputCount = 0
         self.round = 0
+        self.initUI()
         self.nextRound()
 
     # checks for given input
@@ -70,24 +91,89 @@ class TextInput(QtWidgets.QWidget):
     def initUI(self):
         self.ui = uic.loadUi("text_entry_speed_test.ui", self)
         self.show()
-        self.ui.EnterTextEdit.textChanged.connect(self.editedText)
+        self.ui.EnterTextEdit.textEdited.connect(self.editedText)
         self.ui.EnterTextEdit.returnPressed.connect(self.nextRound)
 
     def editedText(self):
-        print("test")
+        if(not self.sentenceStarted and self.inputCount == 0):
+            self.sentenceStarted = True
+            self.startExperimentTimer()
+
+        self.inputCount += 1
+        self.charLog()
+        self.stopCharTimer()
+        if(self.inputCount % 5 == 0):
+            self.wordLog()
+            self.stopWordTimer()
+
 
     def nextRound(self):
+        self.wordLog()
+        if(self.sentenceStarted):    
+            self.stopSentenceTimer()
         if(self.round < 4):
             # clear field
             # show next text
             self.ui.GivenTextLabel.setText(self.sentences[int(self.testOrder[self.round]) - 1])
             self.ui.EnterTextEdit.setText("")
             self.round += 1
-            print("next round")
+            #print("next round")
         else:
             self.ui.GivenTextLabel.setText("")
             self.ui.EnterTextEdit.setText("")
-            print("end")
+            self.stopExperimentTimer()
+            #print("end")
+    
+    def startExperimentTimer(self):
+        self.experimentStartTime = datetime.datetime.now()
+        self.startCharTimer()
+        self.startWordTimer()
+        self.startSentenceTimer()
+    
+    def startCharTimer(self):
+        self.charStartTime = datetime.datetime.now()
+
+    def startWordTimer(self):
+        self.wordStartTime = datetime.datetime.now()
+
+    def startSentenceTimer(self):
+        self.sentenceStartTime = datetime.datetime.now()
+    
+    
+    def stopExperimentTimer(self):
+        stopTime = datetime.datetime.now()
+        diff = stopTime - self.experimentStartTime
+        print("experiment", diff.total_seconds())
+    
+    def stopCharTimer(self):
+        stopTime = datetime.datetime.now()
+        diff = stopTime - self.charStartTime
+        print("char", diff.total_seconds())
+        self.startCharTimer()
+
+    def stopWordTimer(self):
+        stopTime = datetime.datetime.now()
+        diff = stopTime - self.wordStartTime
+        print("word", diff.total_seconds())
+        self.startWordTimer()
+
+    def stopSentenceTimer(self):
+        stopTime = datetime.datetime.now()
+        diff = stopTime - self.sentenceStartTime
+        print("sentence", diff.total_seconds())
+        self.startSentenceTimer()
+
+    def charLog(self):
+        #print(self.inputCount)
+        pass
+    
+    def wordLog(self):
+        #print("word")
+        pass
+    
+    def sentenceLog(self):
+        #print("sentence")
+        pass
 
 def main():
     app = QtWidgets.QApplication(sys.argv)
