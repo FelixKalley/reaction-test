@@ -30,10 +30,11 @@ class TextInput(QtWidgets.QWidget):
         self.checkInput()
 
         # sentences to type
-        self.sentences = ("Satz Nummer eins.",
-                          "Satz Nummer zwei.",
-                          "Satz Nummer drei.",
-                          "Satz Nummer vier.")
+        self.sentences = ("The quick brown fox jumps over the lazy dog.",
+                          "The five boxing wizards jump quickly.",
+                          "Jackdaws love my big sphinx of quartz.",
+                          "Quick fox jumps nightly above wizard.",
+                          "Jim quickly realized that the beautiful gowns are expensive.")
 
         # indicates whether a sentences was started or not
         self.sentenceStarted = False
@@ -98,7 +99,7 @@ class TextInput(QtWidgets.QWidget):
             print("The given data does not conform to the standard. \n"
                   "Please format data like this: \n"
                   "PARTICIPANT: 1 \n"
-                  "SENTENCE-NR: 3, 2, 1, 4 \n")
+                  "SENTENCE-NR: 3, 2, 1, 4, 5 \n")
             # exits
             sys.exit()
 
@@ -144,7 +145,7 @@ class TextInput(QtWidgets.QWidget):
             time = self.stopSentenceTimer()
             self.sentenceLog(time)
         # if it is not the last round
-        if(self.round < 4):
+        if(self.round < 5):
             sentenceIndex = int(self.testOrder[self.round]) - 1
             # show next text
             self.ui.GivenTextLabel.setText(self.sentences[sentenceIndex])
