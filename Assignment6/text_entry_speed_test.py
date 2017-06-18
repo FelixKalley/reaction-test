@@ -42,7 +42,7 @@ class TextInput(QtWidgets.QWidget):
         self.inputCount = 0
         self.round = 0
         self.initUI()
-        self.nextRound()
+        self.sentenceTyped()
 
     # checks for given input
     def checkInput(self):
@@ -92,7 +92,7 @@ class TextInput(QtWidgets.QWidget):
         self.ui = uic.loadUi("text_entry_speed_test.ui", self)
         self.show()
         self.ui.EnterTextEdit.textEdited.connect(self.editedText)
-        self.ui.EnterTextEdit.returnPressed.connect(self.nextRound)
+        self.ui.EnterTextEdit.returnPressed.connect(self.sentenceTyped)
 
     def editedText(self):
         if(not self.sentenceStarted and self.inputCount == 0):
@@ -100,17 +100,25 @@ class TextInput(QtWidgets.QWidget):
             self.startExperimentTimer()
 
         self.inputCount += 1
-        self.charLog()
-        self.stopCharTimer()
+        self.charTyped()
         if(self.inputCount % 5 == 0):
-            self.wordLog()
-            self.stopWordTimer()
+            self.wordTyped()
 
+    def charTyped(self):
+        time = self.stopCharTimer()
+        self.charLog(time)
 
-    def nextRound(self):
-        self.wordLog()
-        if(self.sentenceStarted):    
-            self.stopSentenceTimer()
+    def wordTyped(self):
+        time = self.stopWordTimer()
+        self.wordLog(time)
+
+    def sentenceTyped(self):
+        # else it is the start of the test
+        if(self.sentenceStarted):
+            time = self.stopSentenceTimer()
+            self.sentenceLog(time)
+        else:
+            self.logExperimentStart()
         if(self.round < 4):
             # clear field
             # show next text
@@ -121,8 +129,10 @@ class TextInput(QtWidgets.QWidget):
         else:
             self.ui.GivenTextLabel.setText("")
             self.ui.EnterTextEdit.setText("")
-            self.stopExperimentTimer()
+            time = self.stopExperimentTimer()
+            self.logExperimentEnd(time)
             #print("end")
+        self.inputCount = 0
     
     def startExperimentTimer(self):
         self.experimentStartTime = datetime.datetime.now()
@@ -143,37 +153,47 @@ class TextInput(QtWidgets.QWidget):
     def stopExperimentTimer(self):
         stopTime = datetime.datetime.now()
         diff = stopTime - self.experimentStartTime
-        print("experiment", diff.total_seconds())
+        return diff.total_seconds()
     
     def stopCharTimer(self):
         stopTime = datetime.datetime.now()
         diff = stopTime - self.charStartTime
-        print("char", diff.total_seconds())
         self.startCharTimer()
+        return diff.total_seconds()
 
     def stopWordTimer(self):
         stopTime = datetime.datetime.now()
         diff = stopTime - self.wordStartTime
-        print("word", diff.total_seconds())
         self.startWordTimer()
+        return diff.total_seconds()
 
     def stopSentenceTimer(self):
         stopTime = datetime.datetime.now()
         diff = stopTime - self.sentenceStartTime
-        print("sentence", diff.total_seconds())
         self.startSentenceTimer()
+        return diff.total_seconds()
 
-    def charLog(self):
-        #print(self.inputCount)
-        pass
+    def charLog(self, time):
+        # eventtype, wann, Welcher, wie lange gebraucht, ...
+        print("key pressed, %s, %f" % (datetime.datetime.now(), time))
     
-    def wordLog(self):
-        #print("word")
-        pass
+    def wordLog(self, time):
+        # eventtype, wann, Welches, wie lange gebraucht, cps, ...
+        print("word typed, %s, %f" % (datetime.datetime.now(), time))
     
-    def sentenceLog(self):
-        #print("sentence")
+    def sentenceLog(self, time):
+        # eventtype, wann, welcher, wie lange gebraucht, wpm, ...
+        print("sentence typed, %s, %f" % (datetime.datetime.now(), time))
+
+    def logExperimentStart(self):
+        # eventtype, wann, wie lange gebraucht, ...
+        #print("test finished", datetime.datetime.now(), time)
         pass
+
+    def logExperimentEnd(self, time):
+        # eventtype, wann, wie lange gebraucht, ...
+        print("test finished, %s, %f" % (datetime.datetime.now(), time))
+        
 
 def main():
     app = QtWidgets.QApplication(sys.argv)
