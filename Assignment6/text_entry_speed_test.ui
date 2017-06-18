@@ -65,7 +65,7 @@
     <set>Qt::AlignHCenter|Qt::AlignTop</set>
    </property>
   </widget>
-  <widget class="QTextEdit" name="EnterTextEdit">
+  <widget class="QLineEdit" name="EnterTextEdit">
    <property name="geometry">
     <rect>
      <x>10</x>
@@ -79,11 +79,8 @@
      <pointsize>14</pointsize>
     </font>
    </property>
-   <property name="frameShape">
-    <enum>QFrame::Box</enum>
-   </property>
-   <property name="frameShadow">
-    <enum>QFrame::Raised</enum>
+   <property name="alignment">
+    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
    </property>
   </widget>
  </widget>

@@ -55,6 +55,8 @@ class TextInput(QtWidgets.QWidget):
             self.subjectNum = self.dataArray[0].split(":")[1].strip()
             temporaryOrder = self.dataArray[1].split(":")[1]
             self.testOrder = temporaryOrder.strip().split(", ")
+            
+            print(self.testOrder)
         # if errors happen while splitting
         except:
             # prints data format as message
@@ -64,30 +66,28 @@ class TextInput(QtWidgets.QWidget):
                   "SENTENCE-NR: 3, 2, 1, 4 \n")
             # exits
             sys.exit()
-
-    # receives key presses from keyboard
-    def keyPressEvent(self, event):
-        print("event")
-        if type(event) == QtGui.QKeyEvent:
-            key = event.key()
-            if  key == QtCore.Qt.Key_Return:
-                self.nextRound()
     
     def initUI(self):
         self.ui = uic.loadUi("text_entry_speed_test.ui", self)
         self.show()
         self.ui.EnterTextEdit.textChanged.connect(self.editedText)
+        self.ui.EnterTextEdit.returnPressed.connect(self.nextRound)
 
     def editedText(self):
         print("test")
 
     def nextRound(self):
-        # clear field
-        # show next text
-        self.ui.GivenTextLabel.setText(self.sentences[self.round])
-        self.ui.EnterTextEdit.setText("")
-        self.round += 1
-        print("next round")
+        if(self.round < 4):
+            # clear field
+            # show next text
+            self.ui.GivenTextLabel.setText(self.sentences[int(self.testOrder[self.round]) - 1])
+            self.ui.EnterTextEdit.setText("")
+            self.round += 1
+            print("next round")
+        else:
+            self.ui.GivenTextLabel.setText("")
+            self.ui.EnterTextEdit.setText("")
+            print("end")
 
 def main():
     app = QtWidgets.QApplication(sys.argv)
