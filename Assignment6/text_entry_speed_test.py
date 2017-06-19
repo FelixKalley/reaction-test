@@ -30,10 +30,12 @@ class TextInput(QtWidgets.QWidget):
         self.checkInput()
 
         # sentences to type
-        self.sentences = ("The quick brown fox jumps over the lazy dog.",
-                          "The five boxing wizards jump quickly.",
+        self.sentences = ("The five boxing wizards jump quickly.",
+                          "The quick brown fox jumps over the lazy dog.",
                           "Jackdaws love my big sphinx of quartz.",
-                          "Quick fox jumps nightly above wizard.",
+                          "The quick onyx goblin jumps over the lazy dwarf.",
+                          "My girl wove six dozen plaid jackets before she quit.",
+                          "Crazy Frederick bought many very exquisite opal jewels.",
                           "Jim quickly realized that the beautiful gowns are expensive.")
 
         # indicates whether a sentences was started or not
@@ -49,7 +51,7 @@ class TextInput(QtWidgets.QWidget):
 
         # counting inputs per sentence
         self.inputCount = 0
-        # there are a maximum of 4 rounds/sentences
+        # the number of rounds depends on the number of sentences
         self.round = 0
         # function to init the ui
         self.initUI()
@@ -99,7 +101,7 @@ class TextInput(QtWidgets.QWidget):
             print("The given data does not conform to the standard. \n"
                   "Please format data like this: \n"
                   "PARTICIPANT: 1 \n"
-                  "SENTENCE-NR: 3, 2, 1, 4, 5 \n")
+                  "SENTENCE-NR: 3, 2, 1, 4, 7, 5, 6 \n")
             # exits
             sys.exit()
 
@@ -125,6 +127,7 @@ class TextInput(QtWidgets.QWidget):
         # a char was typed
         self.charTyped()
         # if 5 chars were typed it is a word
+        #print(self.ui.EnterTextEdit.text()[-1:])
         if(self.inputCount % 5 == 0):
             self.wordTyped()
 
@@ -145,7 +148,7 @@ class TextInput(QtWidgets.QWidget):
             time = self.stopSentenceTimer()
             self.sentenceLog(time)
         # if it is not the last round
-        if(self.round < 5):
+        if(self.round < len(self.sentences)):
             sentenceIndex = int(self.testOrder[self.round]) - 1
             # show next text
             self.ui.GivenTextLabel.setText(self.sentences[sentenceIndex])
@@ -220,17 +223,20 @@ class TextInput(QtWidgets.QWidget):
     # log if char was entered
     def charLog(self, time):
         # eventtype, wann, Welcher, wie lange gebraucht, ...
-        print("key pressed, %s, %f" % (datetime.datetime.now(), time))
+        char = self.ui.EnterTextEdit.text()[-1:]
+        print("key pressed, %s, %f, \"%s\"" % (datetime.datetime.now(), time, char))
 
     # log if word was finished
     def wordLog(self, time):
         # eventtype, wann, Welches, wie lange gebraucht, ...
-        print("word typed, %s, %f" % (datetime.datetime.now(), time))
+        word = self.ui.EnterTextEdit.text()[-5:]
+        print("word typed, %s, %f, \"%s\"" % (datetime.datetime.now(), time, word))
 
     # log if sentence was finished
     def sentenceLog(self, time):
         # eventtype, wann, welcher, wie lange gebraucht, ...
-        print("sentence typed, %s, %f" % (datetime.datetime.now(), time))
+        sentence = self.ui.EnterTextEdit.text()
+        print("sentence typed, %s, %f, \"%s\"" % (datetime.datetime.now(), time, sentence))
 
     # log if experiment was finished
     def logExperimentEnd(self, time):
