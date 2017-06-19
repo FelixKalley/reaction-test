@@ -26,8 +26,6 @@ class TextInput(QtWidgets.QWidget):
 
         # contains data given from file
         self.dataArray = []
-        # function to check the input file
-        self.checkInput()
 
         # sentences to type
         self.sentences = ("The five boxing wizards jump quickly.",
@@ -37,6 +35,8 @@ class TextInput(QtWidgets.QWidget):
                           "My girl wove six dozen plaid jackets before she quit.",
                           "Crazy Frederick bought many very exquisite opal jewels.",
                           "Jim quickly realized that the beautiful gowns are expensive.")
+        # function to check the input file
+        self.checkInput()
 
         # indicates whether a sentences was started or not
         self.sentenceStarted = False
@@ -93,8 +93,9 @@ class TextInput(QtWidgets.QWidget):
             temporaryOrder = self.dataArray[1].split(":")[1]
             # order of the sentences
             self.testOrder = temporaryOrder.strip().split(", ")
-
-            print(self.testOrder)
+            if len(self.testOrder) > len(self.sentences):
+                print("to many sentence indexes given, there are only", str(len(self.sentences)), "given.")
+                sys.exit()
         # if errors happen while splitting
         except:
             # prints data format as message
@@ -147,6 +148,8 @@ class TextInput(QtWidgets.QWidget):
         if(self.sentenceStarted):
             time = self.stopSentenceTimer()
             self.sentenceLog(time)
+        else:
+            self.logExperimentStart()
         # if it is not the last round
         if(self.round < len(self.sentences)):
             sentenceIndex = int(self.testOrder[self.round]) - 1
@@ -224,24 +227,28 @@ class TextInput(QtWidgets.QWidget):
     def charLog(self, time):
         # eventtype, wann, Welcher, wie lange gebraucht, ...
         char = self.ui.EnterTextEdit.text()[-1:]
-        print("key pressed, %s, %f, \"%s\"" % (datetime.datetime.now(), time, char))
+        print("key pressed;%s;%f;\"%s\"" % (datetime.datetime.now(), time, char))
 
     # log if word was finished
     def wordLog(self, time):
         # eventtype, wann, Welches, wie lange gebraucht, ...
         word = self.ui.EnterTextEdit.text()[-5:]
-        print("word typed, %s, %f, \"%s\"" % (datetime.datetime.now(), time, word))
+        print("word typed;%s;%f;\"%s\"" % (datetime.datetime.now(), time, word))
 
     # log if sentence was finished
     def sentenceLog(self, time):
         # eventtype, wann, welcher, wie lange gebraucht, ...
         sentence = self.ui.EnterTextEdit.text()
-        print("sentence typed, %s, %f, \"%s\"" % (datetime.datetime.now(), time, sentence))
+        print("sentence typed;%s;%f;\"%s\"" % (datetime.datetime.now(), time, sentence))
+
+    # log if experiment was started
+    def logExperimentStart(self):
+        print("type;timestamp;time needed in ms;input")
 
     # log if experiment was finished
     def logExperimentEnd(self, time):
         # eventtype, wann, wie lange gebraucht, ...
-        print("test finished, %s, %f" % (datetime.datetime.now(), time))
+        print("test finished;%s;%f;" % (datetime.datetime.now(), time))
 
 
 def main():
