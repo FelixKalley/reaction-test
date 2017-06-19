@@ -127,7 +127,7 @@ class TextInput(QtWidgets.QWidget):
         # a char was typed
         self.charTyped()
         # if 5 chars were typed it is a word
-        #print(self.ui.EnterTextEdit.text()[-1:])
+        # print(self.ui.EnterTextEdit.text()[-1:])
         if(self.inputCount % 5 == 0):
             self.wordTyped()
 
