@@ -5,22 +5,23 @@ from PyQt5.QtWidgets import QApplication, QLineEdit, QCompleter
 from PyQt5.QtCore import QStringListModel, pyqtSignal, QObject
  
 TAGS = ['Nature', 'buildings', 'home', 'City', 'country', 'Berlin']
- 
+ # inspired by source: https://john.nachtimwald.com/2009/07/04/qcompleter-and-comma-separated-tags/
 class CompleterLineEdit(QLineEdit):
     mylist = ['Nature', 'buildings', 'home', 'City', 'country', 'Berlin']
     myprefix = ""
     inputtext = ""
     mytags = ""
 
-    def __init__(self, *args):
-        QLineEdit.__init__(self, *args)
+
+    def __init__(self, parent, *args):
+        QLineEdit.__init__(self, parent, *args)
         
         self.textChanged.connect(self.text_changed)
 
     def text_changed(self, text):
         all_text = text
         text = all_text[:self.cursorPosition()]
-        prefix = text.split(',')[-1].strip()
+        prefix = text.split(' ')[-1].strip()
         text_tags = []
         for t in all_text.split(' '):
             t1 = t.strip()
@@ -45,9 +46,14 @@ class CompleterLineEdit(QLineEdit):
         # gets text behind cursor
         after_text = self.text()[cursor_pos:]
         # gets length of prefix
-        prefix_len = len(before_text.split(',')[-1].strip())
+        prefix_len = len(before_text.split(' ')[-1])
+        print(before_text)
+        print(before_text.split(","))
+        print(before_text.split(" "))
+        print(before_text.split(" ")[-1].strip())
+        print(prefix_len)
         # sets text 
-        self.setText('%s%s, %s' % (before_text[:cursor_pos - prefix_len], text,
+        self.setText('%s%s %s' % (before_text[:cursor_pos - prefix_len], text,
             after_text))
         # sets cursor postion 
         self.setCursorPosition(cursor_pos - prefix_len + len(text) + 1)
@@ -88,9 +94,9 @@ class TagsCompleter(QCompleter):
         # gets prefix (first letters) from editor
         completion_prefix = editor.giveprefix()
         # creates list of differences between all_tags and text_tags
-        tags = list(self.all_tags.difference(text_tags))
+        #tags = list(self.all_tags.difference(text_tags))
         #creates list from all_tags
-        #tags = self.all_tags
+        tags = self.all_tags
         # creates model as QStringList from tags
         model = QStringListModel(tags, self)
         # sets model
@@ -112,8 +118,10 @@ class TagsCompleter(QCompleter):
 def main():
     # application
     app = QApplication(sys.argv)
+
     # special QLineEdit
-    editor = CompleterLineEdit()
+    editor = CompleterLineEdit(app)
+    editor.setWidget(app)
     # special Completer
     completer = TagsCompleter(editor, TAGS)
     # disables case sensitivity
@@ -125,7 +133,7 @@ def main():
     # sets widget for completer
     completer.setWidget(editor)
     # shows editor
-    editor.show()
+    #editor.show()
     # executes app
     return app.exec_()
  
