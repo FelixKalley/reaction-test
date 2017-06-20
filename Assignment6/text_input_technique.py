@@ -19,17 +19,19 @@ import datetime
 from PyQt5 import uic, QtWidgets, QtCore, QtGui, Qt
 from PyQt5.QtWidgets import QApplication, QLineEdit, QCompleter
 from PyQt5.QtCore import QStringListModel, pyqtSignal, QObject
-#from PyQt5.QtCore.Qt import Alignment
 
-TAGS = (["the", "five", "boxing", "wizards", "jump", "quickly."],
-        ["quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog."],
-        ["jackdaws", "love", "my", "big", "sphinx", "of", "quartz."],
-        ["quick", "onyx", "goblin", "jumps", "over", "the", "lazy", "dwarf."],
-        ["my", "girl", "wove", "six", "dozen", "plaid", "jackets", "before", "she", "quit."],
-        ["crazy", "Frederick", "bought", "many", "very", "exquisite", "opal", "jewels."],
-        ["jim", "quickly", "realized", "that", "beautiful", "gowns", "are", "expensive."])
+# List of words for completer
+TAGS = (["the", "five", "boxing", "wizards", "jump", "quickly"],
+        ["quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"],
+        ["jackdaws", "love", "my", "big", "sphinx", "of", "quartz"],
+        ["quick", "onyx", "goblin", "jumps", "above", "the", "lazy", "dwarf"],
+        ["my", "girl", "wove", "six", "dozen", "plaid", "jackets", "before", "he", "quit"],
+        ["crazy", "Frederick", "bought", "many", "very", "exquisite", "opal", "jewels"],
+        ["jim", "quickly", "realized", "that", "beautiful", "gowns", "are", "expensive"])
 
+# index for sentence selection
 sentence_index = 0
+
 
 class TextInput(QtWidgets.QWidget):
 
@@ -38,23 +40,26 @@ class TextInput(QtWidgets.QWidget):
         # contains data given from file
         self.dataArray = []
         # sentences to type
-        self.sentences = ("the five boxing wizards jump quickly.",
-                          "the quick brown fox jumps over the lazy dog.",
-                          "jackdaws love my big sphinx of quartz.",
-                          "the quick onyx goblin jumps over the lazy dwarf.",
-                          "my girl wove six dozen plaid jackets before she quit.",
-                          "crazy Frederick bought many very exquisite opal jewels.",
-                          "jim quickly realized that the beautiful gowns are expensive.")
+        self.sentences = ("the five boxing wizards jump quickly",
+                          "the quick brown fox jumps over the lazy dog",
+                          "jackdaws love my big sphinx of quartz",
+                          "the quick onyx goblin jumps above the lazy dwarf",
+                          "my girl wove six dozen plaid jackets before he quit",
+                          "crazy Frederick bought many very exquisite opal jewels",
+                          "jim quickly realized that beautiful gowns are expensive")
         # function to check the input file
         self.checkInput()
 
-
+        # extended line edit class
         self.editor = CompleterLineEdit(self)
+        # set size and position of text field
         self.editor.setGeometry(10, 211, 681, 161)
-        f = self.editor.font()
-        f.setPointSize(14)
-        self.editor.setFont(f)
-        self.editor.setAlignment(QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
+        # set font size
+        font = self.editor.font()
+        font.setPointSize(14)
+        self.editor.setFont(font)
+        # set alignment of cursor in text field
+        self.editor.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
         # special Completer
         completer = TagsCompleter(self.editor, TAGS[sentence_index])
         # disables case sensitivity
@@ -65,7 +70,7 @@ class TextInput(QtWidgets.QWidget):
         self.editor.textChanged.connect(lambda: completer.update(self.editor))
         # sets widget for completer
         completer.setWidget(self.editor)
-        #
+        # show edit text field
         self.editor.show()
 
         # indicates whether a sentences was started or not
@@ -146,7 +151,6 @@ class TextInput(QtWidgets.QWidget):
         # connect edit text return click
         self.editor.returnPressed.connect(self.sentenceTyped)
 
-
     # if text was edited
     def editedText(self):
         # if no sentence was startet and the input count is 0, start experiment
@@ -191,9 +195,9 @@ class TextInput(QtWidgets.QWidget):
                 self.editor.setText("")
                 # increase round count
                 self.round += 1
+                # set round index to global variable
                 global sentence_index
                 sentence_index = sentenceIndex
-                print("set sentence_index", sentence_index)
             # if it is the last round
             else:
                 # clear given and typed sentence
@@ -262,40 +266,39 @@ class TextInput(QtWidgets.QWidget):
     def charLog(self, time):
         # eventtype, wann, Welcher, wie lange gebraucht, ...
         char = self.editor.text()[-1:]
-        print("key pressed;%s;%f;\"%s\"" % (datetime.datetime.now(), time, char))
+        print("novel;key pressed;%s;%f;\"%s\"" % (datetime.datetime.now(), time, char))
 
     # log if word was finished
     def wordLog(self, time):
         # eventtype, wann, Welches, wie lange gebraucht, ...
         word = self.editor.text()[-5:]
-        print("word typed;%s;%f;\"%s\"" % (datetime.datetime.now(), time, word))
+        print("novel;word typed;%s;%f;\"%s\"" % (datetime.datetime.now(), time, word))
 
     # log if sentence was finished
     def sentenceLog(self, time):
         # eventtype, wann, welcher, wie lange gebraucht, ...
         sentence = self.editor.text()
-        print("sentence typed;%s;%f;\"%s\"" % (datetime.datetime.now(), time, sentence))
+        print("novel;sentence typed;%s;%f;\"%s\"" % (datetime.datetime.now(), time, sentence))
 
     # log if experiment was started
     def logExperimentStart(self):
-        print("type;timestamp;time needed in ms;input")
+        print("input technique;input type;timestamp;time needed in ms;input")
 
     # log if experiment was finished
     def logExperimentEnd(self, time):
         # eventtype, wann, wie lange gebraucht, ...
-        print("test finished;%s;%f;" % (datetime.datetime.now(), time))
+        print("novel;test finished;%s;%f;" % (datetime.datetime.now(), time))
 
 
+# inspired by source: https://john.nachtimwald.com/2009/07/04/qcompleter-and-comma-separated-tags/
+# extended QLineEdit for correct completion
 class CompleterLineEdit(QLineEdit):
-
     myprefix = ""
     inputtext = ""
     mytags = ""
 
-
     def __init__(self, *args):
         QLineEdit.__init__(self, *args)
-        
         self.textChanged.connect(self.text_changed)
 
     def text_changed(self, text):
@@ -311,11 +314,9 @@ class CompleterLineEdit(QLineEdit):
         self.mytags = text_tags
         self.myprefix = prefix
         self.inputtext = text
-    
+
     # completes the text
     def complete_text(self, completer):
-        # HIER IST DAS PROBLEM IRGENDWO...
-        # resets text?
         text = ""
         # sets text to current completion
         text = completer.givecompletion()
@@ -327,18 +328,12 @@ class CompleterLineEdit(QLineEdit):
         after_text = self.text()[cursor_pos:]
         # gets length of prefix
         prefix_len = len(before_text.split(' ')[-1])
-        #print(before_text)
-        #print(before_text.split(","))
-        #print(before_text.split(" "))
-        #print(before_text.split(" ")[-1].strip())
-        #print(prefix_len)
-        # sets text 
+        # sets text
         self.setText('%s%s %s' % (before_text[:cursor_pos - prefix_len], text,
-            after_text))
-        # sets cursor postion 
+                     after_text))
+        # sets cursor postion
         self.setCursorPosition(cursor_pos - prefix_len + len(text) + 1)
         text = ""
-
 
     # returns prefix
     def giveprefix(self):
@@ -353,8 +348,10 @@ class CompleterLineEdit(QLineEdit):
         return self.mytags
 
 
+# inspired by source: https://john.nachtimwald.com/2009/07/04/qcompleter-and-comma-separated-tags/
+# extended QCompleter
 class TagsCompleter(QCompleter):
-    current_completion= ""
+    current_completion = ""
 
     # inits completer
     def __init__(self, parent, all_tags):
@@ -364,7 +361,7 @@ class TagsCompleter(QCompleter):
         self.all_tags = set(all_tags)
         # sets prefix
         self.completion_prefix = self.completionPrefix()
-    
+
     # updates completer
     def update(self, editor):
         # gets tags (words) from editor
@@ -372,12 +369,9 @@ class TagsCompleter(QCompleter):
         # gets prefix (first letters) from editor
         completion_prefix = editor.giveprefix()
         # creates list of differences between all_tags and text_tags
-        #tags = list(self.all_tags.difference(text_tags))
-        #creates list from all_tags
+        # tags = list(self.all_tags.difference(text_tags))
+        # creates list from all_tags
         tags = TAGS[sentence_index]
-        print("sentence_index", sentence_index)
-        #print(TAGS[sentence_index])
-        #print("tags", tags)
         # creates model as QStringList from tags
         model = QStringListModel(tags, self)
         # sets model
@@ -387,15 +381,13 @@ class TagsCompleter(QCompleter):
         # sets current completion
         self.current_completion = self.currentCompletion()
         # checks if prefix is not empty
-        if completion_prefix.strip() != '' and len(completion_prefix) >1:
+        if completion_prefix.strip() != '' and len(completion_prefix) >= 1:
             # completes text
             self.complete()
-    
+
     # returns text of current completion
     def givecompletion(self):
         return self.current_completion
-
-
 
 
 def main():

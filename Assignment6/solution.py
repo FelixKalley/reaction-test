@@ -13,8 +13,8 @@ class CompleterLineEdit(QLineEdit):
     mytags = ""
 
 
-    def __init__(self, parent, *args):
-        QLineEdit.__init__(self, parent, *args)
+    def __init__(self, *args):
+        QLineEdit.__init__(self, *args)
         
         self.textChanged.connect(self.text_changed)
 
@@ -47,11 +47,11 @@ class CompleterLineEdit(QLineEdit):
         after_text = self.text()[cursor_pos:]
         # gets length of prefix
         prefix_len = len(before_text.split(' ')[-1])
-        print(before_text)
-        print(before_text.split(","))
-        print(before_text.split(" "))
-        print(before_text.split(" ")[-1].strip())
-        print(prefix_len)
+        #print(before_text)
+        #print(before_text.split(","))
+        #print(before_text.split(" "))
+        #print(before_text.split(" ")[-1].strip())
+        #print(prefix_len)
         # sets text 
         self.setText('%s%s %s' % (before_text[:cursor_pos - prefix_len], text,
             after_text))
@@ -120,8 +120,7 @@ def main():
     app = QApplication(sys.argv)
 
     # special QLineEdit
-    editor = CompleterLineEdit(app)
-    editor.setWidget(app)
+    editor = CompleterLineEdit()
     # special Completer
     completer = TagsCompleter(editor, TAGS)
     # disables case sensitivity
@@ -133,7 +132,7 @@ def main():
     # sets widget for completer
     completer.setWidget(editor)
     # shows editor
-    #editor.show()
+    editor.show()
     # executes app
     return app.exec_()
  

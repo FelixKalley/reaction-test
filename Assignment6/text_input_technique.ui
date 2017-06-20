@@ -54,12 +54,12 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>481</width>
+     <width>681</width>
      <height>21</height>
     </rect>
    </property>
    <property name="text">
-    <string>To go to next sentence press &quot;enter&quot;.</string>
+    <string>To select autocompleted word, press &quot;arrow down&quot; and &quot;enter&quot;. To go to next sentence press &quot;enter&quot;.</string>
    </property>
    <property name="alignment">
     <set>Qt::AlignHCenter|Qt::AlignTop</set>
