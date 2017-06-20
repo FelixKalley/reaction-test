@@ -21,13 +21,13 @@ from PyQt5.QtWidgets import QApplication, QLineEdit, QCompleter
 from PyQt5.QtCore import QStringListModel, pyqtSignal, QObject
 #from PyQt5.QtCore.Qt import Alignment
 
-TAGS = (["The", "five", "boxing", "wizards", "jump", "quickly."],
-        ["The", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog."],
-        ["Jackdaws", "love", "my", "big", "sphinx", "of", "quartz."],
-        ["The", "quick", "onyx", "goblin", "jumps", "over", "the", "lazy", "dwarf."],
-        ["My", "girl", "wove", "six", "dozen", "plaid", "jackets", "before", "she", "quit."],
-        ["Crazy", "Frederick", "bought", "many", "very", "exquisite", "opal", "jewels."],
-        ["Jim", "quickly", "realized", "that", "beautiful", "gowns", "are", "expensive."])
+TAGS = (["the", "five", "boxing", "wizards", "jump", "quickly."],
+        ["quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog."],
+        ["jackdaws", "love", "my", "big", "sphinx", "of", "quartz."],
+        ["quick", "onyx", "goblin", "jumps", "over", "the", "lazy", "dwarf."],
+        ["my", "girl", "wove", "six", "dozen", "plaid", "jackets", "before", "she", "quit."],
+        ["crazy", "Frederick", "bought", "many", "very", "exquisite", "opal", "jewels."],
+        ["jim", "quickly", "realized", "that", "beautiful", "gowns", "are", "expensive."])
 
 sentence_index = 0
 
@@ -35,24 +35,21 @@ class TextInput(QtWidgets.QWidget):
 
     def __init__(self):
         super().__init__()
-
         # contains data given from file
         self.dataArray = []
-
         # sentences to type
-        self.sentences = ("The five boxing wizards jump quickly.",
-                          "The quick brown fox jumps over the lazy dog.",
-                          "Jackdaws love my big sphinx of quartz.",
-                          "The quick onyx goblin jumps over the lazy dwarf.",
-                          "My girl wove six dozen plaid jackets before she quit.",
-                          "Crazy Frederick bought many very exquisite opal jewels.",
-                          "Jim quickly realized that the beautiful gowns are expensive.")
+        self.sentences = ("the five boxing wizards jump quickly.",
+                          "the quick brown fox jumps over the lazy dog.",
+                          "jackdaws love my big sphinx of quartz.",
+                          "the quick onyx goblin jumps over the lazy dwarf.",
+                          "my girl wove six dozen plaid jackets before she quit.",
+                          "crazy Frederick bought many very exquisite opal jewels.",
+                          "jim quickly realized that the beautiful gowns are expensive.")
         # function to check the input file
         self.checkInput()
 
 
         self.editor = CompleterLineEdit(self)
-        self.editor.setFixedSize(681, 161)
         self.editor.setGeometry(10, 211, 681, 161)
         f = self.editor.font()
         f.setPointSize(14)
@@ -147,8 +144,8 @@ class TextInput(QtWidgets.QWidget):
         # connect edit text text edited
         self.editor.textEdited.connect(self.editedText)
         # connect edit text return click
-        if len(self.editor.text()) >= len(self.ui.GivenTextLabel.text()):
-            self.editor.returnPressed.connect(self.sentenceTyped)
+        self.editor.returnPressed.connect(self.sentenceTyped)
+
 
     # if text was edited
     def editedText(self):
@@ -178,36 +175,38 @@ class TextInput(QtWidgets.QWidget):
 
     # if a sentence was typed it is the next round
     def sentenceTyped(self):
-        # if it is not the first round
-        if(self.sentenceStarted):
-            time = self.stopSentenceTimer()
-            self.sentenceLog(time)
-        else:
-            self.logExperimentStart()
-        # if it is not the last round
-        if(self.round < len(self.sentences)):
-            sentenceIndex = int(self.testOrder[self.round]) - 1
-            # show next text
-            self.ui.GivenTextLabel.setText(self.sentences[sentenceIndex])
-            # clear field
-            self.editor.setText("")
-            # increase round count
-            self.round += 1
-            sentence_index = sentenceIndex
-            print(sentence_index)
-        # if it is the last round
-        else:
-            # clear given and typed sentence
-            self.ui.GivenTextLabel.setText("")
-            self.editor.setText("")
-            # stop experiment time
-            time = self.stopExperimentTimer()
-            # log experiment end
-            self.logExperimentEnd(time)
-            # close window
-            sys.exit()
-        # reset input count in each round
-        self.inputCount = 0
+        if len(self.editor.text()) >= len(self.ui.GivenTextLabel.text()):
+            # if it is not the first round
+            if(self.sentenceStarted):
+                time = self.stopSentenceTimer()
+                self.sentenceLog(time)
+            else:
+                self.logExperimentStart()
+            # if it is not the last round
+            if(self.round < len(self.sentences)):
+                sentenceIndex = int(self.testOrder[self.round]) - 1
+                # show next text
+                self.ui.GivenTextLabel.setText(self.sentences[sentenceIndex])
+                # clear field
+                self.editor.setText("")
+                # increase round count
+                self.round += 1
+                global sentence_index
+                sentence_index = sentenceIndex
+                print("set sentence_index", sentence_index)
+            # if it is the last round
+            else:
+                # clear given and typed sentence
+                self.ui.GivenTextLabel.setText("")
+                self.editor.setText("")
+                # stop experiment time
+                time = self.stopExperimentTimer()
+                # log experiment end
+                self.logExperimentEnd(time)
+                # close window
+                sys.exit()
+            # reset input count in each round
+            self.inputCount = 0
 
     # start all timers
     def startExperimentTimer(self):
@@ -328,11 +327,11 @@ class CompleterLineEdit(QLineEdit):
         after_text = self.text()[cursor_pos:]
         # gets length of prefix
         prefix_len = len(before_text.split(' ')[-1])
-        print(before_text)
-        print(before_text.split(","))
-        print(before_text.split(" "))
-        print(before_text.split(" ")[-1].strip())
-        print(prefix_len)
+        #print(before_text)
+        #print(before_text.split(","))
+        #print(before_text.split(" "))
+        #print(before_text.split(" ")[-1].strip())
+        #print(prefix_len)
         # sets text 
         self.setText('%s%s %s' % (before_text[:cursor_pos - prefix_len], text,
             after_text))
@@ -375,7 +374,10 @@ class TagsCompleter(QCompleter):
         # creates list of differences between all_tags and text_tags
         #tags = list(self.all_tags.difference(text_tags))
         #creates list from all_tags
-        tags = self.all_tags
+        tags = TAGS[sentence_index]
+        print("sentence_index", sentence_index)
+        #print(TAGS[sentence_index])
+        #print("tags", tags)
         # creates model as QStringList from tags
         model = QStringListModel(tags, self)
         # sets model
