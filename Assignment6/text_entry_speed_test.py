@@ -227,28 +227,28 @@ class TextInput(QtWidgets.QWidget):
     def charLog(self, time):
         # eventtype, wann, Welcher, wie lange gebraucht, ...
         char = self.ui.EnterTextEdit.text()[-1:]
-        print("default;key pressed;%s;%f;\"%s\"" % (datetime.datetime.now(), time, char))
+        print("default,key pressed,%s,%s,%f,\"%s\"" % (self.subjectNum, datetime.datetime.now(), time, char))
 
     # log if word was finished
     def wordLog(self, time):
         # eventtype, wann, Welches, wie lange gebraucht, ...
         word = self.ui.EnterTextEdit.text()[-5:]
-        print("default;word typed;%s;%f;\"%s\"" % (datetime.datetime.now(), time, word))
+        print("default,word typed,%s,%s,%f,\"%s\"" % (self.subjectNum, datetime.datetime.now(), time, word))
 
     # log if sentence was finished
     def sentenceLog(self, time):
         # eventtype, wann, welcher, wie lange gebraucht, ...
         sentence = self.ui.EnterTextEdit.text()
-        print("default;sentence typed;%s;%f;\"%s\"" % (datetime.datetime.now(), time, sentence))
+        print("default,sentence typed,%s,%s,%f,\"%s\"" % (self.subjectNum, datetime.datetime.now(), time, sentence))
 
     # log if experiment was started
     def logExperimentStart(self):
-        print("input technique;input type;timestamp;time needed in ms;input")
+        print("input technique,input type,subject id,timestamp,time needed in ms,input")
 
     # log if experiment was finished
     def logExperimentEnd(self, time):
         # eventtype, wann, wie lange gebraucht, ...
-        print("default;test finished;%s;%f;" % (datetime.datetime.now(), time))
+        print("default,test finished,%s,%s,%f," % (self.subjectNum, datetime.datetime.now(), time))
 
 
 def main():
