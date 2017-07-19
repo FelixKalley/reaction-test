@@ -1,0 +1,17 @@
+ITT Abschlussprojekt
+- WiiMote Steuerung:
+    (Schnell) Hoch = über bestimmten Schwellenwert einen Halbton hoch
+    (schnell) runter = über bestimmten Schwellenwert einen Halbton runter
+        Mithilfe von Gestenerkennung?
+        Ein infrarot Licht als „basis“ – hoch/runter erkennen?
+        Kombination von Gestenerkennung und Infrarot?
+        Wie kann man „falsch-Erkennung“ vermeiden
+    + = Lauter
+    - = leiser
+- B = Abspielen
+- A = Ton aufnehmen
+- Wenn ein neuer Ton ausgewählt wird durch hoch/runter Bewegung, dann den Ton kurz abspielen?
+- Undo&Redo = Töne können wieder entfernt werden
+- 1 = Undo, letzten Ton entfernen
+- 2 = Redo, letzten entfernten Ton wieder hinzufügen
+
