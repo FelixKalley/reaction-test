@@ -24,7 +24,12 @@ class MusicMaker(QtWidgets.QWidget):
         # felix: ich weiß nicht, wie man das mit der Frequenzänderung anders realisieren könnte, daher erstmal so...
         # lena: die frequenzen ändern sich pro ton nicht gleichmäßig ändert,
         #       würde ich eine Liste an möglichen Tönen vorgeben?
-        self.myfrequency = 261
+        self.counter = 9
+        #h ttp://www.sengpielaudio.com/Rechner-notennamen.htm
+        self.notelist = [261.626, 277.183, 293.665, 311.127, 329.628, 349.228, 369.994, 391.995, 415.305, 440.000, 
+                         466.164, 493.883, 523.251, 554.365, 587.330, 622.254, 659.255, 698.456, 739.989, 783.991, 
+                         830.609, 880.000, 932.328, 987.767, 1046.500]
+        self.myfrequency = self.notelist[self.counter]
         self.connect_wiimote()
         self.prepareSound()
         self.registerButtons()
@@ -55,7 +60,7 @@ class MusicMaker(QtWidgets.QWidget):
                 self.up_frequency()
             if self.wm.buttons["Minus"]:
                 self.down_frequency()
-            time.sleep(0.1)
+            time.sleep(0.5)
 
         # felix: das killt scheinbar den stream und python audio.
         # felix: stand so in dem beispiel, weiß nicht, ob wir das brauchen.
@@ -91,12 +96,16 @@ class MusicMaker(QtWidgets.QWidget):
 
     # erhöht die frequenz um magic number 100
     def up_frequency(self):
-        self.myfrequency += 100
+        if self.counter < len(self.notelist)-1:
+            self.counter +=1
+            self.myfrequency = self.notelist[self.counter]
         print(self.myfrequency)
     
     # senkt die frequenz um magic number 100
     def down_frequency(self):
-        self.myfrequency -= 100
+        if self.counter > 0:
+            self.counter -=1
+            self.myfrequency = self.notelist[self.counter]
         print(self.myfrequency)
     
 
