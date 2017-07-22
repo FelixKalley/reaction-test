@@ -24,23 +24,47 @@ class MusicMaker(QtWidgets.QWidget):
         # felix: ich weiß nicht, wie man das mit der Frequenzänderung anders realisieren könnte, daher erstmal so...
         # lena: die frequenzen ändern sich pro ton nicht gleichmäßig ändert,
         #       würde ich eine Liste an möglichen Tönen vorgeben?
-        self.counter = 9
+        self.counter = 5
+        self.initUI()
         #h ttp://www.sengpielaudio.com/Rechner-notennamen.htm
-        self.notelist = [261.626, 277.183, 293.665, 311.127, 329.628, 349.228, 369.994, 391.995, 415.305, 440.000, 
-                         466.164, 493.883, 523.251, 554.365, 587.330, 622.254, 659.255, 698.456, 739.989, 783.991, 
-                         830.609, 880.000, 932.328, 987.767, 1046.500]
+        # self.notelist = [261.626, 277.183, 293.665, 311.127, 329.628, 349.228, 369.994, 391.995, 415.305, 440.000, 
+        #                  466.164, 493.883, 523.251, 554.365, 587.330, 622.254, 659.255, 698.456, 739.989, 783.991, 
+        #                  830.609, 880.000, 932.328, 987.767, 1046.500]
+        # Nur töne ohne # und b 
+        self.notelist = [261.626, 293.665, 329.628, 349.228, 391.995, 440.000,
+                         493.883, 523.251, 587.330, 659.255, 698.456, 783.991, 
+                         880.000, 987.767, 1046.500]
+        # height of tone (in application)
+        self.noteLineConnection = [263, 253, 243, 233, 223, 213,
+                                   203, 193, 183, 173, 163, 153,
+                                   143, 133, 123]
         self.myfrequency = self.notelist[self.counter]
-        self.connect_wiimote()
-        self.prepareSound()
-        self.registerButtons()
+
+    # init the ui
+    def initUI(self):
+        # load ui file
+        self.ui = uic.loadUi("final.ui", self)
+        self.show()
+        
+        self.ui.connectWiiMoteButton.clicked.connect(self.connect_wiimote)
+    
+    # handles paint events
+    def paintEvent(self, event):
+        # initializes QPainter
+        qp = QtGui.QPainter()
+        # starts painting
+        qp.begin(self)
+            
+        # sets color
+        qp.setBrush(QtGui.QColor(0, 0, 0))
+        # draws a circle
+        qp.drawEllipse(95, self.noteLineConnection[self.counter], 20, 15)
+        # ends painting
+        qp.end()
 
     # connect to WiiMote with given MAC-address
     # Lena: muss noch umgebaut werden für Oberfläche!
-    def connect_wiimote(self):
-        input("Press the 'sync' button on the back of your Wiimote Plus " +
-              "or buttons (1) and (2) on your classic Wiimote.\n" +
-              "Press <return> once the Wiimote's LEDs start blinking.")
-        
+    def connect_wiimote(self):        
         if len(sys.argv) == 1:
             addr, name = wiimote.find()[0]
         elif len(sys.argv) == 2:
@@ -50,22 +74,28 @@ class MusicMaker(QtWidgets.QWidget):
             addr, name = sys.argv[1:3]
         print(("Connecting to %s (%s)" % (name, addr)))
         self.wm = wiimote.connect(addr, name)
+        
+        self.prepareSound()
+
+        self.registerButtons()
 
     # While-Schleife um auf Button presses zu hören (muss umgebaut werden)
+    # das muss irgendwie mit signal und slot funktionieren... aber wie???
     def registerButtons(self):
-        while True:
-            if self.wm.buttons["A"]:
+        self.wm.buttons.register_callback(self.button_changed)
+            
+     
+    def button_changed(self, changed):
+        if not changed:
+            pass
+        else:
+            if(("A", True) in changed):
+                print("A")
                 self.play_tone(self.myfrequency)
-            if self.wm.buttons["Plus"]:
+            elif(("Plus", True) in changed):
                 self.up_frequency()
-            if self.wm.buttons["Minus"]:
+            elif(("Minus", True) in changed):
                 self.down_frequency()
-            time.sleep(0.5)
-
-        # felix: das killt scheinbar den stream und python audio.
-        # felix: stand so in dem beispiel, weiß nicht, ob wir das brauchen.
-        self.stream.close()
-        p.terminate()
     
     # http://milkandtang.com/blog/2013/02/16/making-noise-in-python/
     def prepareSound(self):
@@ -86,11 +116,12 @@ class MusicMaker(QtWidgets.QWidget):
     # standard rate is 44.1kHz
     # felix: i dont know what chunks and streams are...
     def play_tone(self, frequency, length=1, rate=44100):
+        self.update()
         chunks = []
-        chunks.append(self.sine(frequency, length, rate) / 2)
-    
-        chunk = numpy.concatenate(chunks) * 0.25
-    
+        chunks.append(self.sine(frequency, length, rate))
+        chunk = numpy.concatenate(chunks)
+
+        print(self.stream)
         self.stream.write(chunk.astype(numpy.float32).tostring())
 
 
@@ -108,6 +139,11 @@ class MusicMaker(QtWidgets.QWidget):
             self.myfrequency = self.notelist[self.counter]
         print(self.myfrequency)
     
+    
+        # felix: das killt scheinbar den stream und python audio.
+        # felix: stand so in dem beispiel, weiß nicht, ob wir das brauchen.
+        # self.stream.close()
+        # p.terminate()
 
 def main():
     app = QtWidgets.QApplication(sys.argv)
