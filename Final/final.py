@@ -44,13 +44,15 @@ class MusicMaker(QtWidgets.QWidget):
         self.mode_record = 0
         self.mode_play = 1
         self.mode_volume = 2
+        self.note_line_heights =  [(80, -70, 30, 200), (80, -50, 30, 200), (80, 50, 30, 200)]
+        
 
     # init the ui
     def initUI(self):
         # load ui file
         self.ui = uic.loadUi("final.ui", self)
         self.show()
-        
+
         self.ui.connectWiiMoteButton.clicked.connect(self.connect_wiimote)
     
     # handles paint events
@@ -63,12 +65,42 @@ class MusicMaker(QtWidgets.QWidget):
         for index, note in enumerate(self.played_notes):
             qp.drawEllipse(95 + index * 30, self.noteLineConnection[note], 20, 15)
             
-        # sets color
-        # draws a circle
-        qp.drawEllipse(95 + len(self.played_notes) * 30, self.noteLineConnection[self.counter], 20, 15)
+        height = self.noteLineConnection[self.counter]
+        
+        if(height is 263 or height is 123 or height is 143):
+            self.add_line_to_note(height)
+        
+        if(self.mode is self.mode_record):
+            qp.setBrush(QtGui.QColor(70, 70, 70))
+            # sets color
+            # draws a circle
+            qp.drawEllipse(95 + len(self.played_notes) * 30, self.noteLineConnection[self.counter], 20, 15)
         # ends painting
         qp.end()
 
+
+    def add_line_to_note(self, heightOfTone):
+        line = QtCore.QLine()
+        x = 80 + len(self.played_notes) * 30
+        if(heightOfTone is 263):
+            index = 2
+            y = self.note_line_heights[index][1]
+            width = self.note_line_heights[index][2]
+            height = self.note_line_heights[index][3]
+            self.ui.line_08.setGeometry(x, y, width, height)
+        elif(heightOfTone is 123):
+            index = 0
+            y = self.note_line_heights[index][1]
+            width = self.note_line_heights[index][2]
+            height = self.note_line_heights[index][3]
+            self.ui.line_01.setGeometry(x, y, width, height)
+        elif(heightOfTone is 143):
+            index = 1
+            y = self.note_line_heights[index][1]
+            width = self.note_line_heights[index][2]
+            height = self.note_line_heights[index][3]
+            self.ui.line_02.setGeometry(x, y, width, height)
+    
     # connect to WiiMote with given MAC-address
     # Lena: muss noch umgebaut werden für Oberfläche!
     def connect_wiimote(self):        
@@ -101,7 +133,6 @@ class MusicMaker(QtWidgets.QWidget):
                     self.play_tone(self.myfrequency)
                     self.add_tone_to_melody()
                 elif(self.mode is self.mode_play):
-                    print("play sequence")
                     self.play_melody()
                 elif(self.mode is self.mode_volume):
                     print("change volume")
@@ -117,6 +148,7 @@ class MusicMaker(QtWidgets.QWidget):
                 self.down_frequency()
             elif(("B", True) in changed):
                 self.change_mode()
+                self.update()
                 
     def change_mode(self):
         if(self.mode is 0):
@@ -129,6 +161,7 @@ class MusicMaker(QtWidgets.QWidget):
     def play_melody(self):
         for note in self.played_notes:
             self.play_tone(self.notelist[note])
+            time.sleep(0.1)
     
     # http://milkandtang.com/blog/2013/02/16/making-noise-in-python/
     def prepareSound(self):
