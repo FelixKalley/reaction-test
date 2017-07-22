@@ -39,6 +39,7 @@ class MusicMaker(QtWidgets.QWidget):
                                    203, 193, 183, 173, 163, 153,
                                    143, 133, 123]
         self.myfrequency = self.notelist[self.counter]
+        self.played_notes = []
 
     # init the ui
     def initUI(self):
@@ -54,11 +55,13 @@ class MusicMaker(QtWidgets.QWidget):
         qp = QtGui.QPainter()
         # starts painting
         qp.begin(self)
+        qp.setBrush(QtGui.QColor(0, 0, 0))
+        for index, note in enumerate(self.played_notes):
+            qp.drawEllipse(95 + index * 30, self.noteLineConnection[note], 20, 15)
             
         # sets color
-        qp.setBrush(QtGui.QColor(0, 0, 0))
         # draws a circle
-        qp.drawEllipse(95, self.noteLineConnection[self.counter], 20, 15)
+        qp.drawEllipse(95 + len(self.played_notes) * 30, self.noteLineConnection[self.counter], 20, 15)
         # ends painting
         qp.end()
 
@@ -121,8 +124,8 @@ class MusicMaker(QtWidgets.QWidget):
         chunks.append(self.sine(frequency, length, rate))
         chunk = numpy.concatenate(chunks)
 
-        print(self.stream)
         self.stream.write(chunk.astype(numpy.float32).tostring())
+        self.played_notes.append(self.counter)
 
 
     # erhöht die frequenz um magic number 100
@@ -130,14 +133,15 @@ class MusicMaker(QtWidgets.QWidget):
         if self.counter < len(self.notelist)-1:
             self.counter +=1
             self.myfrequency = self.notelist[self.counter]
-        print(self.myfrequency)
+            self.update()
     
     # senkt die frequenz um magic number 100
     def down_frequency(self):
         if self.counter > 0:
             self.counter -=1
             self.myfrequency = self.notelist[self.counter]
-        print(self.myfrequency)
+            self.update()
+
     
     
         # felix: das killt scheinbar den stream und python audio.
