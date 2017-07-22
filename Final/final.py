@@ -74,7 +74,7 @@ class MusicMaker(QtWidgets.QWidget):
             qp.setBrush(QtGui.QColor(70, 70, 70))
             # sets color
             # draws a circle
-            qp.drawEllipse(95 + len(self.played_notes) * 30, self.noteLineConnection[self.counter], 20, 15)
+            qp.drawEllipse(95 + len(self.played_notes) * 30, height, 20, 15)
         # ends painting
         qp.end()
 
