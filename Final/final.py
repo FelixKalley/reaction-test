@@ -40,6 +40,10 @@ class MusicMaker(QtWidgets.QWidget):
                                    143, 133, 123]
         self.myfrequency = self.notelist[self.counter]
         self.played_notes = []
+        self.mode = 0
+        self.mode_record = 0
+        self.mode_play = 1
+        self.mode_volume = 2
 
     # init the ui
     def initUI(self):
@@ -93,12 +97,38 @@ class MusicMaker(QtWidgets.QWidget):
             pass
         else:
             if(("A", True) in changed):
-                print("A")
-                self.play_tone(self.myfrequency)
+                if(self.mode is self.mode_record):
+                    self.play_tone(self.myfrequency)
+                    self.add_tone_to_melody()
+                elif(self.mode is self.mode_play):
+                    print("play sequence")
+                    self.play_melody()
+                elif(self.mode is self.mode_volume):
+                    print("change volume")
+            elif(("One", True) in changed):
+                if(self.mode is self.mode_record):
+                    print("undo")
+            elif(("Two", True) in changed):
+                if(self.mode is self.mode_record):
+                    print("redo")
             elif(("Plus", True) in changed):
                 self.up_frequency()
             elif(("Minus", True) in changed):
                 self.down_frequency()
+            elif(("B", True) in changed):
+                self.change_mode()
+                
+    def change_mode(self):
+        if(self.mode is 0):
+            self.mode = self.mode_play
+        elif(self.mode is 1):
+            self.mode = self.mode_volume
+        else:
+            self.mode = self.mode_record
+          
+    def play_melody(self):
+        for note in self.played_notes:
+            self.play_tone(self.notelist[note])
     
     # http://milkandtang.com/blog/2013/02/16/making-noise-in-python/
     def prepareSound(self):
@@ -118,14 +148,16 @@ class MusicMaker(QtWidgets.QWidget):
     # lower frequency = deeper tone
     # standard rate is 44.1kHz
     # felix: i dont know what chunks and streams are...
-    def play_tone(self, frequency, length=1, rate=44100):
-        self.update()
+    def play_tone(self, frequency, length=0.5, rate=44100):
         chunks = []
         chunks.append(self.sine(frequency, length, rate))
         chunk = numpy.concatenate(chunks)
 
         self.stream.write(chunk.astype(numpy.float32).tostring())
+
+    def add_tone_to_melody(self):
         self.played_notes.append(self.counter)
+        self.update()
 
 
     # erhöht die frequenz um magic number 100
