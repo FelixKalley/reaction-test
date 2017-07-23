@@ -45,7 +45,8 @@ class MusicMaker(QtWidgets.QWidget):
         self.mode_play = 1
         self.mode_volume = 2
         self.note_line_heights =  [(80, -70, 30, 200), (80, -50, 30, 200), (80, 70, 30, 200)]
-        self.redoable_notes = []        
+        self.redoable_notes = []
+        self.ui.modeComboBox.currentIndexChanged.connect(self.set_new_mode)
 
     # init the ui
     def initUI(self):
@@ -71,10 +72,10 @@ class MusicMaker(QtWidgets.QWidget):
         height = self.noteLineConnection[self.counter]
         
         
-        if(height == 263 or height == 123 or height == 143):
-            self.add_line_to_note(height, qp, len(self.played_notes))
         
         if(self.mode is self.mode_record):
+            if(height == 263 or height == 123 or height == 143):
+                self.add_line_to_note(height, qp, len(self.played_notes))
             qp.setBrush(QtGui.QColor(70, 70, 70))
             # sets color
             # draws a circle
@@ -88,7 +89,6 @@ class MusicMaker(QtWidgets.QWidget):
         x2 = 120 + index * 40
         
         line = QtCore.QLine(x1, heightOfTone + 7, x2, heightOfTone + 7)
-        print(x1, heightOfTone + 7, x2, heightOfTone + 7)
         qp.drawLine(line)
     
     # connect to WiiMote with given MAC-address
@@ -118,8 +118,6 @@ class MusicMaker(QtWidgets.QWidget):
         if(not len(self.redoable_notes) == 0):
             self.played_notes.append(self.redoable_notes[-1])
             self.redoable_notes = self.redoable_notes[:-1]
-            print(self.played_notes)
-            print(self.redoable_notes)
             self.update()
 
 
@@ -154,8 +152,11 @@ class MusicMaker(QtWidgets.QWidget):
                 self.down_frequency()
             elif(("B", True) in changed):
                 self.change_mode()
-                self.update()
                 
+    def set_new_mode(self, mode):
+        self.mode = mode
+        self.update()
+        
     def change_mode(self):
         if(self.mode is 0):
             self.mode = self.mode_play
@@ -163,11 +164,13 @@ class MusicMaker(QtWidgets.QWidget):
             self.mode = self.mode_volume
         else:
             self.mode = self.mode_record
+        self.ui.modeComboBox.setCurrentIndex(self.mode)
+        self.update()
           
     def play_melody(self):
         for note in self.played_notes:
-            time.sleep(0.1)
             self.play_tone(self.notelist[note])
+            time.sleep(0.1)
     
     # http://milkandtang.com/blog/2013/02/16/making-noise-in-python/
     def prepareSound(self):
@@ -203,7 +206,6 @@ class MusicMaker(QtWidgets.QWidget):
         if self.counter < len(self.notelist)-1:
             self.counter +=1
             self.myfrequency = self.notelist[self.counter]
-            print("up")
             self.update()
     
 
@@ -211,7 +213,6 @@ class MusicMaker(QtWidgets.QWidget):
         if self.counter > 0:
             self.counter -=1
             self.myfrequency = self.notelist[self.counter]
-            print("down")
             self.update()
 
     

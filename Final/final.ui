@@ -162,9 +162,9 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>370</y>
+     <y>362</y>
      <width>101</width>
-     <height>23</height>
+     <height>31</height>
     </rect>
    </property>
    <property name="autoFillBackground">
@@ -187,9 +187,52 @@
     <string/>
    </property>
   </widget>
+  <widget class="QComboBox" name="modeComboBox">
+   <property name="geometry">
+    <rect>
+     <x>530</x>
+     <y>360</y>
+     <width>101</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <item>
+    <property name="text">
+     <string>Record</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Play</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Volume</string>
+    </property>
+   </item>
+  </widget>
+  <widget class="QLabel" name="label_3">
+   <property name="geometry">
+    <rect>
+     <x>230</x>
+     <y>360</y>
+     <width>291</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Select mode (or press 'B' on your WiiMote):</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+   </property>
+  </widget>
   <zorder>label_2</zorder>
   <zorder>frame</zorder>
   <zorder>connectWiiMoteButton</zorder>
+  <zorder>modeComboBox</zorder>
+  <zorder>label_3</zorder>
  </widget>
  <resources/>
  <connections/>
