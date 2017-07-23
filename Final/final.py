@@ -47,6 +47,8 @@ class MusicMaker(QtWidgets.QWidget):
         self.note_line_heights =  [(80, -70, 30, 200), (80, -50, 30, 200), (80, 70, 30, 200)]
         self.redoable_notes = []
         self.ui.modeComboBox.currentIndexChanged.connect(self.set_new_mode)
+        # defines where to start to draw the notes
+        self.offset = 95
 
     # init the ui
     def initUI(self):
@@ -56,6 +58,19 @@ class MusicMaker(QtWidgets.QWidget):
 
         self.ui.connectWiiMoteButton.clicked.connect(self.connect_wiimote)
     
+    def shift_notes_record(self):
+        if(len(self.played_notes) > 12):
+            self.offset = 95 - (len(self.played_notes) - 12) * 40
+        else:
+            self.offset = 95
+    
+    def shift_notes_play(self, index):
+        print(index)
+        if(index > 12):
+            self.offset = 95 - (index - 12) * 40
+        else:
+            self.offset = 95
+
     # handles paint events
     def paintEvent(self, event):
         # initializes QPainter
@@ -65,7 +80,7 @@ class MusicMaker(QtWidgets.QWidget):
         qp.setBrush(QtGui.QColor(0, 0, 0))
         for index, note in enumerate(self.played_notes):
             old_notes_height = self.noteLineConnection[note]
-            qp.drawEllipse(95 + index * 40, old_notes_height, 20, 15)
+            qp.drawEllipse(self.offset + index * 40, old_notes_height, 20, 15)
             if(old_notes_height == 263 or old_notes_height == 123 or old_notes_height == 143):
                 self.add_line_to_note(old_notes_height, qp, index)
             
@@ -79,14 +94,14 @@ class MusicMaker(QtWidgets.QWidget):
             qp.setBrush(QtGui.QColor(70, 70, 70))
             # sets color
             # draws a circle
-            qp.drawEllipse(95 + len(self.played_notes) * 40, height, 20, 15)
+            qp.drawEllipse(self.offset + len(self.played_notes) * 40, height, 20, 15)
         # ends painting
         qp.end()
 
 
     def add_line_to_note(self, heightOfTone, qp, index):
-        x1 = 90 + index * 40
-        x2 = 120 + index * 40
+        x1 = self.offset - 5 + index * 40
+        x2 = self.offset + 30 + index * 40
         
         line = QtCore.QLine(x1, heightOfTone + 7, x2, heightOfTone + 7)
         qp.drawLine(line)
@@ -136,6 +151,8 @@ class MusicMaker(QtWidgets.QWidget):
                     self.redoable_notes = []
                     self.play_tone(self.myfrequency)
                     self.add_tone_to_melody()
+                    self.shift_notes_record()
+
                 elif(self.mode is self.mode_play):
                     self.play_melody()
                 elif(self.mode is self.mode_volume):
@@ -143,9 +160,11 @@ class MusicMaker(QtWidgets.QWidget):
             elif(("One", True) in changed):
                 if(self.mode is self.mode_record):
                     self.undo()
+                    self.shift_notes_record()
             elif(("Two", True) in changed):
                 if(self.mode is self.mode_record):
                     self.redo()
+                    self.shift_notes_record()
             elif(("Plus", True) in changed):
                 self.up_frequency()
             elif(("Minus", True) in changed):
@@ -159,17 +178,21 @@ class MusicMaker(QtWidgets.QWidget):
         
     def change_mode(self):
         if(self.mode is 0):
+            self.shift_notes_play(0)
             self.mode = self.mode_play
         elif(self.mode is 1):
             self.mode = self.mode_volume
         else:
+            self.shift_notes_record()
             self.mode = self.mode_record
         self.ui.modeComboBox.setCurrentIndex(self.mode)
         self.update()
           
     def play_melody(self):
-        for note in self.played_notes:
+        for index, note in enumerate(self.played_notes):
+            self.shift_notes_play(index)
             self.play_tone(self.notelist[note])
+            self.update()
             time.sleep(0.1)
     
     # http://milkandtang.com/blog/2013/02/16/making-noise-in-python/
