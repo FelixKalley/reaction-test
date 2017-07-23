@@ -45,7 +45,7 @@ class MusicMaker(QtWidgets.QWidget):
         self.mode_play = 1
         self.mode_volume = 2
         self.note_line_heights =  [(80, -70, 30, 200), (80, -50, 30, 200), (80, 70, 30, 200)]
-        
+        self.redoable_notes = []        
 
     # init the ui
     def initUI(self):
@@ -108,6 +108,21 @@ class MusicMaker(QtWidgets.QWidget):
 
         self.registerButtons()
 
+    def undo(self):
+        if( not len(self.played_notes) == 0):            
+            self.redoable_notes.append(self.played_notes[-1])
+            self.played_notes = self.played_notes[:-1]
+            self.update()
+    
+    def redo(self):
+        if(not len(self.redoable_notes) == 0):
+            self.played_notes.append(self.redoable_notes[-1])
+            self.redoable_notes = self.redoable_notes[:-1]
+            print(self.played_notes)
+            print(self.redoable_notes)
+            self.update()
+
+
     # While-Schleife um auf Button presses zu hören (muss umgebaut werden)
     # das muss irgendwie mit signal und slot funktionieren... aber wie???
     def registerButtons(self):
@@ -120,6 +135,7 @@ class MusicMaker(QtWidgets.QWidget):
         else:
             if(("A", True) in changed):
                 if(self.mode is self.mode_record):
+                    self.redoable_notes = []
                     self.play_tone(self.myfrequency)
                     self.add_tone_to_melody()
                 elif(self.mode is self.mode_play):
@@ -128,10 +144,10 @@ class MusicMaker(QtWidgets.QWidget):
                     print("change volume")
             elif(("One", True) in changed):
                 if(self.mode is self.mode_record):
-                    print("undo")
+                    self.undo()
             elif(("Two", True) in changed):
                 if(self.mode is self.mode_record):
-                    print("redo")
+                    self.redo()
             elif(("Plus", True) in changed):
                 self.up_frequency()
             elif(("Minus", True) in changed):
@@ -150,8 +166,8 @@ class MusicMaker(QtWidgets.QWidget):
           
     def play_melody(self):
         for note in self.played_notes:
-            self.play_tone(self.notelist[note])
             time.sleep(0.1)
+            self.play_tone(self.notelist[note])
     
     # http://milkandtang.com/blog/2013/02/16/making-noise-in-python/
     def prepareSound(self):
