@@ -46,7 +46,7 @@
    <property name="lineWidth">
     <number>1</number>
    </property>
-   <widget class="Line" name="line_03">
+   <widget class="Line" name="line_01">
     <property name="geometry">
      <rect>
       <x>0</x>
@@ -62,7 +62,7 @@
      <enum>Qt::Horizontal</enum>
     </property>
    </widget>
-   <widget class="Line" name="line_04">
+   <widget class="Line" name="line_02">
     <property name="geometry">
      <rect>
       <x>0</x>
@@ -78,7 +78,7 @@
      <enum>Qt::Horizontal</enum>
     </property>
    </widget>
-   <widget class="Line" name="line_05">
+   <widget class="Line" name="line_03">
     <property name="geometry">
      <rect>
       <x>0</x>
@@ -94,7 +94,7 @@
      <enum>Qt::Horizontal</enum>
     </property>
    </widget>
-   <widget class="Line" name="line_06">
+   <widget class="Line" name="line_04">
     <property name="geometry">
      <rect>
       <x>0</x>
@@ -110,7 +110,7 @@
      <enum>Qt::Horizontal</enum>
     </property>
    </widget>
-   <widget class="Line" name="line_07">
+   <widget class="Line" name="line_05">
     <property name="geometry">
      <rect>
       <x>0</x>
@@ -151,63 +151,12 @@
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="Line" name="line_08">
-    <property name="geometry">
-     <rect>
-      <x>80</x>
-      <y>160</y>
-      <width>31</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="frameShadow">
-     <enum>QFrame::Plain</enum>
-    </property>
-    <property name="orientation">
-     <enum>Qt::Horizontal</enum>
-    </property>
-   </widget>
-   <widget class="Line" name="line_02">
-    <property name="geometry">
-     <rect>
-      <x>80</x>
-      <y>40</y>
-      <width>31</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="frameShadow">
-     <enum>QFrame::Plain</enum>
-    </property>
-    <property name="orientation">
-     <enum>Qt::Horizontal</enum>
-    </property>
-   </widget>
-   <widget class="Line" name="line_01">
-    <property name="geometry">
-     <rect>
-      <x>80</x>
-      <y>20</y>
-      <width>31</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="frameShadow">
-     <enum>QFrame::Plain</enum>
-    </property>
-    <property name="orientation">
-     <enum>Qt::Horizontal</enum>
-    </property>
-   </widget>
-   <zorder>line_07</zorder>
-   <zorder>line_06</zorder>
    <zorder>line_05</zorder>
    <zorder>line_04</zorder>
    <zorder>line_03</zorder>
-   <zorder>label</zorder>
-   <zorder>line_08</zorder>
    <zorder>line_02</zorder>
    <zorder>line_01</zorder>
+   <zorder>label</zorder>
   </widget>
   <widget class="QPushButton" name="connectWiiMoteButton">
    <property name="geometry">

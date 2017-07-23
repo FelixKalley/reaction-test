@@ -44,7 +44,7 @@ class MusicMaker(QtWidgets.QWidget):
         self.mode_record = 0
         self.mode_play = 1
         self.mode_volume = 2
-        self.note_line_heights =  [(80, -70, 30, 200), (80, -50, 30, 200), (80, 50, 30, 200)]
+        self.note_line_heights =  [(80, -70, 30, 200), (80, -50, 30, 200), (80, 70, 30, 200)]
         
 
     # init the ui
@@ -63,46 +63,36 @@ class MusicMaker(QtWidgets.QWidget):
         qp.begin(self)
         qp.setBrush(QtGui.QColor(0, 0, 0))
         for index, note in enumerate(self.played_notes):
-            qp.drawEllipse(95 + index * 30, self.noteLineConnection[note], 20, 15)
+            old_notes_height = self.noteLineConnection[note]
+            qp.drawEllipse(95 + index * 40, old_notes_height, 20, 15)
+            if(old_notes_height == 263 or old_notes_height == 123 or old_notes_height == 143):
+                self.add_line_to_note(old_notes_height, qp, index)
             
         height = self.noteLineConnection[self.counter]
         
-        if(height is 263 or height is 123 or height is 143):
-            self.add_line_to_note(height)
+        
+        if(height == 263 or height == 123 or height == 143):
+            self.add_line_to_note(height, qp, len(self.played_notes))
         
         if(self.mode is self.mode_record):
             qp.setBrush(QtGui.QColor(70, 70, 70))
             # sets color
             # draws a circle
-            qp.drawEllipse(95 + len(self.played_notes) * 30, height, 20, 15)
+            qp.drawEllipse(95 + len(self.played_notes) * 40, height, 20, 15)
         # ends painting
         qp.end()
 
 
-    def add_line_to_note(self, heightOfTone):
-        line = QtCore.QLine()
-        x = 80 + len(self.played_notes) * 30
-        if(heightOfTone is 263):
-            index = 2
-            y = self.note_line_heights[index][1]
-            width = self.note_line_heights[index][2]
-            height = self.note_line_heights[index][3]
-            self.ui.line_08.setGeometry(x, y, width, height)
-        elif(heightOfTone is 123):
-            index = 0
-            y = self.note_line_heights[index][1]
-            width = self.note_line_heights[index][2]
-            height = self.note_line_heights[index][3]
-            self.ui.line_01.setGeometry(x, y, width, height)
-        elif(heightOfTone is 143):
-            index = 1
-            y = self.note_line_heights[index][1]
-            width = self.note_line_heights[index][2]
-            height = self.note_line_heights[index][3]
-            self.ui.line_02.setGeometry(x, y, width, height)
+    def add_line_to_note(self, heightOfTone, qp, index):
+        x1 = 90 + index * 40
+        x2 = 120 + index * 40
+        
+        line = QtCore.QLine(x1, heightOfTone + 7, x2, heightOfTone + 7)
+        print(x1, heightOfTone + 7, x2, heightOfTone + 7)
+        qp.drawLine(line)
     
     # connect to WiiMote with given MAC-address
-    # Lena: muss noch umgebaut werden für Oberfläche!
+    # Lena: kann man das irgendwie automatisch machen?
     def connect_wiimote(self):        
         if len(sys.argv) == 1:
             addr, name = wiimote.find()[0]
@@ -193,18 +183,19 @@ class MusicMaker(QtWidgets.QWidget):
         self.update()
 
 
-    # erhöht die frequenz um magic number 100
     def up_frequency(self):
         if self.counter < len(self.notelist)-1:
             self.counter +=1
             self.myfrequency = self.notelist[self.counter]
+            print("up")
             self.update()
     
-    # senkt die frequenz um magic number 100
+
     def down_frequency(self):
         if self.counter > 0:
             self.counter -=1
             self.myfrequency = self.notelist[self.counter]
+            print("down")
             self.update()
 
     
