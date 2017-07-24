@@ -37,14 +37,6 @@ class MusicMaker(QtWidgets.QWidget):
         self.myfrequency = self.notelist[self.counter]
         # already played notes
         self.played_notes = []
-        # current mode
-        self.mode = 0
-        # mode to record tones
-        self.mode_record = 0
-        # mode to play melody
-        self.mode_play = 1
-        # mode to change volume
-        self.mode_volume = 2
         # list with redoable tones, cleared if new tone entered
         self.redoable_notes = []
         # defines where to start to draw the notes
@@ -62,8 +54,6 @@ class MusicMaker(QtWidgets.QWidget):
         self.show()
         # textbox for wiimote address
         self.ui.lineEdit.setText(self.standard_wiimote)
-        # listener to comboBox index change
-        self.ui.modeComboBox.currentIndexChanged.connect(self.set_new_mode)
         # listener to connect button
         self.ui.connectWiiMoteButton.clicked.connect(self.connect_wiimote)
 
@@ -90,77 +80,75 @@ class MusicMaker(QtWidgets.QWidget):
         self.extrema = [[400, 600], [400, 600], [400, 600]]
 
     def axis_changed(self, state):
-        if(self.mode is self.mode_volume):
-            if(state[0] < min(self.extrema[0])):
-                self.extrema[0][0] = state[0]
-            elif(state[0] > max(self.extrema[0])):
-                self.extrema[0][1] = state[0]
-            # max minus min is the maximal range of values
-            range = self.extrema[0][1] - self.extrema[0][0]
-            value = ((state[0] - self.extrema[0][0])) / range
-            self.volume = value * 2
-            self.ui.label_volume_value.setText(str(round(value * 100, 2)))
-        elif(self.mode is self.mode_record):        
-            if 567 < state[1]< 580:
-                self.myfrequency= self.notelist[0]
-                self.counter = 0
-                self.update()
-            if 554 < state[1]< 567:
-                self.myfrequency= self.notelist[1]
-                self.counter = 1
-                self.update()
-            if 541 < state[1]< 554:
-                self.myfrequency= self.notelist[2]
-                self.counter = 2
-                self.update()
-            if 528 < state[1]< 541:
-                self.myfrequency= self.notelist[3]
-                self.counter = 3
-                self.update()
-            if 515 < state[1]< 528:
-                self.myfrequency= self.notelist[4]
-                self.counter = 4
-                self.update()
-            if 502 < state[1]< 515:
-                self.myfrequency= self.notelist[5]
-                self.counter = 5
-                self.update()
-            if 489 < state[1]< 502:
-                self.myfrequency= self.notelist[6]
-                self.counter = 6
-                self.update()
-            if 476 < state[1]< 489:
-                self.myfrequency= self.notelist[7]
-                self.counter = 7
-                self.update()
-            if 463 < state[1]< 476:
-                self.myfrequency= self.notelist[8]
-                self.counter = 8
-                self.update()
-            if 450 < state[1]< 463:
-                self.myfrequency= self.notelist[9]
-                self.counter = 9
-                self.update()
-            if 437 < state[1]< 450:
-                self.myfrequency= self.notelist[10]
-                self.counter = 10
-                self.update()
-            if 424 < state[1]< 437:
-                self.myfrequency= self.notelist[11]
-                self.counter = 11
-                self.update()
-            if 411 < state[1]< 424:
-                self.myfrequency= self.notelist[12]
-                self.counter = 12
-                self.update()
-            if 398 < state[1]< 411:
-                self.myfrequency= self.notelist[13]
-                self.counter = 13
-                self.update()
-            if 380 < state[1]< 398:
-                self.myfrequency= self.notelist[14]
-                self.counter = 14
-                self.update()
+        if(state[0] < min(self.extrema[0])):
+            self.extrema[0][0] = state[0]
+        elif(state[0] > max(self.extrema[0])):
+            self.extrema[0][1] = state[0]
+        # max minus min is the maximal range of values
+        range = self.extrema[0][1] - self.extrema[0][0]
+        value = ((state[0] - self.extrema[0][0])) / range
+        self.volume = value * 2
+        self.ui.label_volume_value.setText(str(round(value * 100, 2)))
+        if 567 < state[1]< 580:
+            self.myfrequency= self.notelist[0]
+            self.counter = 0
+            self.update()
+        if 554 < state[1]< 567:
+            self.myfrequency= self.notelist[1]
+            self.counter = 1
+            self.update()
+        if 541 < state[1]< 554:
+            self.myfrequency= self.notelist[2]
+            self.counter = 2
+            self.update()
+        if 528 < state[1]< 541:
+            self.myfrequency= self.notelist[3]
+            self.counter = 3
+            self.update()
+        if 515 < state[1]< 528:
+            self.myfrequency= self.notelist[4]
+            self.counter = 4
+            self.update()
+        if 502 < state[1]< 515:
+            self.myfrequency= self.notelist[5]
+            self.counter = 5
+            self.update()
+        if 489 < state[1]< 502:
+            self.myfrequency= self.notelist[6]
+            self.counter = 6
+            self.update()
+        if 476 < state[1]< 489:
+            self.myfrequency= self.notelist[7]
+            self.counter = 7
+            self.update()
+        if 463 < state[1]< 476:
+            self.myfrequency= self.notelist[8]
+            self.counter = 8
+            self.update()
+        if 450 < state[1]< 463:
+            self.myfrequency= self.notelist[9]
+            self.counter = 9
+            self.update()
+        if 437 < state[1]< 450:
+            self.myfrequency= self.notelist[10]
+            self.counter = 10
+            self.update()
+        if 424 < state[1]< 437:
+            self.myfrequency= self.notelist[11]
+            self.counter = 11
+            self.update()
+        if 411 < state[1]< 424:
+            self.myfrequency= self.notelist[12]
+            self.counter = 12
+            self.update()
+        if 398 < state[1]< 411:
+            self.myfrequency= self.notelist[13]
+            self.counter = 13
+            self.update()
+        if 380 < state[1]< 398:
+            self.myfrequency= self.notelist[14]
+            self.counter = 14
+            self.update()
 
 
 
@@ -171,37 +159,38 @@ class MusicMaker(QtWidgets.QWidget):
         if not changed:
             pass
         else:
-            # button to select tone or start play melody
+            # button to select tone
             if(("A", True) in changed):
-                if(self.mode is self.mode_record):
-                    self.redoable_notes = []
-                    self.play_tone(self.myfrequency)
-                    self.add_tone_to_melody()
-                    self.shift_notes_record()
-                elif(self.mode is self.mode_play):
-                    self.play_melody()
-            # if mode is record, undo last note
-            elif(("One", True) in changed):
-                if(self.mode is self.mode_record):
-                    self.undo()
-                    self.shift_notes_record()
-            # if mode is record, redo last undone note
-            elif(("Two", True) in changed):
-                if(self.mode is self.mode_record):
-                    self.redo()
-                    self.shift_notes_record()
-            # ändern auf hoch und runter
-            elif(("Plus", True) in changed):
-                self.up_frequency()
-            # ändern auf hoch und runter
-            elif(("Minus", True) in changed):
-                self.down_frequency()
-            # change mode to next
+                self.redoable_notes = []
+                self.play_tone(self.myfrequency)
+                self.add_tone_to_melody()
+                self.shift_notes_record()
+            # play melody
+            elif (("Down", True) in changed):
+                self.play_melody()
+            # undo last note
             elif(("B", True) in changed):
-                self.change_mode()
+                self.undo()
+                self.shift_notes_record()
+            # redo last undone note
+            elif(("One", True) in changed):
+                self.redo()
+                self.shift_notes_record()
+            # save melody as wav file
+            elif(("Two", True) in changed):
+                pass
+            # higher volume
+            elif(("Plus", True) in changed):
+                pass
+                # self.up_frequency()
+            # higher volume
+            elif(("Minus", True) in changed):
+                pass
+                # self.down_frequency()
+            # close application
             elif (("Home", True) in changed):
                 print("home pressed")
-
+            
     # handles paint events
     def paintEvent(self, event):
         # initializes QPainter
@@ -219,16 +208,15 @@ class MusicMaker(QtWidgets.QWidget):
             if(old_notes_height == 263 or old_notes_height == 123 or old_notes_height == 143):
                 self.add_line_to_note(old_notes_height, qp, index)
 
-        # draw current note (only in record mode)
-        if(self.mode is self.mode_record):
-            height = self.noteLineConnection[self.counter]
-            # notes 263, 123 and 143 are the ones with additional line
-            if(height == 263 or height == 123 or height == 143):
-                self.add_line_to_note(height, qp, len(self.played_notes))
-            # fill current note grey
-            qp.setBrush(QtGui.QColor(70, 70, 70))
-            # draws the tone
-            qp.drawEllipse(self.offset + len(self.played_notes) * 40, height, 20, 15)
+        # draw current note
+        height = self.noteLineConnection[self.counter]
+        # notes 263, 123 and 143 are the ones with additional line
+        if(height == 263 or height == 123 or height == 143):
+            self.add_line_to_note(height, qp, len(self.played_notes))
+        # fill current note grey
+        qp.setBrush(QtGui.QColor(70, 70, 70))
+        # draws the tone
+        qp.drawEllipse(self.offset + len(self.played_notes) * 40, height, 20, 15)
         # ends painting
         qp.end()
 
@@ -240,28 +228,6 @@ class MusicMaker(QtWidgets.QWidget):
         line = QtCore.QLine(x1, heightOfTone + 7, x2, heightOfTone + 7)
         qp.drawLine(line)
     
-    # sets the new mode if change per mouse on combobox
-    def set_new_mode(self, mode):
-        self.mode = mode
-        self.update()
-
-    # change mode between record, play and change volume
-    def change_mode(self):
-        if(self.mode is self.mode_record):
-            # shift notes so first note is shown
-            self.shift_notes_play(0)
-            self.mode = self.mode_play
-        elif(self.mode is self.mode_play):
-            self.mode = self.mode_volume
-        else:
-            # shift notes so if the line is more than full, the last one is shown
-            self.shift_notes_record()
-            self.mode = self.mode_record
-
-        # set index of combobox to new mode
-        self.ui.modeComboBox.setCurrentIndex(self.mode)
-        # paint new
-        self.update()
 
     # shifts the notes, so the last note can be seen
     def shift_notes_record(self):
