@@ -49,6 +49,8 @@ class MusicMaker(QtWidgets.QWidget):
         self.redoable_notes = []
         # defines where to start to draw the notes
         self.offset = 95
+        # adress of used wiimote
+        self.standard_wiimote = "00:1F:C5:3F:AA:F1"
 
         self.initUI()
 
@@ -57,7 +59,8 @@ class MusicMaker(QtWidgets.QWidget):
         # load ui file
         self.ui = uic.loadUi("final.ui", self)
         self.show()
-
+        # textbox for wiimote address
+        self.ui.lineEdit.setText(self.standard_wiimote)
         # listener to comboBox index change
         self.ui.modeComboBox.currentIndexChanged.connect(self.set_new_mode)
         # listener to connect button
@@ -66,22 +69,89 @@ class MusicMaker(QtWidgets.QWidget):
     # connect to WiiMote with given MAC-address
     # Lena: kann man das irgendwie automatisch machen?
     def connect_wiimote(self):        
-        if len(sys.argv) == 1:
-            addr, name = wiimote.find()[0]
-        elif len(sys.argv) == 2:
-            addr = sys.argv[1]
-            name = None
-        elif len(sys.argv) == 3:
-            addr, name = sys.argv[1:3]
+        name = None
+        addr = self.ui.lineEdit.text()
         print(("Connecting to %s (%s)" % (name, addr)))
         self.wm = wiimote.connect(addr, name)
         
         self.prepareSound()
         self.registerButtons()
+        self.trackAxes()
+        self.connectWiiMoteButton.setEnabled(False)
 
     # register callback for button clicks
     def registerButtons(self):
         self.wm.buttons.register_callback(self.button_changed)
+
+
+    def trackAxes(self):
+        self.wm.accelerometer.register_callback(self.axis_changed)
+
+    def axis_changed(self, state):
+        if 567 < state[1]< 580:
+            self.myfrequency= self.notelist[0]
+            self.counter = 0
+            self.update()
+        if 554 < state[1]< 567:
+            self.myfrequency= self.notelist[1]
+            self.counter = 1
+            self.update()
+        if 541 < state[1]< 554:
+            self.myfrequency= self.notelist[2]
+            self.counter = 2
+            self.update()
+        if 528 < state[1]< 541:
+            self.myfrequency= self.notelist[3]
+            self.counter = 3
+            self.update()
+        if 515 < state[1]< 528:
+            self.myfrequency= self.notelist[4]
+            self.counter = 4
+            self.update()
+        if 502 < state[1]< 515:
+            self.myfrequency= self.notelist[5]
+            self.counter = 5
+            self.update()
+        if 489 < state[1]< 502:
+            self.myfrequency= self.notelist[6]
+            self.counter = 6
+            self.update()
+        if 476 < state[1]< 489:
+            self.myfrequency= self.notelist[7]
+            self.counter = 7
+            self.update()
+        if 463 < state[1]< 476:
+            self.myfrequency= self.notelist[8]
+            self.counter = 8
+            self.update()
+        if 450 < state[1]< 463:
+            self.myfrequency= self.notelist[9]
+            self.counter = 9
+            self.update()
+        if 437 < state[1]< 450:
+            self.myfrequency= self.notelist[10]
+            self.counter = 10
+            self.update()
+        if 424 < state[1]< 437:
+            self.myfrequency= self.notelist[11]
+            self.counter = 11
+            self.update()
+        if 411 < state[1]< 424:
+            self.myfrequency= self.notelist[12]
+            self.counter = 12
+            self.update()
+        if 398 < state[1]< 411:
+            self.myfrequency= self.notelist[13]
+            self.counter = 13
+            self.update()
+        if 380 < state[1]< 398:
+            self.myfrequency= self.notelist[14]
+            self.counter = 14
+            self.update()
+
+
+
+
 
     # listen to the buttons and do action if button's clicked
     def button_changed(self, changed):
@@ -119,6 +189,8 @@ class MusicMaker(QtWidgets.QWidget):
             # change mode to next
             elif(("B", True) in changed):
                 self.change_mode()
+            elif (("Home", True) in changed):
+                print("home pressed")
 
     # handles paint events
     def paintEvent(self, event):
@@ -266,6 +338,7 @@ class MusicMaker(QtWidgets.QWidget):
         # felix: stand so in dem beispiel, weiß nicht, ob wir das brauchen.
         # self.stream.close()
         # p.terminate()
+
 
 
 def main():
