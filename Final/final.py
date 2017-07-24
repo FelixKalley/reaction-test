@@ -45,6 +45,14 @@ class MusicMaker(QtWidgets.QWidget):
         self.standard_wiimote = "18:2a:7b:f3:f1:68"
         #
         self.volume = 1
+        # initial state of set start values from axes
+        self.start_axpos_set = False
+        # start values for axes
+        self.start_xyz = []
+        # range for axes
+        self.max_range_value = 200
+        # range array for notes
+        self.note_ranges = []
         self.initUI()
 
     # init the ui
@@ -80,79 +88,113 @@ class MusicMaker(QtWidgets.QWidget):
         self.extrema = [[400, 600], [400, 600], [400, 600]]
 
     def axis_changed(self, state):
-        if(state[0] < min(self.extrema[0])):
-            self.extrema[0][0] = state[0]
-        elif(state[0] > max(self.extrema[0])):
-            self.extrema[0][1] = state[0]
-        # max minus min is the maximal range of values
-        range = self.extrema[0][1] - self.extrema[0][0]
-        value = ((state[0] - self.extrema[0][0])) / range
-        self.volume = value * 2
-        self.ui.label_volume_value.setText(str(round(value * 100, 2)))
-        if 567 < state[1]< 580:
-            self.myfrequency= self.notelist[0]
-            self.counter = 0
-            self.update()
-        if 554 < state[1]< 567:
-            self.myfrequency= self.notelist[1]
-            self.counter = 1
-            self.update()
-        if 541 < state[1]< 554:
-            self.myfrequency= self.notelist[2]
-            self.counter = 2
-            self.update()
-        if 528 < state[1]< 541:
-            self.myfrequency= self.notelist[3]
-            self.counter = 3
-            self.update()
-        if 515 < state[1]< 528:
-            self.myfrequency= self.notelist[4]
-            self.counter = 4
-            self.update()
-        if 502 < state[1]< 515:
-            self.myfrequency= self.notelist[5]
-            self.counter = 5
-            self.update()
-        if 489 < state[1]< 502:
-            self.myfrequency= self.notelist[6]
-            self.counter = 6
-            self.update()
-        if 476 < state[1]< 489:
-            self.myfrequency= self.notelist[7]
-            self.counter = 7
-            self.update()
-        if 463 < state[1]< 476:
-            self.myfrequency= self.notelist[8]
-            self.counter = 8
-            self.update()
-        if 450 < state[1]< 463:
-            self.myfrequency= self.notelist[9]
-            self.counter = 9
-            self.update()
-        if 437 < state[1]< 450:
-            self.myfrequency= self.notelist[10]
-            self.counter = 10
-            self.update()
-        if 424 < state[1]< 437:
-            self.myfrequency= self.notelist[11]
-            self.counter = 11
-            self.update()
-        if 411 < state[1]< 424:
-            self.myfrequency= self.notelist[12]
-            self.counter = 12
-            self.update()
-        if 398 < state[1]< 411:
-            self.myfrequency= self.notelist[13]
-            self.counter = 13
-            self.update()
-        if 380 < state[1]< 398:
-            self.myfrequency= self.notelist[14]
-            self.counter = 14
-            self.update()
+        if not self.start_axpos_set:
+               self.start_xyz = [state]
+               self.generate_range_values(self.start_xyz)
+               self.start_axpos_set = True
+        else:
+            if(state[0] < min(self.extrema[0])):
+                self.extrema[0][0] = state[0]
+            elif(state[0] > max(self.extrema[0])):
+                self.extrema[0][1] = state[0]
+            # max minus min is the maximal range of values
+            range = self.extrema[0][1] - self.extrema[0][0]
+            value = ((state[0] - self.extrema[0][0])) / range
+            self.volume = value * 2
+            self.ui.label_volume_value.setText(str(round(value * 100, 2)))
+            
+        '''     
 
+        elif(self.mode is self.mode_record):       
+            if 570 < state[1]< 580:
+                self.myfrequency= self.notelist[0]
+                self.counter = 0
+                self.update()
+            if 557 < state[1]< 564:
+                self.myfrequency= self.notelist[1]
+                self.counter = 1
+                self.update()
+            if 544 < state[1]< 551:
+                self.myfrequency= self.notelist[2]
+                self.counter = 2
+                self.update()
+            if 531 < state[1]< 548:
+                self.myfrequency= self.notelist[3]
+                self.counter = 3
+                self.update()
+            if 518 < state[1]< 525:
+                self.myfrequency= self.notelist[4]
+                self.counter = 4
+                self.update()
+            if 505< state[1]< 512:
+                self.myfrequency= self.notelist[5]
+                self.counter = 5
+                self.update()
+            if 492 < state[1]< 499:
+                self.myfrequency= self.notelist[6]
+                self.counter = 6
+                self.update()
+            if 479 < state[1]< 486:
+                self.myfrequency= self.notelist[7]
+                self.counter = 7
+                self.update()
+            if 466 < state[1]< 473:
+                self.myfrequency= self.notelist[8]
+                self.counter = 8
+                self.update()
+            if 453 < state[1]< 460:
+                self.myfrequency= self.notelist[9]
+                self.counter = 9
+                self.update()
+            if 440 < state[1]< 447:
+                self.myfrequency= self.notelist[10]
+                self.counter = 10
+                self.update()
+            if 427 < state[1]< 434:
+                self.myfrequency= self.notelist[11]
+                self.counter = 11
+                self.update()
+            if 414 < state[1]< 421:
+                self.myfrequency= self.notelist[12]
+                self.counter = 12
+                self.update()
+            if 401 < state[1]< 408:
+                self.myfrequency= self.notelist[13]
+                self.counter = 13
+                self.update()
+            if 380 < state[1]< 395:
+                self.myfrequency= self.notelist[14]
+                self.counter = 14
+                self.update()
+            #self.play_tone(self.myfrequency)
+        '''
 
+    def generate_range_values(self, start_xyz):
+        #range values for note frequencies
+        if len(self.notelist)%2 == 0:
+            # for other notes, implement stuff here
+            print("Please rework the method \"generate_range_values\", if you wanna work with more notes.")
+        else:
+            # self.note_ranges soll befüllt werden mit range tupeln
+            # z.b. [400, 408], [413, 421], [426, 434]
+            # die beiden werte innerhalb eines tupels sind 8 einheiten auseinander (200 range / 15 noten = 13,333  -> 8 einheiten plus 5 einheiten (siehe unten) = 13)
+            # zwei tupel sind 5 einheiten auseinander (das verringert das zittern)
+            # in den jeweiligen bereichen der tupel ergibt sich eine höhere counter position, vgl methode drüber
+            # 
 
+            for i in self.notelist:
+                self.note_ranges.append("bla")
+            print(self.note_ranges)
 
+        '''
+        # range values for note type
+        if len(self.typelist)%2 == 0:
+            # for other notes, implement stuff here
+            print("Please rework the method \"generate_range_values\", if you wanna work with more types of notes.")
+        else:
+            #middle_value = (len(self.typelist)-1/2)
+            pass
+        '''
 
     # listen to the buttons and do action if button's clicked
     def button_changed(self, changed):
