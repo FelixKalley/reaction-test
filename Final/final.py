@@ -8,6 +8,7 @@ import pyaudio
 import sys
 import wiimote
 import time
+import wave
 from PyQt5 import uic, QtWidgets, QtCore, QtGui
 
 # felix: bisherige Funktionalität - wii connecten, A-Knopf spielt kurzen Ton, oder lang bei gedrückt halten.
@@ -20,7 +21,7 @@ class MusicMaker(QtWidgets.QWidget):
     
     def __init__(self):
         super().__init__()
-        self.counter = 5
+        self.counter = 6
         #h ttp://www.sengpielaudio.com/Rechner-notennamen.htm
         # self.notelist = [261.626, 277.183, 293.665, 311.127, 329.628, 349.228, 369.994, 391.995, 415.305, 440.000, 
         #                  466.164, 493.883, 523.251, 554.365, 587.330, 622.254, 659.255, 698.456, 739.989, 783.991, 
@@ -43,8 +44,11 @@ class MusicMaker(QtWidgets.QWidget):
         self.offset = 95
         # adress of used wiimote
         self.standard_wiimote = "18:2a:7b:f3:f1:68"
-        #
+        # starting volume
         self.volume = 1
+        # maximal volume
+        self.max_volume = 2
+        self.volume_step = 0.2
         # initial state of set start values from axes
         self.start_axpos_set = False
         # start values for axes
@@ -53,6 +57,7 @@ class MusicMaker(QtWidgets.QWidget):
         self.max_range_value = 200
         # range array for notes
         self.note_ranges = []
+        self.note_length = [0.25, 0.5, 1]
         self.initUI()
 
     # init the ui
@@ -97,11 +102,6 @@ class MusicMaker(QtWidgets.QWidget):
                 self.extrema[0][0] = state[0]
             elif(state[0] > max(self.extrema[0])):
                 self.extrema[0][1] = state[0]
-            # max minus min is the maximal range of values
-            range = self.extrema[0][1] - self.extrema[0][0]
-            value = ((state[0] - self.extrema[0][0])) / range
-            self.volume = value * 2
-            self.ui.label_volume_value.setText(str(round(value * 100, 2)))
             
         '''     
 
@@ -220,19 +220,33 @@ class MusicMaker(QtWidgets.QWidget):
                 self.shift_notes_record()
             # save melody as wav file
             elif(("Two", True) in changed):
-                pass
+                self.save_file()
             # higher volume
             elif(("Plus", True) in changed):
-                pass
-                # self.up_frequency()
-            # higher volume
+                self.up_volume()
+            # lower volume
             elif(("Minus", True) in changed):
-                pass
-                # self.down_frequency()
+                self.down_volume()
             # close application
             elif (("Home", True) in changed):
                 print("home pressed")
-            
+                self.stream.close()
+                self.p.terminate()
+                # Das wirft eine Exception!
+                self.close()
+
+    def save_file(self):
+        f = wave.open("melody.wav", 'w')
+        f.setparams((1, 2, 44100, 0, 'NONE', 'not compressed'))
+        chunks = []
+        for index, note in enumerate(self.played_notes):
+            chunks.append(self.sine(note, 1, 44100))
+            chunk = numpy.concatenate(chunks)
+
+        f.writeframesraw(chunk)
+
+        # f.writeframesraw(chunk.astype(numpy.float32).tostring())
+    
     # handles paint events
     def paintEvent(self, event):
         # initializes QPainter
@@ -240,28 +254,65 @@ class MusicMaker(QtWidgets.QWidget):
         # starts painting
         qp.begin(self)
         # fill following notes black
-        qp.setBrush(QtGui.QColor(0, 0, 0))
+
+        # set width of lines to 2
+        pen = QtGui.QPen()
+        pen.setWidth(2)
+        qp.setPen(pen)
+
         # loop through played notes and paint them (with additional lines if needed)
         for index, note in enumerate(self.played_notes):
+            # -------------------------------------------------------------
+            # Wenn es eine Ganze oder Halbe Note ist, dann das nicht machen
+            qp.setBrush(QtGui.QColor(0, 0, 0))
+            # -------------------------------------------------------------
             old_notes_height = self.noteLineConnection[note]
             # draws the tone
             qp.drawEllipse(self.offset + index * 40, old_notes_height, 20, 15)
             # notes 263, 123 and 143 are the ones with additional line
             if(old_notes_height == 263 or old_notes_height == 123 or old_notes_height == 143):
                 self.add_line_to_note(old_notes_height, qp, index)
+            
+            # -------------------------------------------------------------
+            # Hier fehlt noch ein IF, mit der Info welche Länge der Ton hat
+            self.add_stem_to_note(old_notes_height, qp, index)
+            # -------------------------------------------------------------
 
         # draw current note
         height = self.noteLineConnection[self.counter]
         # notes 263, 123 and 143 are the ones with additional line
         if(height == 263 or height == 123 or height == 143):
             self.add_line_to_note(height, qp, len(self.played_notes))
+        # -------------------------------------------------------------
+        # Hier fehlt noch ein IF, mit der Info welche Länge der Ton hat
+        self.add_stem_to_note(height, qp, len(self.played_notes))
+        # -------------------------------------------------------------
+
+        # -------------------------------------------------------------
         # fill current note grey
+        # Wenn es eine Ganze oder Halbe Note ist, dann das nicht machen
         qp.setBrush(QtGui.QColor(70, 70, 70))
+        # -------------------------------------------------------------
         # draws the tone
         qp.drawEllipse(self.offset + len(self.played_notes) * 40, height, 20, 15)
         # ends painting
         qp.end()
 
+    def add_stem_to_note(self, heightOfTone, qp, index):
+        if heightOfTone >= 213:
+            x = self.offset + 20 + index * 40
+            y1 = heightOfTone + 7
+            y2 = heightOfTone - 60
+            print(heightOfTone)
+        else:
+            x = self.offset + index * 40
+            y1 = heightOfTone + 7
+            y2 = heightOfTone + 60
+            
+        line = QtCore.QLine(x, y1, x, y2)
+        qp.drawLine(line)
+    
+        
     # adds the line to a note
     def add_line_to_note(self, heightOfTone, qp, index):
         x1 = self.offset - 5 + index * 40
@@ -316,8 +367,8 @@ class MusicMaker(QtWidgets.QWidget):
 
     # http://milkandtang.com/blog/2013/02/16/making-noise-in-python/
     def prepareSound(self):
-        p = pyaudio.PyAudio()
-        self.stream = p.open(format=pyaudio.paFloat32,
+        self.p = pyaudio.PyAudio()
+        self.stream = self.p.open(format=pyaudio.paFloat32,
                         channels=1, rate=44100, output=1)
         
         
@@ -337,6 +388,16 @@ class MusicMaker(QtWidgets.QWidget):
         chunk = numpy.concatenate(chunks) * self.volume
 
         self.stream.write(chunk.astype(numpy.float32).tostring())
+
+    def up_volume(self):
+        if self.volume < self.max_volume - self.volume_step:
+            self.volume += self.volume_step
+            self.ui.label_volume_value.setText(str(round(self.volume * 100 / 2, 2)))
+        
+    def down_volume(self):
+        if self.volume > 0 + self.volume_step:
+            self.volume -= self.volume_step
+            self.ui.label_volume_value.setText(str(round(self.volume * 100 / 2, 2)))
 
     # wird noch angepasst mit wiimote bewegung
     def up_frequency(self):
