@@ -50,8 +50,9 @@ class MusicMaker(QtWidgets.QWidget):
         # defines where to start to draw the notes
         self.offset = 95
         # adress of used wiimote
-        self.standard_wiimote = "00:1F:C5:3F:AA:F1"
-
+        self.standard_wiimote = "18:2a:7b:f3:f1:68"
+        #
+        self.volume = 1
         self.initUI()
 
     # init the ui
@@ -86,68 +87,80 @@ class MusicMaker(QtWidgets.QWidget):
 
     def trackAxes(self):
         self.wm.accelerometer.register_callback(self.axis_changed)
+        self.extrema = [[400, 600], [400, 600], [400, 600]]
 
     def axis_changed(self, state):
-        if 567 < state[1]< 580:
-            self.myfrequency= self.notelist[0]
-            self.counter = 0
-            self.update()
-        if 554 < state[1]< 567:
-            self.myfrequency= self.notelist[1]
-            self.counter = 1
-            self.update()
-        if 541 < state[1]< 554:
-            self.myfrequency= self.notelist[2]
-            self.counter = 2
-            self.update()
-        if 528 < state[1]< 541:
-            self.myfrequency= self.notelist[3]
-            self.counter = 3
-            self.update()
-        if 515 < state[1]< 528:
-            self.myfrequency= self.notelist[4]
-            self.counter = 4
-            self.update()
-        if 502 < state[1]< 515:
-            self.myfrequency= self.notelist[5]
-            self.counter = 5
-            self.update()
-        if 489 < state[1]< 502:
-            self.myfrequency= self.notelist[6]
-            self.counter = 6
-            self.update()
-        if 476 < state[1]< 489:
-            self.myfrequency= self.notelist[7]
-            self.counter = 7
-            self.update()
-        if 463 < state[1]< 476:
-            self.myfrequency= self.notelist[8]
-            self.counter = 8
-            self.update()
-        if 450 < state[1]< 463:
-            self.myfrequency= self.notelist[9]
-            self.counter = 9
-            self.update()
-        if 437 < state[1]< 450:
-            self.myfrequency= self.notelist[10]
-            self.counter = 10
-            self.update()
-        if 424 < state[1]< 437:
-            self.myfrequency= self.notelist[11]
-            self.counter = 11
-            self.update()
-        if 411 < state[1]< 424:
-            self.myfrequency= self.notelist[12]
-            self.counter = 12
-            self.update()
-        if 398 < state[1]< 411:
-            self.myfrequency= self.notelist[13]
-            self.counter = 13
-            self.update()
-        if 380 < state[1]< 398:
-            self.myfrequency= self.notelist[14]
-            self.counter = 14
-            self.update()
+        if(self.mode is self.mode_volume):
+            if(state[0] < min(self.extrema[0])):
+                self.extrema[0][0] = state[0]
+            elif(state[0] > max(self.extrema[0])):
+                self.extrema[0][1] = state[0]
+            # max minus min is the maximal range of values
+            range = self.extrema[0][1] - self.extrema[0][0]
+            value = ((state[0] - self.extrema[0][0])) / range
+            self.volume = value * 2
+            self.ui.label_volume_value.setText(str(round(value * 100, 2)))
+        elif(self.mode is self.mode_record):        
+            if 567 < state[1]< 580:
+                self.myfrequency= self.notelist[0]
+                self.counter = 0
+                self.update()
+            if 554 < state[1]< 567:
+                self.myfrequency= self.notelist[1]
+                self.counter = 1
+                self.update()
+            if 541 < state[1]< 554:
+                self.myfrequency= self.notelist[2]
+                self.counter = 2
+                self.update()
+            if 528 < state[1]< 541:
+                self.myfrequency= self.notelist[3]
+                self.counter = 3
+                self.update()
+            if 515 < state[1]< 528:
+                self.myfrequency= self.notelist[4]
+                self.counter = 4
+                self.update()
+            if 502 < state[1]< 515:
+                self.myfrequency= self.notelist[5]
+                self.counter = 5
+                self.update()
+            if 489 < state[1]< 502:
+                self.myfrequency= self.notelist[6]
+                self.counter = 6
+                self.update()
+            if 476 < state[1]< 489:
+                self.myfrequency= self.notelist[7]
+                self.counter = 7
+                self.update()
+            if 463 < state[1]< 476:
+                self.myfrequency= self.notelist[8]
+                self.counter = 8
+                self.update()
+            if 450 < state[1]< 463:
+                self.myfrequency= self.notelist[9]
+                self.counter = 9
+                self.update()
+            if 437 < state[1]< 450:
+                self.myfrequency= self.notelist[10]
+                self.counter = 10
+                self.update()
+            if 424 < state[1]< 437:
+                self.myfrequency= self.notelist[11]
+                self.counter = 11
+                self.update()
+            if 411 < state[1]< 424:
+                self.myfrequency= self.notelist[12]
+                self.counter = 12
+                self.update()
+            if 398 < state[1]< 411:
+                self.myfrequency= self.notelist[13]
+                self.counter = 13
+                self.update()
+            if 380 < state[1]< 398:
+                self.myfrequency= self.notelist[14]
+                self.counter = 14
+                self.update()
 
 
 
@@ -167,9 +180,6 @@ class MusicMaker(QtWidgets.QWidget):
                     self.shift_notes_record()
                 elif(self.mode is self.mode_play):
                     self.play_melody()
-                # wird noch ersetzt durch drehen
-                elif(self.mode is self.mode_volume):
-                    print("change volume")
             # if mode is record, undo last note
             elif(("One", True) in changed):
                 if(self.mode is self.mode_record):
@@ -316,7 +326,7 @@ class MusicMaker(QtWidgets.QWidget):
     def play_tone(self, frequency, length=0.5, rate=44100):
         chunks = []
         chunks.append(self.sine(frequency, length, rate))
-        chunk = numpy.concatenate(chunks)
+        chunk = numpy.concatenate(chunks) * self.volume
 
         self.stream.write(chunk.astype(numpy.float32).tostring())
 
