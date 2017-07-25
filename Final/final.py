@@ -301,7 +301,7 @@ class MusicMaker(QtWidgets.QWidget):
     def play_melody(self):
         for index, note in enumerate(self.played_notes):
             self.shift_notes_play(index)
-            self.play_tone(self.notelist[note[0]], self.typelist[note[1]])
+            self.play_tone(self.notelist[note[0]], self.typelist[note[1]] * 2)
             self.update()
             time.sleep(0.1)
 
