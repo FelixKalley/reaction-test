@@ -139,13 +139,10 @@ class MusicMaker(QtWidgets.QWidget):
             tuple_distance = 10
             tuple_range = 60
             middle_value = start_xyz[0][0]
-            print(start_xyz[0][0])
             middle_tuple = (middle_value-tuple_range/2, middle_value+tuple_range/2)
-            print(middle_tuple)
         for x in range (0, int((len(self.typelist)-1))):
             next_tuple = (middle_tuple[0]-x*(tuple_range+tuple_distance), middle_tuple[1]-x*(tuple_range+tuple_distance))
             self.type_ranges.insert(0, next_tuple)
-            #print(self.type_ranges)
         for x in range (int((len(self.typelist)-1)), len(self.typelist)):
             next_tuple = (middle_tuple[0]+(x/2)*(tuple_range+tuple_distance), middle_tuple[1]+(x/2)*(tuple_range+tuple_distance))
             self.type_ranges.insert(x, next_tuple)
