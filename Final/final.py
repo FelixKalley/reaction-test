@@ -30,6 +30,7 @@ class MusicMaker(QtWidgets.QWidget):
         self.notelist = [261.626, 293.665, 329.628, 349.228, 391.995, 440.000,
                          493.883, 523.251, 587.330, 659.255, 698.456, 783.991,
                          880.000, 987.767, 1046.500]
+        self.typelist = [0.25, 0.5, 1.0]
         # height of tone (in application)
         self.noteLineConnection = [263, 253, 243, 233, 223, 213,
                                    203, 193, 183, 173, 163, 153,
@@ -43,7 +44,8 @@ class MusicMaker(QtWidgets.QWidget):
         # defines where to start to draw the notes
         self.offset = 95
         # adress of used wiimote
-        self.standard_wiimote = "18:2a:7b:f3:f1:68"
+        #self.standard_wiimote = "18:2a:7b:f3:f1:68"
+        self.standard_wiimote = "00:1F:C5:3F:AA:F1"
         # starting volume
         self.volume = 1
         # maximal volume
@@ -55,9 +57,10 @@ class MusicMaker(QtWidgets.QWidget):
         self.start_xyz = []
         # range for axes
         self.max_range_value = 200
-        # range array for notes
+        # range arrays for notes and types
         self.note_ranges = []
         self.note_length = [0.25, 0.5, 1]
+        self.type_ranges = []
         self.initUI()
 
     # init the ui
@@ -90,7 +93,6 @@ class MusicMaker(QtWidgets.QWidget):
 
     def trackAxes(self):
         self.wm.accelerometer.register_callback(self.axis_changed)
-        self.extrema = [[400, 600], [400, 600], [400, 600]]
 
     def axis_changed(self, state):
         if not self.start_axpos_set:
@@ -98,76 +100,19 @@ class MusicMaker(QtWidgets.QWidget):
                self.generate_range_values(self.start_xyz)
                self.start_axpos_set = True
         else:
-            if(state[0] < min(self.extrema[0])):
-                self.extrema[0][0] = state[0]
-            elif(state[0] > max(self.extrema[0])):
-                self.extrema[0][1] = state[0]
-            
-        '''     
+            for x in range(0, len(self.notelist)):
+                if self.note_ranges[x][0] <= state[1] <= self.note_ranges[x][1]:
+                    self.myfrequency = self.notelist[x]
+                    self.counter = len(self.notelist)-1-x
+                    self.update()
+            for x in range(0, len(self.typelist)):
+                if self.type_ranges[x][0] <= state[0] <= self.type_ranges[x][1]:
+                    mytype = self.typelist[x]
+                    #self.type_counter = len(self.typelist)-1-x
+                    self.update()
+                    print(mytype)
 
-        elif(self.mode is self.mode_record):       
-            if 570 < state[1]< 580:
-                self.myfrequency= self.notelist[0]
-                self.counter = 0
-                self.update()
-            if 557 < state[1]< 564:
-                self.myfrequency= self.notelist[1]
-                self.counter = 1
-                self.update()
-            if 544 < state[1]< 551:
-                self.myfrequency= self.notelist[2]
-                self.counter = 2
-                self.update()
-            if 531 < state[1]< 548:
-                self.myfrequency= self.notelist[3]
-                self.counter = 3
-                self.update()
-            if 518 < state[1]< 525:
-                self.myfrequency= self.notelist[4]
-                self.counter = 4
-                self.update()
-            if 505< state[1]< 512:
-                self.myfrequency= self.notelist[5]
-                self.counter = 5
-                self.update()
-            if 492 < state[1]< 499:
-                self.myfrequency= self.notelist[6]
-                self.counter = 6
-                self.update()
-            if 479 < state[1]< 486:
-                self.myfrequency= self.notelist[7]
-                self.counter = 7
-                self.update()
-            if 466 < state[1]< 473:
-                self.myfrequency= self.notelist[8]
-                self.counter = 8
-                self.update()
-            if 453 < state[1]< 460:
-                self.myfrequency= self.notelist[9]
-                self.counter = 9
-                self.update()
-            if 440 < state[1]< 447:
-                self.myfrequency= self.notelist[10]
-                self.counter = 10
-                self.update()
-            if 427 < state[1]< 434:
-                self.myfrequency= self.notelist[11]
-                self.counter = 11
-                self.update()
-            if 414 < state[1]< 421:
-                self.myfrequency= self.notelist[12]
-                self.counter = 12
-                self.update()
-            if 401 < state[1]< 408:
-                self.myfrequency= self.notelist[13]
-                self.counter = 13
-                self.update()
-            if 380 < state[1]< 395:
-                self.myfrequency= self.notelist[14]
-                self.counter = 14
-                self.update()
-            #self.play_tone(self.myfrequency)
-        '''
+
 
     def generate_range_values(self, start_xyz):
         #range values for note frequencies
@@ -175,26 +120,35 @@ class MusicMaker(QtWidgets.QWidget):
             # for other notes, implement stuff here
             print("Please rework the method \"generate_range_values\", if you wanna work with more notes.")
         else:
-            # self.note_ranges soll befüllt werden mit range tupeln
-            # z.b. [400, 408], [413, 421], [426, 434]
-            # die beiden werte innerhalb eines tupels sind 8 einheiten auseinander (200 range / 15 noten = 13,333  -> 8 einheiten plus 5 einheiten (siehe unten) = 13)
-            # zwei tupel sind 5 einheiten auseinander (das verringert das zittern)
-            # in den jeweiligen bereichen der tupel ergibt sich eine höhere counter position, vgl methode drüber
-            # 
+            tuple_distance = 5
+            tuple_range = 8
+            middle_value = start_xyz[0][1]
+            middle_tuple = (middle_value-tuple_range/2, middle_value+tuple_range/2)
+            for x in range (0, int((len(self.notelist)-1)/2)):
+                next_tuple = (middle_tuple[0]-x*(tuple_range+tuple_distance), middle_tuple[1]-x*(tuple_range+tuple_distance))
+                self.note_ranges.insert(0, next_tuple)
+            for x in range (int((len(self.notelist)-1)/2), len(self.notelist)):
+                next_tuple = (middle_tuple[0]+(x-int((len(self.notelist)-1)/2))*(tuple_range+tuple_distance), middle_tuple[1]+(x-int((len(self.notelist)-1)/2))*(tuple_range+tuple_distance))
+                self.note_ranges.insert(x, next_tuple)
 
-            for i in self.notelist:
-                self.note_ranges.append("bla")
-            print(self.note_ranges)
-
-        '''
         # range values for note type
         if len(self.typelist)%2 == 0:
             # for other notes, implement stuff here
             print("Please rework the method \"generate_range_values\", if you wanna work with more types of notes.")
         else:
-            #middle_value = (len(self.typelist)-1/2)
-            pass
-        '''
+            tuple_distance = 10
+            tuple_range = 60
+            middle_value = start_xyz[0][0]
+            print(start_xyz[0][0])
+            middle_tuple = (middle_value-tuple_range/2, middle_value+tuple_range/2)
+            print(middle_tuple)
+        for x in range (0, int((len(self.typelist)-1))):
+            next_tuple = (middle_tuple[0]-x*(tuple_range+tuple_distance), middle_tuple[1]-x*(tuple_range+tuple_distance))
+            self.type_ranges.insert(0, next_tuple)
+            #print(self.type_ranges)
+        for x in range (int((len(self.typelist)-1)), len(self.typelist)):
+            next_tuple = (middle_tuple[0]+(x/2)*(tuple_range+tuple_distance), middle_tuple[1]+(x/2)*(tuple_range+tuple_distance))
+            self.type_ranges.insert(x, next_tuple)
 
     # listen to the buttons and do action if button's clicked
     def button_changed(self, changed):
