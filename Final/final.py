@@ -22,6 +22,7 @@ class MusicMaker(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
         self.counter = 6
+        self.type_counter = 0
         #h ttp://www.sengpielaudio.com/Rechner-notennamen.htm
         # self.notelist = [261.626, 277.183, 293.665, 311.127, 329.628, 349.228, 369.994, 391.995, 415.305, 440.000, 
         #                  466.164, 493.883, 523.251, 554.365, 587.330, 622.254, 659.255, 698.456, 739.989, 783.991, 
@@ -44,8 +45,8 @@ class MusicMaker(QtWidgets.QWidget):
         # defines where to start to draw the notes
         self.offset = 95
         # adress of used wiimote
-        #self.standard_wiimote = "18:2a:7b:f3:f1:68"
-        self.standard_wiimote = "00:1F:C5:3F:AA:F1"
+        self.standard_wiimote = "18:2a:7b:f3:f1:68"
+        #self.standard_wiimote = "00:1F:C5:3F:AA:F1"
         # starting volume
         self.volume = 1
         # maximal volume
@@ -59,7 +60,6 @@ class MusicMaker(QtWidgets.QWidget):
         self.max_range_value = 200
         # range arrays for notes and types
         self.note_ranges = []
-        self.note_length = [0.25, 0.5, 1]
         self.type_ranges = []
         self.initUI()
 
@@ -102,17 +102,14 @@ class MusicMaker(QtWidgets.QWidget):
         else:
             for x in range(0, len(self.notelist)):
                 if self.note_ranges[x][0] <= state[1] <= self.note_ranges[x][1]:
-                    self.myfrequency = self.notelist[x]
+                    self.myfrequency = self.notelist[len(self.notelist)-1-x]
                     self.counter = len(self.notelist)-1-x
                     self.update()
             for x in range(0, len(self.typelist)):
                 if self.type_ranges[x][0] <= state[0] <= self.type_ranges[x][1]:
                     mytype = self.typelist[x]
-                    #self.type_counter = len(self.typelist)-1-x
+                    self.type_counter = x
                     self.update()
-                    print(mytype)
-
-
 
     def generate_range_values(self, start_xyz):
         #range values for note frequencies
@@ -155,7 +152,7 @@ class MusicMaker(QtWidgets.QWidget):
             # button to select tone
             if(("A", True) in changed):
                 self.redoable_notes = []
-                self.play_tone(self.myfrequency)
+                self.play_tone(self.myfrequency, self.typelist[self.type_counter])
                 self.add_tone_to_melody()
                 self.shift_notes_record()
             # play melody
@@ -191,7 +188,7 @@ class MusicMaker(QtWidgets.QWidget):
         f.setparams((1, 2, 44100, 0, 'NONE', 'not compressed'))
         chunks = []
         for index, note in enumerate(self.played_notes):
-            chunks.append(self.sine(note, 1, 44100))
+            chunks.append(self.sine(note[0], note[1], 44100))
             chunk = numpy.concatenate(chunks)
 
         f.writeframesraw(chunk)
@@ -213,37 +210,33 @@ class MusicMaker(QtWidgets.QWidget):
 
         # loop through played notes and paint them (with additional lines if needed)
         for index, note in enumerate(self.played_notes):
-            # -------------------------------------------------------------
-            # Wenn es eine Ganze oder Halbe Note ist, dann das nicht machen
-            qp.setBrush(QtGui.QColor(0, 0, 0))
-            # -------------------------------------------------------------
-            old_notes_height = self.noteLineConnection[note]
+            if(note[1] == 0):
+                qp.setBrush(QtGui.QColor(0, 0, 0))
+            else:
+                qp.setBrush(QtGui.QColor(0, 0, 0, 0))                
+            old_notes_height = self.noteLineConnection[note[0]]
             # draws the tone
             qp.drawEllipse(self.offset + index * 40, old_notes_height, 20, 15)
             # notes 263, 123 and 143 are the ones with additional line
             if(old_notes_height == 263 or old_notes_height == 123 or old_notes_height == 143):
                 self.add_line_to_note(old_notes_height, qp, index)
             
-            # -------------------------------------------------------------
-            # Hier fehlt noch ein IF, mit der Info welche Länge der Ton hat
-            self.add_stem_to_note(old_notes_height, qp, index)
-            # -------------------------------------------------------------
+            if(not note[1] == 2):
+                self.add_stem_to_note(old_notes_height, qp, index)
 
         # draw current note
         height = self.noteLineConnection[self.counter]
         # notes 263, 123 and 143 are the ones with additional line
         if(height == 263 or height == 123 or height == 143):
             self.add_line_to_note(height, qp, len(self.played_notes))
-        # -------------------------------------------------------------
-        # Hier fehlt noch ein IF, mit der Info welche Länge der Ton hat
-        self.add_stem_to_note(height, qp, len(self.played_notes))
-        # -------------------------------------------------------------
+        if(not self.type_counter == 2):
+            self.add_stem_to_note(height, qp, len(self.played_notes))
 
-        # -------------------------------------------------------------
-        # fill current note grey
-        # Wenn es eine Ganze oder Halbe Note ist, dann das nicht machen
-        qp.setBrush(QtGui.QColor(70, 70, 70))
-        # -------------------------------------------------------------
+        # fill current note grey if quarter
+        if(self.type_counter == 0):
+            qp.setBrush(QtGui.QColor(70, 70, 70))
+        else:
+            qp.setBrush(QtGui.QColor(70, 70, 70, 0))
         # draws the tone
         qp.drawEllipse(self.offset + len(self.played_notes) * 40, height, 20, 15)
         # ends painting
@@ -254,7 +247,6 @@ class MusicMaker(QtWidgets.QWidget):
             x = self.offset + 20 + index * 40
             y1 = heightOfTone + 7
             y2 = heightOfTone - 60
-            print(heightOfTone)
         else:
             x = self.offset + index * 40
             y1 = heightOfTone + 7
@@ -291,7 +283,8 @@ class MusicMaker(QtWidgets.QWidget):
 
     # undo last note if there is one
     def undo(self):
-        if( not len(self.played_notes) == 0):            
+        if( not len(self.played_notes) == 0):
+            # funktioniert das schon so?
             self.redoable_notes.append(self.played_notes[-1])
             self.played_notes = self.played_notes[:-1]
             self.update()
@@ -299,6 +292,7 @@ class MusicMaker(QtWidgets.QWidget):
     # redo last undone note if there was one
     def redo(self):
         if(not len(self.redoable_notes) == 0):
+            # funktioniert das schon so?
             self.played_notes.append(self.redoable_notes[-1])
             self.redoable_notes = self.redoable_notes[:-1]
             self.update()
@@ -307,13 +301,13 @@ class MusicMaker(QtWidgets.QWidget):
     def play_melody(self):
         for index, note in enumerate(self.played_notes):
             self.shift_notes_play(index)
-            self.play_tone(self.notelist[note])
+            self.play_tone(self.notelist[note[0]], self.typelist[note[1]])
             self.update()
             time.sleep(0.1)
 
     # add a tone to the melody and redraw
     def add_tone_to_melody(self):
-        self.played_notes.append(self.counter)
+        self.played_notes.append((self.counter, self.type_counter))
         self.update()
 
     # http://milkandtang.com/blog/2013/02/16/making-noise-in-python/
@@ -337,8 +331,9 @@ class MusicMaker(QtWidgets.QWidget):
         chunks = []
         chunks.append(self.sine(frequency, length, rate))
         chunk = numpy.concatenate(chunks) * self.volume
-
+        self.stream.start_stream()
         self.stream.write(chunk.astype(numpy.float32).tostring())
+        self.stream.stop_stream()
 
     def up_volume(self):
         if self.volume < self.max_volume - self.volume_step:
