@@ -125,8 +125,9 @@ class MusicMaker(QtWidgets.QWidget):
                 next_tuple = (middle_tuple[0]-x*(tuple_range+tuple_distance), middle_tuple[1]-x*(tuple_range+tuple_distance))
                 self.note_ranges.insert(0, next_tuple)
             for x in range (int((len(self.notelist)-1)/2), len(self.notelist)):
-                next_tuple = (middle_tuple[0]+(x-int((len(self.notelist)-1)/2))*(tuple_range+tuple_distance), middle_tuple[1]+(x-int((len(self.notelist)-1)/2))*(tuple_range+tuple_distance))
+                next_tuple = (middle_tuple[0]+(x+1-int((len(self.notelist)-1)/2))*(tuple_range+tuple_distance), middle_tuple[1]+(x+1-int((len(self.notelist)-1)/2))*(tuple_range+tuple_distance))
                 self.note_ranges.insert(x, next_tuple)
+                print(self.note_ranges)
 
         # range values for note type
         if len(self.typelist)%2 == 0:
