@@ -38,7 +38,6 @@ class MusicMaker(QtWidgets.QWidget):
                                    143, 133, 123]
         # current frequency
         self.myfrequency = self.notelist[self.counter]
-        self.mytype = self.typelist[self.type_counter]
         # already played notes
         self.played_notes = []
         # list with redoable tones, cleared if new tone entered
@@ -80,16 +79,16 @@ class MusicMaker(QtWidgets.QWidget):
         name = None
         addr = self.ui.wiiMoteAddresses.currentText()
         print(("Connecting to %s (%s)" % (name, addr)))
-        #try:
-        self.wm = wiimote.connect(addr, name)
-        self.ui.label_cannot_connect.setText("")
-        self.prepareSound()
-        self.registerButtons()
-        self.trackAxes()
-        self.connectWiiMoteButton.setEnabled(False)
-        #except:
-        #    print("Cannot connect to WiiMote!")
-        #    self.ui.label_cannot_connect.setText("Cannot connect to WiiMote!")
+        try:
+            self.wm = wiimote.connect(addr, name)
+            self.ui.label_cannot_connect.setText("")
+            self.prepareSound()
+            self.registerButtons()
+            self.trackAxes()
+            self.connectWiiMoteButton.setEnabled(False)
+        except:
+            print("Cannot connect to WiiMote!")
+            self.ui.label_cannot_connect.setText("Cannot connect to WiiMote!")
     # register callback for button clicks
     def registerButtons(self):
         self.wm.buttons.register_callback(self.button_changed)
@@ -116,7 +115,7 @@ class MusicMaker(QtWidgets.QWidget):
                     self.update()
             for x in range(0, len(self.typelist)):
                 if self.type_ranges[x][0] <= state[0] <= self.type_ranges[x][1]:
-                    self.mytype = self.typelist[x]
+                    mytype = self.typelist[x]
                     self.type_counter = x
                     self.update()
 
@@ -166,6 +165,12 @@ class MusicMaker(QtWidgets.QWidget):
                 self.shift_notes_record()
             # play melody
             elif (("Down", True) in changed):
+                self.play_melody()
+            elif (("Up", True) in changed):
+                self.play_melody()
+            elif (("Left", True) in changed):
+                self.play_melody()
+            elif (("Right", True) in changed):
                 self.play_melody()
             # undo last note
             elif(("B", True) in changed):
@@ -290,8 +295,8 @@ class MusicMaker(QtWidgets.QWidget):
     # shifts the notes, so the current note can be seen
     def shift_notes_play(self, index):
         # momentan passen 12 Noten ins Fenster
-        if(index > 11):
-            self.offset = 95 - (index - 11) * 40
+        if(index > 12):
+            self.offset = 95 - (index - 12) * 40
         else:
             self.offset = 95
 
@@ -341,9 +346,6 @@ class MusicMaker(QtWidgets.QWidget):
         data = chunk.astype(numpy.float32).tostring()
         return (data, pyaudio.paContinue)
         
-    def play_tone2(self):
-        return self.sine(self.myfrequency, self.mytype * 2, 44100) * self.volume
-
     # http://milkandtang.com/blog/2013/02/16/making-noise-in-python/
     def sine(self, frequency, length, rate):
         length = int(length * rate)
