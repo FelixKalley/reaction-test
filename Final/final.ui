@@ -163,7 +163,7 @@
     <rect>
      <x>20</x>
      <y>362</y>
-     <width>131</width>
+     <width>151</width>
      <height>31</height>
     </rect>
    </property>
@@ -200,16 +200,6 @@
     <string/>
    </property>
   </widget>
-  <widget class="QLineEdit" name="lineEdit">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>330</y>
-     <width>131</width>
-     <height>23</height>
-    </rect>
-   </property>
-  </widget>
   <widget class="QLabel" name="label_volume">
    <property name="geometry">
     <rect>
@@ -242,13 +232,40 @@
     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
    </property>
   </widget>
+  <widget class="QComboBox" name="wiiMoteAddresses">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>330</y>
+     <width>151</width>
+     <height>23</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_cannot_connect">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>300</y>
+     <width>241</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">color:red</string>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
   <zorder>label_4</zorder>
   <zorder>label_2</zorder>
   <zorder>frame</zorder>
   <zorder>connectWiiMoteButton</zorder>
-  <zorder>lineEdit</zorder>
   <zorder>label_volume</zorder>
   <zorder>label_volume_value</zorder>
+  <zorder>wiiMoteAddresses</zorder>
+  <zorder>label_cannot_connect</zorder>
  </widget>
  <resources/>
  <connections/>

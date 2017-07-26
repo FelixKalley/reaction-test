@@ -44,9 +44,8 @@ class MusicMaker(QtWidgets.QWidget):
         self.redoable_notes = []
         # defines where to start to draw the notes
         self.offset = 95
-        # adress of used wiimote
-        self.standard_wiimote = "18:2a:7b:f3:f1:68"
-        #self.standard_wiimote = "00:1F:C5:3F:AA:F1"
+        # adress of used wiimotes
+        self.standard_wiimotes = ["00:1F:C5:3F:AA:F1", "18:2a:7b:f3:f1:68"]
         # starting volume
         self.volume = 1
         # maximal volume
@@ -68,24 +67,27 @@ class MusicMaker(QtWidgets.QWidget):
         # load ui file
         self.ui = uic.loadUi("final.ui", self)
         self.show()
-        # textbox for wiimote address
-        self.ui.lineEdit.setText(self.standard_wiimote)
+        
+        # combobox for wiimote address
+        self.ui.wiiMoteAddresses.addItems(self.standard_wiimotes)
         # listener to connect button
         self.ui.connectWiiMoteButton.clicked.connect(self.connect_wiimote)
 
     # connect to WiiMote with given MAC-address
-    # Lena: kann man das irgendwie automatisch machen?
-    def connect_wiimote(self):        
+    def connect_wiimote(self):
         name = None
-        addr = self.ui.lineEdit.text()
+        addr = self.ui.wiiMoteAddresses.currentText()
         print(("Connecting to %s (%s)" % (name, addr)))
-        self.wm = wiimote.connect(addr, name)
-        
-        self.prepareSound()
-        self.registerButtons()
-        self.trackAxes()
-        self.connectWiiMoteButton.setEnabled(False)
-
+        try:
+            self.wm = wiimote.connect(addr, name)
+            self.ui.label_cannot_connect.setText("")
+            self.prepareSound()
+            self.registerButtons()
+            self.trackAxes()
+            self.connectWiiMoteButton.setEnabled(False)
+        except:
+            print("Cannot connect to WiiMote!")
+            self.ui.label_cannot_connect.setText("Cannot connect to WiiMote!")
     # register callback for button clicks
     def registerButtons(self):
         self.wm.buttons.register_callback(self.button_changed)
@@ -117,7 +119,7 @@ class MusicMaker(QtWidgets.QWidget):
             # for other notes, implement stuff here
             print("Please rework the method \"generate_range_values\", if you wanna work with more notes.")
         else:
-            tuple_distance = 5
+            tuple_distance = 4
             tuple_range = 8
             middle_value = start_xyz[0][1]
             middle_tuple = (middle_value-tuple_range/2, middle_value+tuple_range/2)
@@ -127,7 +129,6 @@ class MusicMaker(QtWidgets.QWidget):
             for x in range (int((len(self.notelist)-1)/2), len(self.notelist)):
                 next_tuple = (middle_tuple[0]+(x+1-int((len(self.notelist)-1)/2))*(tuple_range+tuple_distance), middle_tuple[1]+(x+1-int((len(self.notelist)-1)/2))*(tuple_range+tuple_distance))
                 self.note_ranges.insert(x, next_tuple)
-                print(self.note_ranges)
 
         # range values for note type
         if len(self.typelist)%2 == 0:
@@ -153,7 +154,7 @@ class MusicMaker(QtWidgets.QWidget):
             # button to select tone
             if(("A", True) in changed):
                 self.redoable_notes = []
-                self.play_tone(self.myfrequency, self.typelist[self.type_counter])
+                self.play_tone(self.myfrequency, self.typelist[self.type_counter] * 2)
                 self.add_tone_to_melody()
                 self.shift_notes_record()
             # play melody
@@ -219,7 +220,7 @@ class MusicMaker(QtWidgets.QWidget):
             # draws the tone
             qp.drawEllipse(self.offset + index * 40, old_notes_height, 20, 15)
             # notes 263, 123 and 143 are the ones with additional line
-            if(old_notes_height == 263 or old_notes_height == 123 or old_notes_height == 143):
+            if(old_notes_height == 263 or old_notes_height <= 143):
                 self.add_line_to_note(old_notes_height, qp, index)
             
             if(not note[1] == 2):
@@ -228,7 +229,7 @@ class MusicMaker(QtWidgets.QWidget):
         # draw current note
         height = self.noteLineConnection[self.counter]
         # notes 263, 123 and 143 are the ones with additional line
-        if(height == 263 or height == 123 or height == 143):
+        if(height == 263 or height <= 143):
             self.add_line_to_note(height, qp, len(self.played_notes))
         if(not self.type_counter == 2):
             self.add_stem_to_note(height, qp, len(self.played_notes))
@@ -237,7 +238,7 @@ class MusicMaker(QtWidgets.QWidget):
         if(self.type_counter == 0):
             qp.setBrush(QtGui.QColor(70, 70, 70))
         else:
-            qp.setBrush(QtGui.QColor(70, 70, 70, 0))
+            qp.setBrush(QtGui.QColor(70, 70, 70, 30))
         # draws the tone
         qp.drawEllipse(self.offset + len(self.played_notes) * 40, height, 20, 15)
         # ends painting
@@ -260,10 +261,16 @@ class MusicMaker(QtWidgets.QWidget):
     # adds the line to a note
     def add_line_to_note(self, heightOfTone, qp, index):
         x1 = self.offset - 5 + index * 40
-        x2 = self.offset + 30 + index * 40
+        x2 = self.offset + 25 + index * 40
         
-        line = QtCore.QLine(x1, heightOfTone + 7, x2, heightOfTone + 7)
-        qp.drawLine(line)
+        if(heightOfTone == 123):
+            line1 = QtCore.QLine(x1, heightOfTone + 27, x2, heightOfTone + 27)
+            qp.drawLine(line1)
+        elif(heightOfTone == 133):
+            heightOfTone = 143
+            
+        line2 = QtCore.QLine(x1, heightOfTone + 7, x2, heightOfTone + 7)
+        qp.drawLine(line2)
     
 
     # shifts the notes, so the last note can be seen
