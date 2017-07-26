@@ -73,6 +73,7 @@ class MusicMaker(QtWidgets.QWidget):
         self.ui.wiiMoteAddresses.addItems(self.standard_wiimotes)
         # listener to connect button
         self.ui.connectWiiMoteButton.clicked.connect(self.connect_wiimote)
+        self.ui.recalibrateWiiMoteButton.clicked.connect(self.recalibrate_wiimote)
 
     # connect to WiiMote with given MAC-address
     def connect_wiimote(self):
@@ -92,6 +93,9 @@ class MusicMaker(QtWidgets.QWidget):
     # register callback for button clicks
     def registerButtons(self):
         self.wm.buttons.register_callback(self.button_changed)
+
+    def recalibrate_wiimote(self):
+    	self.start_axpos_set = False
 
 
     def trackAxes(self):
@@ -182,7 +186,6 @@ class MusicMaker(QtWidgets.QWidget):
                 self.down_volume()
             # close application
             elif (("Home", True) in changed):
-                print("home pressed")
                 self.stream.close()
                 self.p.terminate()
                 # Das wirft eine Exception!
