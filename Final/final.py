@@ -110,10 +110,10 @@ class MusicMaker(QtWidgets.QWidget):
             for x in range(0, len(self.notelist)):
                 if self.note_ranges[x][0] <= state[1] <= self.note_ranges[x][1]:
                     self.myfrequency = self.notelist[len(self.notelist)-1-x]
-                    if(not self.counter == len(self.notelist)-1-x):
-                        #self.play_tone(self.myfrequency, 0.3)
-                        self.counter = len(self.notelist)-1-x
-                        self.update()
+                    # if(not self.counter == len(self.notelist)-1-x):
+                    # self.play_tone(self.myfrequency, 0.3)
+                    self.counter = len(self.notelist)-1-x
+                    self.update()
             for x in range(0, len(self.typelist)):
                 if self.type_ranges[x][0] <= state[0] <= self.type_ranges[x][1]:
                     self.mytype = self.typelist[x]
@@ -161,7 +161,7 @@ class MusicMaker(QtWidgets.QWidget):
             # button to select tone
             if(("A", True) in changed):
                 self.redoable_notes = []
-                #self.play_tone(self.myfrequency, self.typelist[self.type_counter] * 2)
+                self.play_tone(self.myfrequency, self.typelist[self.type_counter] * 2)
                 self.add_tone_to_melody()
                 self.shift_notes_record()
             # play melody
@@ -315,7 +315,7 @@ class MusicMaker(QtWidgets.QWidget):
     def play_melody(self):
         for index, note in enumerate(self.played_notes):
             self.shift_notes_play(index)
-            # self.play_tone(self.notelist[note[0]], self.typelist[note[1]] * 2)
+            self.play_tone(self.notelist[note[0]], self.typelist[note[1]] * 2)
             self.update()
             time.sleep(0.1)
 
@@ -328,13 +328,13 @@ class MusicMaker(QtWidgets.QWidget):
     def prepareSound(self):
         self.p = pyaudio.PyAudio()
         self.stream = self.p.open(format=pyaudio.paFloat32,
-                        channels=1, rate=44100, output=1, stream_callback=self.play_tone_callback)
-        self.stream.start_stream()
-        while(self.stream.is_active()):
-            time.sleep(10.0)            
-            self.stream.stop_stream()
-        print("stopped")
-        self.stream.close()
+                        channels=1, rate=44100, output=1) # , stream_callback=self.play_tone_callback
+        # self.stream.start_stream()
+        # while(self.stream.is_active()):
+        #     time.sleep(10.0)            
+        #     self.stream.stop_stream()
+        # print("stopped")
+        # self.stream.close()
     
     def play_tone_callback(self, in_data, frame_count, time_info, status):
         chunk = self.play_tone2()

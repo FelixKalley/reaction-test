@@ -29,7 +29,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Text input experiment</string>
+   <string>MeloWii</string>
   </property>
   <property name="windowOpacity">
    <double>1.000000000000000</double>
@@ -175,7 +175,6 @@
    <zorder>line_02</zorder>
    <zorder>line_01</zorder>
    <zorder>label</zorder>
-   <zorder>black_label_top</zorder>
   </widget>
   <widget class="QPushButton" name="connectWiiMoteButton">
    <property name="geometry">
