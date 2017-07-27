@@ -9,6 +9,7 @@ import sys
 import wiimote
 import time
 import wave
+import csv
 from PyQt5 import uic, QtWidgets, QtCore, QtGui
 
 # felix: bisherige Funktionalität - wii connecten, A-Knopf spielt kurzen Ton, oder lang bei gedrückt halten.
@@ -193,21 +194,21 @@ class MusicMaker(QtWidgets.QWidget):
             elif (("Home", True) in changed):
                 self.stream.close()
                 self.p.terminate()
-                # Das wirft eine Exception!
                 self.close()
 
     def save_file(self):
         f = wave.open("melody.wav", 'w')
-        f.setparams((1, 2, 44100, 0, 'NONE', 'not compressed'))
-        chunks = []
+        melody_length = 0
+        f.setparams((1, 4, 44100, 0, 'NONE', 'not compressed'))
         for index, note in enumerate(self.played_notes):
-            chunks.append(self.sine(note[0], note[1], 44100))
-            chunk = numpy.concatenate(chunks)
+            chunks = []
+            chunks.append(self.sine(self.notelist[note[0]], self.typelist[note[1]] * 2, 44100))
+            chunk = numpy.concatenate(chunks) * self.volume
 
-        f.writeframesraw(chunk)
+            f.writeframesraw(chunk.astype(numpy.float32))
+        
+        f.close()
 
-        # f.writeframesraw(chunk.astype(numpy.float32).tostring())
-    
     # handles paint events
     def paintEvent(self, event):
         # initializes QPainter
@@ -343,7 +344,7 @@ class MusicMaker(QtWidgets.QWidget):
     
     def play_tone_callback(self, in_data, frame_count, time_info, status):
         chunk = self.play_tone2()
-        data = chunk.astype(numpy.float32).tostring()
+        data = chunk.astype(numpy.float32)
         return (data, pyaudio.paContinue)
         
     # http://milkandtang.com/blog/2013/02/16/making-noise-in-python/
@@ -360,8 +361,9 @@ class MusicMaker(QtWidgets.QWidget):
         chunks = []
         chunks.append(self.sine(frequency, length, rate))
         chunk = numpy.concatenate(chunks) * self.volume
+
         self.stream.start_stream()
-        self.stream.write(chunk.astype(numpy.float32).tostring())
+        self.stream.write(chunk.astype(numpy.float32))
         self.stream.stop_stream()
 
     def up_volume(self):
