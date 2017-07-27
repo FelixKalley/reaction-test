@@ -10,6 +10,8 @@ import wiimote
 import time
 import wave
 import csv
+import tkinter
+import tkinter.filedialog
 from PyQt5 import uic, QtWidgets, QtCore, QtGui
 
 # felix: bisherige Funktionalität - wii connecten, A-Knopf spielt kurzen Ton, oder lang bei gedrückt halten.
@@ -161,7 +163,7 @@ class MusicMaker(QtWidgets.QWidget):
             # button to select tone
             if(("A", True) in changed):
                 self.redoable_notes = []
-                self.play_tone(self.myfrequency, self.typelist[self.type_counter] * 2)
+                self.play_tone(self.myfrequency, self.typelist[self.type_counter] * 4)
                 self.add_tone_to_melody()
                 self.shift_notes_record()
             # play melody
@@ -197,7 +199,13 @@ class MusicMaker(QtWidgets.QWidget):
                 self.close()
 
     def save_file(self):
-        f = wave.open("melody.wav", 'w')
+        
+        root = tkinter.Tk()
+        name = tkinter.filedialog.asksaveasfilename(defaultextension=".wav")
+        # destroy the extra window opened by tkinter
+        root.destroy()
+        
+        f = wave.open(name, 'w')
         melody_length = 0
         f.setparams((1, 4, 44100, 0, 'NONE', 'not compressed'))
         for index, note in enumerate(self.played_notes):
@@ -208,7 +216,7 @@ class MusicMaker(QtWidgets.QWidget):
             f.writeframesraw(chunk.astype(numpy.float32))
         
         f.close()
-
+        
     # handles paint events
     def paintEvent(self, event):
         # initializes QPainter
@@ -287,7 +295,6 @@ class MusicMaker(QtWidgets.QWidget):
 
     # shifts the notes, so the last note can be seen
     def shift_notes_record(self):
-        # momentan passen 12 Noten ins Fenster
         if(len(self.played_notes) > 12):
             self.offset = 95 - (len(self.played_notes) - 12) * 40
         else:
@@ -295,9 +302,8 @@ class MusicMaker(QtWidgets.QWidget):
     
     # shifts the notes, so the current note can be seen
     def shift_notes_play(self, index):
-        # momentan passen 12 Noten ins Fenster
-        if(index > 12):
-            self.offset = 95 - (index - 12) * 40
+        if(index > 11):
+            self.offset = 95 - (index - 11) * 40
         else:
             self.offset = 95
 
@@ -321,9 +327,9 @@ class MusicMaker(QtWidgets.QWidget):
     def play_melody(self):
         for index, note in enumerate(self.played_notes):
             self.shift_notes_play(index)
-            self.play_tone(self.notelist[note[0]], self.typelist[note[1]] * 2)
+            self.play_tone(self.notelist[note[0]], self.typelist[note[1]] * 4)
             self.update()
-            time.sleep(0.1)
+            time.sleep(0.2)
 
     # add a tone to the melody and redraw
     def add_tone_to_melody(self):
@@ -334,19 +340,8 @@ class MusicMaker(QtWidgets.QWidget):
     def prepareSound(self):
         self.p = pyaudio.PyAudio()
         self.stream = self.p.open(format=pyaudio.paFloat32,
-                        channels=1, rate=44100, output=1) # , stream_callback=self.play_tone_callback
-        # self.stream.start_stream()
-        # while(self.stream.is_active()):
-        #     time.sleep(10.0)            
-        #     self.stream.stop_stream()
-        # print("stopped")
-        # self.stream.close()
-    
-    def play_tone_callback(self, in_data, frame_count, time_info, status):
-        chunk = self.play_tone2()
-        data = chunk.astype(numpy.float32)
-        return (data, pyaudio.paContinue)
-        
+                        channels=1, rate=44100, output=1)
+
     # http://milkandtang.com/blog/2013/02/16/making-noise-in-python/
     def sine(self, frequency, length, rate):
         length = int(length * rate)
@@ -375,26 +370,6 @@ class MusicMaker(QtWidgets.QWidget):
         if self.volume > 0 + self.volume_step:
             self.volume -= self.volume_step
             self.ui.label_volume_value.setText(str(round(self.volume * 100 / 2, 2)))
-
-    # wird noch angepasst mit wiimote bewegung
-    def up_frequency(self):
-        if self.counter < len(self.notelist)-1:
-            self.counter +=1
-            self.myfrequency = self.notelist[self.counter]
-            self.update()
-
-    # wird noch angepasst mit wiimote bewegung
-    def down_frequency(self):
-        if self.counter > 0:
-            self.counter -=1
-            self.myfrequency = self.notelist[self.counter]
-            self.update()
-
-        # felix: das killt scheinbar den stream und python audio.
-        # felix: stand so in dem beispiel, weiß nicht, ob wir das brauchen.
-        # self.stream.close()
-        # p.terminate()
-
 
 
 def main():

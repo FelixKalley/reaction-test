@@ -1,5 +1,3 @@
-- Rekalibrierung (Button)?
-- Erklärung was macht was
-- File export?
-- Anwendung schließen?
-
+- Video machen
+- Doku schreiben
+- Kommentieren
