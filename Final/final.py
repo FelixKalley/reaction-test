@@ -346,7 +346,21 @@ class MusicMaker(QtWidgets.QWidget):
     def sine(self, frequency, length, rate):
         length = int(length * rate)
         factor = float(frequency) * (math.pi * 2) / rate
-        return numpy.sin(numpy.arange(length) * factor)
+        sine = numpy.sin(numpy.arange(length) * factor)
+        if sine[len(sine) - 1] < 0:
+            lastval = -1
+        else:
+            lastval = 1        
+        cutindex = 0
+        for index, val in enumerate(reversed(sine)):
+            if val < 0 and lastval > 0:
+                print(val, lastval, index)
+                cutindex = index
+                break
+            lastval = val
+        
+        sine = sine[:-cutindex]
+        return sine
 
     # http://milkandtang.com/blog/2013/02/16/making-noise-in-python/
     # length in seconds
