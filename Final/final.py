@@ -26,7 +26,7 @@ class MusicMaker(QtWidgets.QWidget):
         super().__init__()
         self.counter = 6
         self.type_counter = 0
-        #h ttp://www.sengpielaudio.com/Rechner-notennamen.htm
+        #http://www.sengpielaudio.com/Rechner-notennamen.htm
         # self.notelist = [261.626, 277.183, 293.665, 311.127, 329.628, 349.228, 369.994, 391.995, 415.305, 440.000, 
         #                  466.164, 493.883, 523.251, 554.365, 587.330, 622.254, 659.255, 698.456, 739.989, 783.991, 
         #                  830.609, 880.000, 932.328, 987.767, 1046.500]
@@ -35,7 +35,7 @@ class MusicMaker(QtWidgets.QWidget):
                          493.883, 523.251, 587.330, 659.255, 698.456, 783.991,
                          880.000, 987.767, 1046.500]
         self.typelist = [0.25, 0.5, 1.0]
-        # height of tone (in application)
+        # height of note (in application)
         self.noteLineConnection = [263, 253, 243, 233, 223, 213,
                                    203, 193, 183, 173, 163, 153,
                                    143, 133, 123]
@@ -43,7 +43,7 @@ class MusicMaker(QtWidgets.QWidget):
         self.myfrequency = self.notelist[self.counter]
         # already played notes
         self.played_notes = []
-        # list with redoable tones, cleared if new tone entered
+        # list with redoable notes, cleared if new note entered
         self.redoable_notes = []
         # defines where to start to draw the notes
         self.offset = 95
@@ -113,7 +113,6 @@ class MusicMaker(QtWidgets.QWidget):
                 if self.note_ranges[x][0] <= state[1] <= self.note_ranges[x][1]:
                     self.myfrequency = self.notelist[len(self.notelist)-1-x]
                     # if(not self.counter == len(self.notelist)-1-x):
-                    # self.play_tone(self.myfrequency, 0.3)
                     self.counter = len(self.notelist)-1-x
                     self.update()
             for x in range(0, len(self.typelist)):
@@ -160,11 +159,11 @@ class MusicMaker(QtWidgets.QWidget):
         if not changed:
             pass
         else:
-            # button to select tone
+            # button to select note
             if(("A", True) in changed):
                 self.redoable_notes = []
-                self.play_tone(self.myfrequency, self.typelist[self.type_counter] * 4)
-                self.add_tone_to_melody()
+                self.play_note(self.myfrequency, self.typelist[self.type_counter] * 4)
+                self.add_note_to_melody()
                 self.shift_notes_record()
             # play melody
             elif (("Down", True) in changed):
@@ -210,7 +209,7 @@ class MusicMaker(QtWidgets.QWidget):
         f.setparams((1, 4, 44100, 0, 'NONE', 'not compressed'))
         for index, note in enumerate(self.played_notes):
             chunks = []
-            chunks.append(self.sine(self.notelist[note[0]], self.typelist[note[1]] * 2, 44100))
+            chunks.append(self.sine(self.notelist[note[0]], self.typelist[note[1]] * 2, 30000))
             chunk = numpy.concatenate(chunks) * self.volume
 
             f.writeframesraw(chunk.astype(numpy.float32))
@@ -237,7 +236,7 @@ class MusicMaker(QtWidgets.QWidget):
             else:
                 qp.setBrush(QtGui.QColor(0, 0, 0, 0))                
             old_notes_height = self.noteLineConnection[note[0]]
-            # draws the tone
+            # draws the note
             qp.drawEllipse(self.offset + index * 40, old_notes_height, 20, 15)
             # notes 263, 123 and 143 are the ones with additional line
             if(old_notes_height == 263 or old_notes_height <= 143):
@@ -259,37 +258,37 @@ class MusicMaker(QtWidgets.QWidget):
             qp.setBrush(QtGui.QColor(70, 70, 70))
         else:
             qp.setBrush(QtGui.QColor(70, 70, 70, 30))
-        # draws the tone
+        # draws the note
         qp.drawEllipse(self.offset + len(self.played_notes) * 40, height, 20, 15)
         # ends painting
         qp.end()
 
-    def add_stem_to_note(self, heightOfTone, qp, index):
-        if heightOfTone >= 213:
+    def add_stem_to_note(self, heightOfnote, qp, index):
+        if heightOfnote >= 213:
             x = self.offset + 20 + index * 40
-            y1 = heightOfTone + 7
-            y2 = heightOfTone - 60
+            y1 = heightOfnote + 7
+            y2 = heightOfnote - 60
         else:
             x = self.offset + index * 40
-            y1 = heightOfTone + 7
-            y2 = heightOfTone + 60
+            y1 = heightOfnote + 7
+            y2 = heightOfnote + 60
             
         line = QtCore.QLine(x, y1, x, y2)
         qp.drawLine(line)
     
         
     # adds the line to a note
-    def add_line_to_note(self, heightOfTone, qp, index):
+    def add_line_to_note(self, heightOfnote, qp, index):
         x1 = self.offset - 5 + index * 40
         x2 = self.offset + 25 + index * 40
         
-        if(heightOfTone == 123):
-            line1 = QtCore.QLine(x1, heightOfTone + 27, x2, heightOfTone + 27)
+        if(heightOfnote == 123):
+            line1 = QtCore.QLine(x1, heightOfnote + 27, x2, heightOfnote + 27)
             qp.drawLine(line1)
-        elif(heightOfTone == 133):
-            heightOfTone = 143
+        elif(heightOfnote == 133):
+            heightOfnote = 143
             
-        line2 = QtCore.QLine(x1, heightOfTone + 7, x2, heightOfTone + 7)
+        line2 = QtCore.QLine(x1, heightOfnote + 7, x2, heightOfnote + 7)
         qp.drawLine(line2)
     
 
@@ -327,12 +326,12 @@ class MusicMaker(QtWidgets.QWidget):
     def play_melody(self):
         for index, note in enumerate(self.played_notes):
             self.shift_notes_play(index)
-            self.play_tone(self.notelist[note[0]], self.typelist[note[1]] * 4)
+            self.play_note(self.notelist[note[0]], self.typelist[note[1]] * 4)
             self.update()
             time.sleep(0.2)
 
-    # add a tone to the melody and redraw
-    def add_tone_to_melody(self):
+    # add a note to the melody and redraw
+    def add_note_to_melody(self):
         self.played_notes.append((self.counter, self.type_counter))
         self.update()
 
@@ -340,7 +339,7 @@ class MusicMaker(QtWidgets.QWidget):
     def prepareSound(self):
         self.p = pyaudio.PyAudio()
         self.stream = self.p.open(format=pyaudio.paFloat32,
-                        channels=1, rate=44100, output=1)
+                        channels=1, rate=30000, output=1)
 
     # http://milkandtang.com/blog/2013/02/16/making-noise-in-python/
     def sine(self, frequency, length, rate):
@@ -364,16 +363,15 @@ class MusicMaker(QtWidgets.QWidget):
 
     # http://milkandtang.com/blog/2013/02/16/making-noise-in-python/
     # length in seconds
-    # lower frequency = deeper tone
+    # lower frequency = deeper note
     # standard rate is 44.1kHz
-    def play_tone(self, frequency, length=0.5, rate=44100):
+    def play_note(self, frequency, length=0.5, rate=44100):
         chunks = []
         chunks.append(self.sine(frequency, length, rate))
         chunk = numpy.concatenate(chunks) * self.volume
-
-        self.stream.start_stream()
-        self.stream.write(chunk.astype(numpy.float32))
-        self.stream.stop_stream()
+        data = chunk.astype(numpy.float32)
+        #self.stream.start_stream()
+        self.stream.write(data)
 
     def up_volume(self):
         if self.volume < self.max_volume - self.volume_step:
