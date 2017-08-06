@@ -16,8 +16,41 @@ from PyQt5 import uic, QtWidgets, QtCore, QtGui
 
 
 class MeloWii(QtWidgets.QWidget):
-    """MeloWii is an application to generate and play simple melodies and save them for later use as wave.
-    Lena Felix hier muss noch text rein inklusive anleitung etc.
+    """MeloWii is an application to generate and play simple melodies and save them for later use as wave file.
+
+    MeloWii contains the following features:
+    - Control note height and length via WiiMote motions
+    - Place, redo, undo and play notes on note lines with WiiMote Buttons
+    - Change volume with WiiMote Buttons
+    - Save your melody as .wav file to a folder of your choice with WiiMote Buttons
+    - Quit application via WiiMote Button
+    - Keep overview of a long melody via automatic scrolling motion
+    - Connect your WiiMote via console parameter or any time later via keyboard input.
+    - Recalibrate your WiiMote without leaving the application
+
+    How to use Melowii:
+    - Start the application via terminal command ("python3 system_demo.py").
+    - Optionally you can provide a WiiMote MAC-address as parameter ("python3 system_demo.py 00:1F:C5:3F:AA:F1").
+    - After the application opened, place your WiiMote on a flat surface.
+    - If you already provided a MAC-address it should be visible in the text field in the left corner.
+    - Otherwise please type in your WiiMote MAC-address now.
+    - Press the "Connect"-Button
+    - If your WiiMote connects successfully the Button will be deactivated.
+    - Otherwise a red warning will be shown. Please check your Bluetooth settings and the provided MAC-address
+    - After you have connected your WiiMote, pick it up.
+    - Depending on your hand movement you should now see a note moving over the note line.
+    - While holding the WiiMote, bend your wrist up and down to control the position/height of the note.
+    - Twist your wrist left or write to control the type/length of the note
+    - With the A-Button, you can place a note on the note line. Also the note is played as sound.
+    - Place as many notes as you like.
+    - With the B-Button you can undo a note, or redo it by pressing "1" on the WiiMote.
+    - Change the volume of the played sounds by pressing "+" or "-"
+    - You can listen to your melody by pressing the D-Pad in any direction.
+    - After that you can work on your melody like before.
+    - Save your melody as .wav file by pressing "2".
+    - Choose a location or path to save your file and name it appropriately
+    - To quit the application press the "Home"-Button on your WiiMote
+    - All button controls are also visible in short format within the application
     """
     def __init__(self):
         super().__init__()
@@ -335,7 +368,7 @@ class MeloWii(QtWidgets.QWidget):
         name = tkinter.filedialog.asksaveasfilename(defaultextension=".wav")
         # destroys the extra window opened by tkinter
         root.destroy()
-        
+
         print(name)
         if(not name == ()):
             # creates/opens wave file in previous selected location

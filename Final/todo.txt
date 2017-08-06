@@ -1,4 +1,3 @@
 - Video machen
 - Doku schreiben
-- Kommentieren
-- Pep8
+
