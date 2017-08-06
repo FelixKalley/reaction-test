@@ -61,7 +61,8 @@ class MeloWii(QtWidgets.QWidget):
         self.offset = 95
 
         # adresses of used wiimotes
-        self.standard_wiimotes = ["00:1F:C5:3F:AA:F1", "18:2a:7b:f3:f1:68"]
+        self.standard_wiimote = "00:1F:C5:3F:AA:F1"
+        # self.standard_wiimote = "18:2a:7b:f3:f1:68"
 
         # starting volume
         self.volume = 1
@@ -96,19 +97,32 @@ class MeloWii(QtWidgets.QWidget):
         # load ui file "final.ui"
         self.ui = uic.loadUi("final.ui", self)
         self.show()
-        # combobox for wiimote address
-        self.ui.wiiMoteAddresses.addItems(self.standard_wiimotes)
+
+        # if in argv[1] is a MAC address write it in the lineEdit
+        if(len(sys.argv) == 2 and self.isMACAddress(sys.argv[1])):
+            # lineEdit for wiimote address from arguments
+            self.ui.wiiMoteAddress.setText(sys.argv[1])
+        else:
+            # lineEdit for wiimote address
+            self.ui.wiiMoteAddress.setText(self.standard_wiimote)
         # listener to connect button
         self.ui.connectWiiMoteButton.clicked.connect(self.connect_wiimote)
         # listener to recalibrate button
         self.ui.recalibrateWiiMoteButton.clicked.connect(self.recalibrate_wiimote)
+
+    # check if address is a MAC address or something else
+    def isMACAddress(self, address):
+        if(address.count(":") == 5):
+            if(len(address) == 17):
+                return True
+        return False
 
     # connects to WiiMote with given MAC-address
     def connect_wiimote(self):
         # name of wiimote
         name = None
         # address of wiimote
-        addr = self.ui.wiiMoteAddresses.currentText()
+        addr = self.ui.wiiMoteAddress.text()
         # prints connection message
         print(("Connecting to %s (%s)" % (name, addr)))
         # trys to connect to specified wiimote
@@ -262,7 +276,7 @@ class MeloWii(QtWidgets.QWidget):
         else:
             # A-button to choose a note
             if(("A", True) in changed):
-                # LENA was tut das hier?
+                # if a new note is played, empty redoabel notes
                 self.redoable_notes = []
                 # plays selected note
                 self.play_note(self.myfrequency, self.typelist[self.type_counter] * 4)
@@ -313,7 +327,6 @@ class MeloWii(QtWidgets.QWidget):
                 # closes application
                 self.close()
 
-    # Lena einmal drüberlesen über die kommentare in der funktion bitte
     # saves file to location of choice in wave format
     def save_file(self):
         # inits tkinter for gui elements
@@ -323,10 +336,8 @@ class MeloWii(QtWidgets.QWidget):
         # destroys the extra window opened by tkinter
         root.destroy()
 
-        # creates/opens wave file
+        # creates/opens wave file in previous selected location
         f = wave.open(name, 'w')
-        # Lena was tut das hier?
-        melody_length = 0
         # sets parameters for wave file
         f.setparams((1, 4, 44100, 0, 'NONE', 'not compressed'))
         # iterates over played notes
@@ -354,11 +365,13 @@ class MeloWii(QtWidgets.QWidget):
         qp.setPen(pen)
         # loops through played notes and paint them (with additional lines if needed)
         for index, note in enumerate(self.played_notes):
-            # Lena was passiert hier genau?
+            # set filling color to black if quarter note
             if(note[1] == 0):
                 qp.setBrush(QtGui.QColor(0, 0, 0))
+            # set filling color to transparent if not quarter note
             else:
                 qp.setBrush(QtGui.QColor(0, 0, 0, 0))
+            # get height on ui of note to draw
             old_notes_height = self.noteLineConnection[note[0]]
             # draws the note
             qp.drawEllipse(self.offset + index * 40, old_notes_height, 20, 15)
@@ -450,8 +463,6 @@ class MeloWii(QtWidgets.QWidget):
     def undo(self):
         # checks if at least one note has been placed
         if not len(self.played_notes) == 0:
-            # Lena der kommentar in der nächsten Zeile ist noch von dir, ich nehme an das ist hinfällig?
-            # funktioniert das schon so?
             # adds note to redoable_notes
             self.redoable_notes.append(self.played_notes[-1])
             # removes note from played_notes
@@ -463,8 +474,6 @@ class MeloWii(QtWidgets.QWidget):
     def redo(self):
         # checks if at least one note can be undone
         if(not len(self.redoable_notes) == 0):
-            # Lena nochmal :D
-            # funktioniert das schon so?
             # adds note to played_notes
             self.played_notes.append(self.redoable_notes[-1])
             # deletes note from redoable_notes
@@ -519,15 +528,15 @@ class MeloWii(QtWidgets.QWidget):
             lastval = 1
         # sets index for cutting sine curve
         cutindex = 0
-        # reverse iterates over all vals in sin curve and cuts when curve is below x axis and near zero
+        # reverse iterates over all vals in sin curve
         for index, val in enumerate(reversed(sine)):
-            # Lena evtl hier nochmal drüber kommentieren
+            # if curve crosses x-axis and comes from below
             if val < 0 and lastval > 0:
-                print(val, lastval, index)
                 cutindex = index
                 break
             lastval = val
 
+        # cut curve at index to reduce phase artifacts with next note
         sine = sine[:-cutindex]
         return sine
 

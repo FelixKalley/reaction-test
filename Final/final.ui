@@ -265,16 +265,6 @@
     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
    </property>
   </widget>
-  <widget class="QComboBox" name="wiiMoteAddresses">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>330</y>
-     <width>151</width>
-     <height>23</height>
-    </rect>
-   </property>
-  </widget>
   <widget class="QLabel" name="label_cannot_connect">
    <property name="geometry">
     <rect>
@@ -459,6 +449,16 @@ B: Undo
     <set>Qt::AlignCenter</set>
    </property>
   </widget>
+  <widget class="QLineEdit" name="wiiMoteAddress">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>330</y>
+     <width>151</width>
+     <height>23</height>
+    </rect>
+   </property>
+  </widget>
   <zorder>white_label_left</zorder>
   <zorder>white_label_right</zorder>
   <zorder>black_label_bot</zorder>
@@ -466,7 +466,6 @@ B: Undo
   <zorder>connectWiiMoteButton</zorder>
   <zorder>label_volume</zorder>
   <zorder>label_volume_value</zorder>
-  <zorder>wiiMoteAddresses</zorder>
   <zorder>label_cannot_connect</zorder>
   <zorder>black_label_right</zorder>
   <zorder>black_label_left</zorder>
@@ -476,6 +475,7 @@ B: Undo
   <zorder>instructions_left</zorder>
   <zorder>instructions_right</zorder>
   <zorder>authors</zorder>
+  <zorder>wiiMoteAddress</zorder>
  </widget>
  <resources/>
  <connections/>

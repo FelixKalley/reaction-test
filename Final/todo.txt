@@ -2,4 +2,3 @@
 - Doku schreiben
 - Kommentieren
 - Pep8
-- Mac Adresse auf LineEdit zurück
