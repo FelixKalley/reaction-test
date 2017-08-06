@@ -94,8 +94,8 @@ class MeloWii(QtWidgets.QWidget):
     # adds listeners to buttons and connects associated functions
     # adds items from standard_wiimotes to combobox
     def initUI(self):
-        # load ui file "final.ui"
-        self.ui = uic.loadUi("final.ui", self)
+        # load ui file "system_demo.ui"
+        self.ui = uic.loadUi("system_demo.ui", self)
         self.show()
 
         # if in argv[1] is a MAC address write it in the lineEdit
@@ -335,22 +335,24 @@ class MeloWii(QtWidgets.QWidget):
         name = tkinter.filedialog.asksaveasfilename(defaultextension=".wav")
         # destroys the extra window opened by tkinter
         root.destroy()
-
-        # creates/opens wave file in previous selected location
-        f = wave.open(name, 'w')
-        # sets parameters for wave file
-        f.setparams((1, 4, 44100, 0, 'NONE', 'not compressed'))
-        # iterates over played notes
-        for index, note in enumerate(self.played_notes):
-            # appends notes to chunks
-            chunks = []
-            chunks.append(self.sine(self.notelist[note[0]], self.typelist[note[1]] * 2, 30000))
-            # concatenates chunks
-            chunk = numpy.concatenate(chunks) * self.volume
-            # writes chunk in wave file
-            f.writeframesraw(chunk.astype(numpy.float32))
-        # closes wave file
-        f.close()
+        
+        print(name)
+        if(not name == ()):
+            # creates/opens wave file in previous selected location
+            f = wave.open(name, 'w')
+            # sets parameters for wave file
+            f.setparams((1, 4, 44100, 0, 'NONE', 'not compressed'))
+            # iterates over played notes
+            for index, note in enumerate(self.played_notes):
+                # appends notes to chunks
+                chunks = []
+                chunks.append(self.sine(self.notelist[note[0]], self.typelist[note[1]] * 2, 30000))
+                # concatenates chunks
+                chunk = numpy.concatenate(chunks) * self.volume
+                # writes chunk in wave file
+                f.writeframesraw(chunk.astype(numpy.float32))
+            # closes wave file
+            f.close()
 
     # handles paint events
     def paintEvent(self, event):
