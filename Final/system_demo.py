@@ -40,7 +40,7 @@ class MeloWii(QtWidgets.QWidget):
     - After you have connected your WiiMote, pick it up.
     - Depending on your hand movement you should now see a note moving over the note line.
     - While holding the WiiMote, bend your wrist up and down to control the position/height of the note.
-    - Twist your wrist left or write to control the type/length of the note
+    - Twist your wrist left or right to control the type/length of the note
     - With the A-Button, you can place a note on the note line. Also the note is played as sound.
     - Place as many notes as you like.
     - With the B-Button you can undo a note, or redo it by pressing "1" on the WiiMote.
@@ -132,7 +132,7 @@ class MeloWii(QtWidgets.QWidget):
         self.show()
 
         # if in argv[1] is a MAC address write it in the lineEdit
-        if(len(sys.argv) == 2 and self.isMACAddress(sys.argv[1])):
+        if(len(sys.argv) == 2 and self.is_MAC_address(sys.argv[1])):
             # lineEdit for wiimote address from arguments
             self.ui.wiiMoteAddress.setText(sys.argv[1])
         else:
@@ -144,7 +144,7 @@ class MeloWii(QtWidgets.QWidget):
         self.ui.recalibrateWiiMoteButton.clicked.connect(self.recalibrate_wiimote)
 
     # check if address is a MAC address or something else
-    def isMACAddress(self, address):
+    def is_MAC_address(self, address):
         if(address.count(":") == 5):
             if(len(address) == 17):
                 return True
@@ -164,12 +164,12 @@ class MeloWii(QtWidgets.QWidget):
             self.wm = wiimote.connect(addr, name)
             # sets warning label to empty
             self.ui.label_cannot_connect.setText("")
-            # calls prepareSound function to setup stream
-            self.prepareSound()
+            # calls prepare_sound function to setup stream
+            self.prepare_sound()
             # registers all wiimote buttons via callbacks
-            self.registerButtons()
+            self.register_buttons()
             # starts tracking changes in wiimote axis movement
-            self.trackAxes()
+            self.track_axes()
             # disables connect button
             self.connectWiiMoteButton.setEnabled(False)
         # otherwise shows warning
@@ -180,7 +180,7 @@ class MeloWii(QtWidgets.QWidget):
             self.ui.label_cannot_connect.setText("Cannot connect to WiiMote!")
 
     # registers callbacks for button clicks
-    def registerButtons(self):
+    def register_buttons(self):
         self.wm.buttons.register_callback(self.button_changed)
 
     # recalibrates wiimote
@@ -189,7 +189,7 @@ class MeloWii(QtWidgets.QWidget):
         self.start_axpos_set = False
 
     # tracks changes in axes via callbacks
-    def trackAxes(self):
+    def track_axes(self):
         self.wm.accelerometer.register_callback(self.axis_changed)
 
     # changes position or type of notes depending of changes in wiimote axes
@@ -374,7 +374,7 @@ class MeloWii(QtWidgets.QWidget):
             # creates/opens wave file in previous selected location
             f = wave.open(name, 'w')
             # sets parameters for wave file
-            f.setparams((1, 4, 44100, 0, 'NONE', 'not compressed'))
+            f.setparams((1, 4, 30000, 0, 'NONE', 'not compressed'))
             # iterates over played notes
             for index, note in enumerate(self.played_notes):
                 # appends notes to chunks
@@ -537,7 +537,7 @@ class MeloWii(QtWidgets.QWidget):
 
     # prepares pyaudio stream for making sounds
     # source from http://milkandtang.com/blog/2013/02/16/making-noise-in-python/
-    def prepareSound(self):
+    def prepare_sound(self):
         # inits pyaudio
         self.p = pyaudio.PyAudio()
         # opens stream
