@@ -369,7 +369,7 @@ class MeloWii(QtWidgets.QWidget):
         # destroys the extra window opened by tkinter
         root.destroy()
 
-        print(name)
+        # if previous dialog was dismissed, name is an empty tupel
         if(not name == ()):
             # creates/opens wave file in previous selected location
             f = wave.open(name, 'w')
